@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { JIssue } from '@trungk18/interface/issue';
 import { ProjectService } from '@trungk18/project/state/project/project.service';
@@ -11,7 +11,7 @@ import { DeleteIssueModel } from '@trungk18/interface/ui-model/delete-issue-mode
   templateUrl: './issue-modal.component.html',
   styleUrls: ['./issue-modal.component.scss']
 })
-export class IssueModalComponent {
+export class IssueModalComponent implements OnInit {
   @Input() issue$: Observable<JIssue>;
 
   constructor(
@@ -19,6 +19,18 @@ export class IssueModalComponent {
     private _router: Router,
     private _projectService: ProjectService
   ) {}
+
+  ngOnInit() {
+    // Get data from the new ng-zorro modal data
+    const config = this._modal.getConfig();
+    console.log('Modal config:', config);
+    if (config.nzData?.issue$) {
+      this.issue$ = config.nzData.issue$;
+      console.log('Issue observable set from nzData:', this.issue$);
+    } else {
+      console.log('No issue$ found in modal data');
+    }
+  }
 
   closeModal() {
     this._modal.close();
