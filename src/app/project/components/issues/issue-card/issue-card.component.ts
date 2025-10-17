@@ -9,9 +9,10 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { IssueModalComponent } from '../issue-modal/issue-modal.component';
 
 @Component({
-  selector: 'issue-card',
-  templateUrl: './issue-card.component.html',
-  styleUrls: ['./issue-card.component.scss']
+    selector: 'issue-card',
+    templateUrl: './issue-card.component.html',
+    styleUrls: ['./issue-card.component.scss'],
+    standalone: false
 })
 @UntilDestroy()
 export class IssueCardComponent implements OnChanges, OnInit {

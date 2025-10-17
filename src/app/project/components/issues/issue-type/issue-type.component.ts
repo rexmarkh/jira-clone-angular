@@ -6,9 +6,10 @@ import { IssueUtil } from '@trungk18/project/utils/issue';
 import { ProjectConst } from '@trungk18/project/config/const';
 
 @Component({
-  selector: 'issue-type',
-  templateUrl: './issue-type.component.html',
-  styleUrls: ['./issue-type.component.scss']
+    selector: 'issue-type',
+    templateUrl: './issue-type.component.html',
+    styleUrls: ['./issue-type.component.scss'],
+    standalone: false
 })
 export class IssueTypeComponent implements OnInit, OnChanges {
   @Input() issue: JIssue;

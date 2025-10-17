@@ -6,9 +6,10 @@ import { UntypedFormControl } from '@angular/forms';
 import { ProjectConst } from '@trungk18/project/config/const';
 
 @Component({
-  selector: 'issue-type-select',
-  templateUrl: './issue-type-select.component.html',
-  styleUrls: ['./issue-type-select.component.scss']
+    selector: 'issue-type-select',
+    templateUrl: './issue-type-select.component.html',
+    styleUrls: ['./issue-type-select.component.scss'],
+    standalone: false
 })
 export class IssueTypeSelectComponent {
   @Input() control: UntypedFormControl;

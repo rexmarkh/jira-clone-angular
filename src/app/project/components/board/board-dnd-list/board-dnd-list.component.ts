@@ -10,10 +10,11 @@ import * as dateFns from 'date-fns';
 import { IssueUtil } from '@trungk18/project/utils/issue';
 
 @Component({
-  selector: '[board-dnd-list]',
-  templateUrl: './board-dnd-list.component.html',
-  styleUrls: ['./board-dnd-list.component.scss'],
-  encapsulation: ViewEncapsulation.None
+    selector: '[board-dnd-list]',
+    templateUrl: './board-dnd-list.component.html',
+    styleUrls: ['./board-dnd-list.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 @UntilDestroy()
 export class BoardDndListComponent implements OnInit {

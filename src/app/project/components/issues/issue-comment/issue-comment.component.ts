@@ -7,9 +7,10 @@ import { AuthQuery } from '@trungk18/project/auth/auth.query';
 import { ProjectService } from '@trungk18/project/state/project/project.service';
 
 @Component({
-  selector: 'issue-comment',
-  templateUrl: './issue-comment.component.html',
-  styleUrls: ['./issue-comment.component.scss']
+    selector: 'issue-comment',
+    templateUrl: './issue-comment.component.html',
+    styleUrls: ['./issue-comment.component.scss'],
+    standalone: false
 })
 @UntilDestroy()
 export class IssueCommentComponent implements OnInit {

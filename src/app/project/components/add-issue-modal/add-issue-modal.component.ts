@@ -14,9 +14,10 @@ import { NoWhitespaceValidator } from '@trungk18/core/validators/no-whitespace.v
 import { DateUtil } from '@trungk18/project/utils/date';
 
 @Component({
-  selector: 'add-issue-modal',
-  templateUrl: './add-issue-modal.component.html',
-  styleUrls: ['./add-issue-modal.component.scss']
+    selector: 'add-issue-modal',
+    templateUrl: './add-issue-modal.component.html',
+    styleUrls: ['./add-issue-modal.component.scss'],
+    standalone: false
 })
 @UntilDestroy()
 export class AddIssueModalComponent implements OnInit {

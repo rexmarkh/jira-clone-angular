@@ -4,9 +4,10 @@ import { ProjectService } from '@trungk18/project/state/project/project.service'
 import { ProjectQuery } from '@trungk18/project/state/project/project.query';
 
 @Component({
-  selector: 'issue-status',
-  templateUrl: './issue-status.component.html',
-  styleUrls: ['./issue-status.component.scss']
+    selector: 'issue-status',
+    templateUrl: './issue-status.component.html',
+    styleUrls: ['./issue-status.component.scss'],
+    standalone: false
 })
 export class IssueStatusComponent implements OnInit {
   @Input() issue: JIssue;

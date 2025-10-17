@@ -6,9 +6,10 @@ import { IssuePriority } from '@trungk18/interface/issue';
 import { ProjectConst } from '@trungk18/project/config/const';
 
 @Component({
-  selector: 'issue-priority-select',
-  templateUrl: './issue-priority-select.component.html',
-  styleUrls: ['./issue-priority-select.component.scss']
+    selector: 'issue-priority-select',
+    templateUrl: './issue-priority-select.component.html',
+    styleUrls: ['./issue-priority-select.component.scss'],
+    standalone: false
 })
 export class IssuePrioritySelectComponent {
   @Input() control: UntypedFormControl;

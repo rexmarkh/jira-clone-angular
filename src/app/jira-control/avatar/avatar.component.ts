@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'j-avatar',
-  templateUrl: './avatar.component.html',
-  styleUrls: ['./avatar.component.scss']
+    selector: 'j-avatar',
+    templateUrl: './avatar.component.html',
+    styleUrls: ['./avatar.component.scss'],
+    standalone: false
 })
 export class AvatarComponent {
   @Input() avatarUrl: string;

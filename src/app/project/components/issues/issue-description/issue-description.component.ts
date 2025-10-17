@@ -5,10 +5,11 @@ import { quillConfiguration } from '@trungk18/project/config/editor';
 import { ProjectService } from '@trungk18/project/state/project/project.service';
 
 @Component({
-  selector: 'issue-description',
-  templateUrl: './issue-description.component.html',
-  styleUrls: ['./issue-description.component.scss'],
-  encapsulation: ViewEncapsulation.None
+    selector: 'issue-description',
+    templateUrl: './issue-description.component.html',
+    styleUrls: ['./issue-description.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class IssueDescriptionComponent implements OnChanges {
   @Input() issue: JIssue;

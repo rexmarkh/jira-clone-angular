@@ -6,9 +6,10 @@ import { ProjectService } from '@trungk18/project/state/project/project.service'
 import { ProjectConst } from '@trungk18/project/config/const';
 
 @Component({
-  selector: 'issue-priority',
-  templateUrl: './issue-priority.component.html',
-  styleUrls: ['./issue-priority.component.scss']
+    selector: 'issue-priority',
+    templateUrl: './issue-priority.component.html',
+    styleUrls: ['./issue-priority.component.scss'],
+    standalone: false
 })
 export class IssuePriorityComponent implements OnInit, OnChanges {
   @Input() issue: JIssue;

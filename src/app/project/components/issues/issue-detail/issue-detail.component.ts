@@ -6,9 +6,10 @@ import { IssueDeleteModalComponent } from '../issue-delete-modal/issue-delete-mo
 import { DeleteIssueModel } from '@trungk18/interface/ui-model/delete-issue-model';
 
 @Component({
-  selector: 'issue-detail',
-  templateUrl: './issue-detail.component.html',
-  styleUrls: ['./issue-detail.component.scss']
+    selector: 'issue-detail',
+    templateUrl: './issue-detail.component.html',
+    styleUrls: ['./issue-detail.component.scss'],
+    standalone: false
 })
 export class IssueDetailComponent{
   @Input() issue: JIssue;

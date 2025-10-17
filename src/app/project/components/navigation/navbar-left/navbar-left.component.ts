@@ -6,9 +6,10 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { AddIssueModalComponent } from '../../add-issue-modal/add-issue-modal.component';
 
 @Component({
-  selector: 'app-navbar-left',
-  templateUrl: './navbar-left.component.html',
-  styleUrls: ['./navbar-left.component.scss']
+    selector: 'app-navbar-left',
+    templateUrl: './navbar-left.component.html',
+    styleUrls: ['./navbar-left.component.scss'],
+    standalone: false
 })
 export class NavbarLeftComponent implements OnInit {
   items: NavItem[];

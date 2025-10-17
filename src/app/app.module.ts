@@ -1,5 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import { ErrorHandler, NgModule, inject, provideAppInitializer } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -44,12 +44,10 @@ import { SnowModule } from './core/snow/snow.module';
       provide: Sentry.TraceService,
       deps: [Router],
     },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: () => () => {},
-      deps: [Sentry.TraceService],
-      multi: true,
-    },
+    provideAppInitializer(() => {
+        const initializerFn = (() => () => {})(inject(Sentry.TraceService));
+        return initializerFn();
+      }),
   ],
   bootstrap: [AppComponent]
 })

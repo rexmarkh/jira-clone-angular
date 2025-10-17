@@ -4,9 +4,10 @@ import { JIssue } from '@trungk18/interface/issue';
 import { ProjectService } from '@trungk18/project/state/project/project.service';
 
 @Component({
-  selector: 'issue-title',
-  templateUrl: './issue-title.component.html',
-  styleUrls: ['./issue-title.component.scss']
+    selector: 'issue-title',
+    templateUrl: './issue-title.component.html',
+    styleUrls: ['./issue-title.component.scss'],
+    standalone: false
 })
 export class IssueTitleComponent implements OnChanges {
   @Input() issue: JIssue;

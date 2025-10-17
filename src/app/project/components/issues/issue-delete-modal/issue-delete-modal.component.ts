@@ -3,9 +3,10 @@ import { NzModalRef } from 'ng-zorro-antd/modal';
 import { DeleteIssueModel } from '@trungk18/interface/ui-model/delete-issue-model';
 
 @Component({
-  selector: 'issue-delete-modal',
-  templateUrl: './issue-delete-modal.component.html',
-  styleUrls: ['./issue-delete-modal.component.scss']
+    selector: 'issue-delete-modal',
+    templateUrl: './issue-delete-modal.component.html',
+    styleUrls: ['./issue-delete-modal.component.scss'],
+    standalone: false
 })
 export class IssueDeleteModalComponent implements OnInit {
   issueId: string;

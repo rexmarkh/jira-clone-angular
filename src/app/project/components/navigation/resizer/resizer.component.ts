@@ -1,9 +1,10 @@
 import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-resizer',
-  templateUrl: './resizer.component.html',
-  styleUrls: ['./resizer.component.scss']
+    selector: 'app-resizer',
+    templateUrl: './resizer.component.html',
+    styleUrls: ['./resizer.component.scss'],
+    standalone: false
 })
 export class ResizerComponent {
   @Input() expanded: boolean;

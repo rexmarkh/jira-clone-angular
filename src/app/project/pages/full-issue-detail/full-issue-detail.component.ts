@@ -10,9 +10,10 @@ import { ProjectService } from '@trungk18/project/state/project/project.service'
 import { DeleteIssueModel } from '@trungk18/interface/ui-model/delete-issue-model';
 
 @Component({
-  selector: 'full-issue-detail',
-  templateUrl: './full-issue-detail.component.html',
-  styleUrls: ['./full-issue-detail.component.scss']
+    selector: 'full-issue-detail',
+    templateUrl: './full-issue-detail.component.html',
+    styleUrls: ['./full-issue-detail.component.scss'],
+    standalone: false
 })
 @UntilDestroy()
 export class FullIssueDetailComponent implements OnInit {

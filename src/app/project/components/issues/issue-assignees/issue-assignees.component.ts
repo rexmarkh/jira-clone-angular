@@ -5,9 +5,10 @@ import { JUser } from '@trungk18/interface/user';
 import { ProjectService } from '@trungk18/project/state/project/project.service';
 
 @Component({
-  selector: 'issue-assignees',
-  templateUrl: './issue-assignees.component.html',
-  styleUrls: ['./issue-assignees.component.scss']
+    selector: 'issue-assignees',
+    templateUrl: './issue-assignees.component.html',
+    styleUrls: ['./issue-assignees.component.scss'],
+    standalone: false
 })
 @UntilDestroy()
 export class IssueAssigneesComponent implements OnInit, OnChanges {

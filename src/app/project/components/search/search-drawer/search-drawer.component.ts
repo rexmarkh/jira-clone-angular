@@ -11,9 +11,10 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { IssueModalComponent } from '../../issues/issue-modal/issue-modal.component';
 
 @Component({
-  selector: 'search-drawer',
-  templateUrl: './search-drawer.component.html',
-  styleUrls: ['./search-drawer.component.scss']
+    selector: 'search-drawer',
+    templateUrl: './search-drawer.component.html',
+    styleUrls: ['./search-drawer.component.scss'],
+    standalone: false
 })
 @UntilDestroy()
 export class SearchDrawerComponent implements OnInit {

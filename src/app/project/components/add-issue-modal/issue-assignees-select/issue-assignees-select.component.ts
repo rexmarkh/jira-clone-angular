@@ -3,10 +3,11 @@ import { JUser } from '@trungk18/interface/user';
 import { UntypedFormControl } from '@angular/forms';
 
 @Component({
-  selector: 'issue-assignees-select',
-  templateUrl: './issue-assignees-select.component.html',
-  styleUrls: ['./issue-assignees-select.component.scss'],
-  encapsulation: ViewEncapsulation.None
+    selector: 'issue-assignees-select',
+    templateUrl: './issue-assignees-select.component.html',
+    styleUrls: ['./issue-assignees-select.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class IssueAssigneesSelectComponent {
   @Input() control: UntypedFormControl;

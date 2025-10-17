@@ -10,8 +10,9 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { NoWhitespaceValidator } from '@trungk18/core/validators/no-whitespace.validator';
 
 @Component({
-  templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.scss']
+    templateUrl: './settings.component.html',
+    styleUrls: ['./settings.component.scss'],
+    standalone: false
 })
 @UntilDestroy()
 export class SettingsComponent implements OnInit {

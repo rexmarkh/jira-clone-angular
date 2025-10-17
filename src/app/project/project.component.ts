@@ -4,9 +4,10 @@ import { AuthService } from './auth/auth.service';
 import { LoginPayload } from '@trungk18/project/auth/loginPayload';
 
 @Component({
-  selector: 'app-project',
-  templateUrl: './project.component.html',
-  styleUrls: ['./project.component.scss']
+    selector: 'app-project',
+    templateUrl: './project.component.html',
+    styleUrls: ['./project.component.scss'],
+    standalone: false
 })
 export class ProjectComponent implements OnInit {
   expanded: boolean;

@@ -6,9 +6,10 @@ import { SideBarLinks } from '@trungk18/project/config/sidebar';
 import { ProjectQuery } from '@trungk18/project/state/project/project.query';
 
 @Component({
-  selector: 'app-sidebar',
-  templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss']
+    selector: 'app-sidebar',
+    templateUrl: './sidebar.component.html',
+    styleUrls: ['./sidebar.component.scss'],
+    standalone: false
 })
 @UntilDestroy()
 export class SidebarComponent implements OnInit {

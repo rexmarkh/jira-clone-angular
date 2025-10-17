@@ -5,9 +5,10 @@ import { JUser } from '@trungk18/interface/user';
 import { ProjectService } from '@trungk18/project/state/project/project.service';
 
 @Component({
-  selector: 'issue-reporter',
-  templateUrl: './issue-reporter.component.html',
-  styleUrls: ['./issue-reporter.component.scss']
+    selector: 'issue-reporter',
+    templateUrl: './issue-reporter.component.html',
+    styleUrls: ['./issue-reporter.component.scss'],
+    standalone: false
 })
 @UntilDestroy()
 export class IssueReporterComponent implements OnChanges {

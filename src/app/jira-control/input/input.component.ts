@@ -2,9 +2,10 @@ import { Component, OnInit, Input } from '@angular/core';
 import { UntypedFormControl } from '@angular/forms';
 
 @Component({
-  selector: 'j-input',
-  templateUrl: './input.component.html',
-  styleUrls: ['./input.component.scss']
+    selector: 'j-input',
+    templateUrl: './input.component.html',
+    styleUrls: ['./input.component.scss'],
+    standalone: false
 })
 export class InputComponent implements OnInit {
   @Input() control: UntypedFormControl;

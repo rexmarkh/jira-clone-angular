@@ -7,9 +7,10 @@ import { Observable } from 'rxjs';
 import { DeleteIssueModel } from '@trungk18/interface/ui-model/delete-issue-model';
 
 @Component({
-  selector: 'issue-modal',
-  templateUrl: './issue-modal.component.html',
-  styleUrls: ['./issue-modal.component.scss']
+    selector: 'issue-modal',
+    templateUrl: './issue-modal.component.html',
+    styleUrls: ['./issue-modal.component.scss'],
+    standalone: false
 })
 export class IssueModalComponent implements OnInit {
   @Input() issue$: Observable<JIssue>;

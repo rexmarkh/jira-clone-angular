@@ -8,9 +8,10 @@ import { ProjectQuery } from '@trungk18/project/state/project/project.query';
 import { JUser } from '@trungk18/interface/user';
 
 @Component({
-  selector: 'board-filter',
-  templateUrl: './board-filter.component.html',
-  styleUrls: ['./board-filter.component.scss']
+    selector: 'board-filter',
+    templateUrl: './board-filter.component.html',
+    styleUrls: ['./board-filter.component.scss'],
+    standalone: false
 })
 @UntilDestroy()
 export class BoardFilterComponent implements OnInit {
