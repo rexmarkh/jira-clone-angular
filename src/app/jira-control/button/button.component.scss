@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 $primary: #0052cc;
 $success: #0b875b;
 $danger: #e13c3c;
@@ -36,8 +38,8 @@ $jira-bg: rgb(222, 235, 255);
 }
 
 @mixin buttonBackground($btn-variant, $background) {
-  $background-dark: darken($background, 10%);
-  $background-light: lighten($background, 10%);
+  $background-dark: color.adjust($background, $lightness: -10%);
+  $background-light: color.adjust($background, $lightness: 10%);
 
   .btn-#{$btn-variant} {
     color: white;
@@ -45,7 +47,7 @@ $jira-bg: rgb(222, 235, 255);
     background: $background;
     &:disabled {
       cursor: not-allowed;
-      background-color: lighten($background, 30%);
+      background-color: color.adjust($background, $lightness: 30%);
     }
 
     &:not(:disabled) {
