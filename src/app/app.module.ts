@@ -45,8 +45,7 @@ import { SnowModule } from './core/snow/snow.module';
       deps: [Router],
     },
     provideAppInitializer(() => {
-        const initializerFn = (() => () => {})(inject(Sentry.TraceService));
-        return initializerFn();
+        // Initialize Sentry TraceService
       }),
   ],
   bootstrap: [AppComponent]

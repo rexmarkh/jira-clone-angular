@@ -9,7 +9,7 @@ import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NzNotificationModule } from 'ng-zorro-antd/notification';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
@@ -62,7 +62,6 @@ import { ProjectComponent } from './project.component';
     NzModalModule,
     NzDropDownModule,
     NzSelectModule,
-    NzNotificationModule,
     NzDrawerModule,
     NzPopoverModule,
     DragDropModule,
