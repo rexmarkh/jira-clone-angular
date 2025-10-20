@@ -57,14 +57,13 @@
         <div class="flex-auto"></div>
         <div class="item"
              *ngIf="authQuery.user$ | async as user">
-            <div nz-tooltip
-                 [nzTooltipTitle]="user.name"
-                 nzTooltipPlacement="right"
-                 class="itemIcon">
-                <j-avatar class="flex"
-                          [avatarUrl]="user.avatarUrl"
-                          [size]="26">
-                </j-avatar>
+            <div class="itemIcon">
+                <app-profile 
+                  [user]="user" 
+                  [showTooltip]="true" 
+                  [size]="26"
+                  [clickable]="true">
+                </app-profile>
             </div>
         </div>
         <div class="item">

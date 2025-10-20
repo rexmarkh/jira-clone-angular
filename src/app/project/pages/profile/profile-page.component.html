@@ -1,0 +1,229 @@
+<div class="profile-page-container">
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="header-actions">
+      <j-button 
+        icon="arrow-left" 
+        [iconSize]="20"
+        className="btn-empty"
+        (click)="goBack()">
+        Back to Board
+      </j-button>
+      <div class="flex-auto"></div>
+      <j-button 
+        *ngIf="!isEditing"
+        icon="edit" 
+        [iconSize]="16"
+        className="btn-primary"
+        (click)="toggleEditMode()">
+        Edit Profile
+      </j-button>
+      <div *ngIf="isEditing" class="edit-actions">
+        <j-button 
+          icon="save" 
+          [iconSize]="16"
+          className="btn-primary"
+          (click)="saveProfile()">
+          Save Changes
+        </j-button>
+        <j-button 
+          icon="times" 
+          [iconSize]="16"
+          className="btn-secondary"
+          (click)="cancelEdit()">
+          Cancel
+        </j-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Content -->
+  <div class="profile-content" *ngIf="currentUser">
+    <div class="profile-main">
+      <!-- Avatar Section -->
+      <div class="avatar-section">
+        <div class="avatar-container" (click)="onAvatarClick()">
+          <j-avatar 
+            [avatarUrl]="currentUser.avatarUrl"
+            [size]="120"
+            class="profile-avatar">
+          </j-avatar>
+          <div class="avatar-overlay" *ngIf="isEditing">
+            <svg-icon name="camera" [size]="24"></svg-icon>
+          </div>
+        </div>
+        <div class="avatar-info">
+          <div class="initials-badge">{{ getUserInitials(currentUser) }}</div>
+        </div>
+      </div>
+
+      <!-- Basic Info -->
+      <div class="basic-info">
+        <div class="info-group">
+          <label class="info-label">Full Name</label>
+          <div *ngIf="!isEditing" class="info-value">{{ currentUser.name }}</div>
+          <input *ngIf="isEditing" 
+                 nz-input 
+                 [(ngModel)]="currentUser.name"
+                 class="info-input"
+                 placeholder="Enter your full name">
+        </div>
+
+        <div class="info-group">
+          <label class="info-label">Email Address</label>
+          <div *ngIf="!isEditing" class="info-value">{{ currentUser.email }}</div>
+          <input *ngIf="isEditing" 
+                 nz-input 
+                 [(ngModel)]="currentUser.email"
+                 class="info-input"
+                 placeholder="Enter your email">
+        </div>
+
+        <div class="info-group">
+          <label class="info-label">Member Since</label>
+          <div class="info-value">{{ formatJoinDate(currentUser.createdAt) }}</div>
+        </div>
+
+        <div class="info-group">
+          <label class="info-label">User ID</label>
+          <div class="info-value user-id">{{ currentUser.id }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+        <!-- Statistics Section -->
+    <div class="statistics-section">
+      <h2 class="section-title">Activity Statistics</h2>
+      
+      <div class="stats-grid">
+        <div class="stat-card total">
+          <div class="stat-icon">
+            <svg-icon name="list" [size]="32"></svg-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ totalIssuesAssigned }}</div>
+            <div class="stat-label">Total Issues Assigned</div>
+          </div>
+        </div>
+
+        <div class="stat-card active">
+          <div class="stat-icon">
+            <svg-icon name="clock" [size]="32"></svg-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ activeIssues }}</div>
+            <div class="stat-label">Active Issues</div>
+          </div>
+        </div>
+
+        <div class="stat-card completed">
+          <div class="stat-icon">
+            <svg-icon name="check" [size]="32"></svg-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ completedIssues }}</div>
+            <div class="stat-label">Completed Issues</div>
+          </div>
+        </div>
+
+        <div class="stat-card completion">
+          <div class="stat-icon">
+            <svg-icon name="percentage" [size]="32"></svg-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ getCompletionPercentage() }}%</div>
+            <div class="stat-label">Completion Rate</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-section" *ngIf="totalIssuesAssigned > 0">
+        <div class="progress-header">
+          <span class="progress-title">Overall Progress</span>
+          <span class="progress-ratio">{{ completedIssues }}/{{ totalIssuesAssigned }} issues completed</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="getCompletionPercentage()"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Settings Section -->
+    <div class="settings-section">
+      <h2 class="section-title">Account Settings</h2>
+      
+      <div class="settings-grid">
+        <div class="setting-item">
+          <div class="setting-content">
+            <div class="setting-title">Email Notifications</div>
+            <div class="setting-description">Receive email updates about assigned issues</div>
+          </div>
+          <nz-switch [ngModel]="true" (ngModelChange)="onSettingChange('emailNotifications', $event)"></nz-switch>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-content">
+            <div class="setting-title">Browser Notifications</div>
+            <div class="setting-description">Show browser notifications for new assignments</div>
+          </div>
+          <nz-switch [ngModel]="false" (ngModelChange)="onSettingChange('browserNotifications', $event)"></nz-switch>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-content">
+            <div class="setting-title">Weekly Summary</div>
+            <div class="setting-description">Receive weekly summary of your activity</div>
+          </div>
+          <nz-switch [ngModel]="true" (ngModelChange)="onSettingChange('weeklySummary', $event)"></nz-switch>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="activity-section">
+      <h2 class="section-title">Recent Activity</h2>
+      
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-icon">
+            <svg-icon name="plus" [size]="16"></svg-icon>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Profile updated</div>
+            <div class="activity-time">2 hours ago</div>
+          </div>
+        </div>
+
+        <div class="activity-item">
+          <div class="activity-icon">
+            <svg-icon name="check" [size]="16"></svg-icon>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Completed 3 issues</div>
+            <div class="activity-time">1 day ago</div>
+          </div>
+        </div>
+
+        <div class="activity-item">
+          <div class="activity-icon">
+            <svg-icon name="user" [size]="16"></svg-icon>
+          </div>
+          <div class="activity-content">
+            <div class="activity-title">Joined the project</div>
+            <div class="activity-time">{{ formatJoinDate(currentUser.createdAt) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="!currentUser" class="loading-state">
+    <nz-spin nzSize="large">
+      <div class="loading-content">Loading profile...</div>
+    </nz-spin>
+  </div>
+</div>

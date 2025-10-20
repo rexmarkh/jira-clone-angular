@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { BoardComponent } from './pages/board/board.component';
 import { SettingsComponent } from './pages/settings/settings.component';
+import { ProfilePageComponent } from './pages/profile/profile-page.component';
 import { ProjectComponent } from './project.component';
 import { ProjectConst } from './config/const';
 import { FullIssueDetailComponent } from './pages/full-issue-detail/full-issue-detail.component';
@@ -18,6 +19,10 @@ const routes: Routes = [
       {
         path: 'settings',
         component: SettingsComponent
+      },
+      {
+        path: 'profile',
+        component: ProfilePageComponent
       },
       {
         path: `issue/:${ProjectConst.IssueId}`,

@@ -120,7 +120,7 @@ module.exports = {
         800: '#434190',
         900: '#3c366b'
       },
-      primary: '#0747A6',
+      primary: '#3f07a6ff',
       tertiary: '#e6e9f0',
       textDarkest: '#172b4d',
       textDark: '#42526E',

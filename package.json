@@ -35,6 +35,7 @@
     "@ngneat/until-destroy": "^8.0.3",
     "@sentry/angular": "^9.30.0",
     "@sentry/tracing": "^6.18.1",
+    "appwrite": "^21.2.1",
     "date-fns": "^2.14.0",
     "karma-coverage": "^2.0.3",
     "ng-zorro-antd": "^20.3.1",

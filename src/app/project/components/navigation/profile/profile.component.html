@@ -1,0 +1,96 @@
+<div class="profile-container" 
+     [class.clickable]="clickable"
+     (click)="onProfileClick()">
+  
+  <!-- Simple Avatar Display (for navbar usage) -->
+  <div *ngIf="!showTooltip; else tooltipTemplate" 
+       class="profile-avatar">
+    <j-avatar 
+      class="flex"
+      [avatarUrl]="(user$ | async)?.avatarUrl || user?.avatarUrl"
+      [size]="size">
+    </j-avatar>
+  </div>
+
+  <!-- Avatar with Tooltip (for navbar usage) -->
+  <ng-template #tooltipTemplate>
+    <div nz-tooltip
+         [nzTooltipTitle]="profileTooltipTmpl"
+         nzTooltipPlacement="right"
+         class="profile-avatar-with-tooltip">
+      <j-avatar 
+        class="flex"
+        [avatarUrl]="(user$ | async)?.avatarUrl || user?.avatarUrl"
+        [size]="size">
+      </j-avatar>
+    </div>
+  </ng-template>
+
+  <!-- Detailed Profile Information Template (for tooltip content) -->
+  <ng-template #profileTooltipTmpl>
+    <div class="profile-info" *ngIf="(user$ | async) || user as currentUser">
+      <div class="profile-header">
+        <j-avatar 
+          [avatarUrl]="currentUser.avatarUrl"
+          [size]="40"
+          class="profile-large-avatar">
+        </j-avatar>
+        <div class="profile-details">
+          <div class="profile-name">{{ currentUser.name }}</div>
+          <div class="profile-email">{{ currentUser.email }}</div>
+        </div>
+      </div>
+      
+      <div class="profile-stats">
+        <div class="stat-item">
+          <span class="stat-label">Issues Assigned:</span>
+          <span class="stat-value">{{ currentUser.issueIds?.length || 0 }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Member Since:</span>
+          <span class="stat-value">{{ formatJoinDate(currentUser.createdAt) }}</span>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <button nz-button nzType="link" nzSize="small" (click)="onProfileClick()">View Profile</button>
+        <button nz-button nzType="link" nzSize="small">Settings</button>
+      </div>
+    </div>
+  </ng-template>
+</div>
+
+<!-- Full Profile Card (for detailed display) -->
+<div *ngIf="false" class="profile-card">
+  <div class="profile-card-content" *ngIf="(user$ | async) || user as currentUser">
+    <div class="profile-card-header">
+      <j-avatar 
+        [avatarUrl]="currentUser.avatarUrl"
+        [size]="60"
+        class="profile-card-avatar">
+      </j-avatar>
+      <div class="profile-card-info">
+        <h3 class="profile-card-name">{{ currentUser.name }}</h3>
+        <p class="profile-card-email">{{ currentUser.email }}</p>
+        <span class="profile-card-initials">{{ getUserInitials(currentUser) }}</span>
+      </div>
+    </div>
+    
+    <div class="profile-card-body">
+      <div class="profile-metric">
+        <div class="metric-value">{{ currentUser.issueIds?.length || 0 }}</div>
+        <div class="metric-label">Issues Assigned</div>
+      </div>
+      
+      <div class="profile-metric">
+        <div class="metric-value">{{ formatJoinDate(currentUser.createdAt) }}</div>
+        <div class="metric-label">Member Since</div>
+      </div>
+    </div>
+    
+    <div class="profile-card-footer">
+      <button nz-button nzType="primary" nzBlock>View Full Profile</button>
+      <button nz-button nzBlock>Account Settings</button>
+    </div>
+  </div>
+</div>

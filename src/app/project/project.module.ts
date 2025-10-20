@@ -5,13 +5,17 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ContentLoaderModule } from '@ngneat/content-loader';
 import { AutofocusDirective } from '@trungk18/core/directives/autofocus.directive';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { QuillModule } from 'ngx-quill';
 import { JiraControlModule } from '../jira-control/jira-control.module';
@@ -30,6 +34,7 @@ import { UserComponent } from './components/user/user.component';
 import { NZ_JIRA_ICONS } from './config/icons';
 import { BoardComponent } from './pages/board/board.component';
 import { FullIssueDetailComponent } from './pages/full-issue-detail/full-issue-detail.component';
+import { ProfilePageComponent } from './pages/profile/profile-page.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { ProjectRoutingModule } from './project-routing.module';
 import { ProjectComponent } from './project.component';
@@ -43,6 +48,7 @@ import { ProjectComponent } from './project.component';
     ProjectComponent,
     BoardComponent,
     SettingsComponent,
+    ProfilePageComponent,
     FullIssueDetailComponent,
     SearchDrawerComponent,
     IssueResultComponent,
@@ -64,6 +70,10 @@ import { ProjectComponent } from './project.component';
     NzSelectModule,
     NzDrawerModule,
     NzPopoverModule,
+    NzButtonModule,
+    NzInputModule,
+    NzSpinModule,
+    NzSwitchModule,
     DragDropModule,
     TextFieldModule,
     FormsModule,
