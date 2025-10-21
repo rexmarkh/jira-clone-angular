@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ContentLoaderModule } from '@ngneat/content-loader';
 import { AutofocusDirective } from '@trungk18/core/directives/autofocus.directive';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -70,6 +71,7 @@ import { ProjectComponent } from './project.component';
     NzSelectModule,
     NzDrawerModule,
     NzPopoverModule,
+    NzBreadCrumbModule,
     NzButtonModule,
     NzInputModule,
     NzSpinModule,

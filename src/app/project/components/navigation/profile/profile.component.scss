@@ -23,7 +23,7 @@
 .profile-info {
   max-width: 280px;
   padding: 16px;
-  background: white;
+  background-color: rgb(244, 245, 247, var(--tw-bg-opacity, 1));
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
@@ -103,7 +103,7 @@
 
 // Profile Card Styles (for detailed display)
 .profile-card {
-  background: white;
+  background: rgb(244, 245, 247, var(--tw-bg-opacity, 1));
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;

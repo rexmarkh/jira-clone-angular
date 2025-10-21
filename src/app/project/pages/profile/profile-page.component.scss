@@ -1,47 +1,36 @@
-.profile-page-container {
-  min-height: 100vh;
-  background: #f4f5f7;
-  padding: 24px;
+// Profile page using the same styling approach as board component
+.breadcrumb-section {
+  margin-bottom: 16px;
 }
 
-.profile-header {
-  background: white;
-  border-radius: 8px;
-  padding: 16px 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 
-  .header-actions {
+  .edit-actions {
     display: flex;
-    align-items: center;
-    gap: 12px;
-
-    .flex-auto {
-      flex: 1;
-    }
-
-    .edit-actions {
-      display: flex;
-      gap: 8px;
-    }
+    gap: 8px;
   }
 }
 
 .profile-content {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 24px;
+  gap: 32px;
+  margin-top: 32px;
 
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 }
 
 .profile-main {
-  background: white;
-  border-radius: 8px;
+  background-color: rgb(244, 245, 247, var(--tw-bg-opacity, 1));
+  border-radius: 3px;
   padding: 32px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
   height: fit-content;
 }
 
@@ -91,12 +80,12 @@
     margin-top: 16px;
 
     .initials-badge {
-      background: #0747a6;
+      background: #0052cc;
       color: white;
       padding: 8px 16px;
-      border-radius: 20px;
+      border-radius: 3px;
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 500;
       letter-spacing: 1px;
     }
   }
@@ -108,8 +97,8 @@
 
     .info-label {
       display: block;
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 500;
       color: #5e6c84;
       margin-bottom: 8px;
       text-transform: uppercase;
@@ -117,7 +106,7 @@
     }
 
     .info-value {
-      font-size: 16px;
+      font-size: 15px;
       color: #172b4d;
       padding: 8px 0;
 
@@ -125,18 +114,18 @@
         font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
         background: #f4f5f7;
         padding: 8px 12px;
-        border-radius: 4px;
-        font-size: 14px;
-        color: #6b778c;
+        border-radius: 3px;
+        font-size: 13px;
+        color: #5e6c84;
       }
     }
 
     .info-input {
       width: 100%;
       padding: 8px 12px;
-      border: 1px solid #dfe1e6;
-      border-radius: 4px;
-      font-size: 16px;
+      border: 2px solid #dfe1e6;
+      border-radius: 3px;
+      font-size: 15px;
 
       &:focus {
         border-color: #4c9aff;
@@ -150,19 +139,19 @@
 .statistics-section,
 .settings-section,
 .activity-section {
-  background: white;
-  border-radius: 8px;
+  background-color: rgb(244, 245, 247, var(--tw-bg-opacity, 1));
+  border-radius: 3px;
   padding: 32px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
   margin-bottom: 24px;
 
   .section-title {
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 500;
     color: #172b4d;
     margin-bottom: 24px;
     padding-bottom: 12px;
-    border-bottom: 2px solid #f4f5f7;
+    border-bottom: 1px solid #dfe1e6;
   }
 }
 
@@ -176,47 +165,45 @@
     grid-template-columns: 1fr;
   }
 
-  .stat-card {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-    // border-radius: 8px;
-    border-left: 4px solid;
-    background: #f4f5f7;
+    .stat-card {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      border-radius: 3px;
+      border-left: 4px solid;
+      background: white;
 
-    &.total {
-      border-left-color: #0747a6;
-      
-      .stat-icon {
-        color: #0747a6;
+      &.total {
+        border-left-color: #0052cc;
+        
+        .stat-icon {
+          color: #0052cc;
+        }
       }
-    }
 
-    &.active {
-      border-left-color: #ff8b00;
-      
-      .stat-icon {
-        color: #ff8b00;
+      &.active {
+        border-left-color: #ff8b00;
+        
+        .stat-icon {
+          color: #ff8b00;
+        }
       }
-    }
 
-    &.completed {
-      border-left-color: #00875a;
-      
-      .stat-icon {
-        color: #00875a;
+      &.completed {
+        border-left-color: #00875a;
+        
+        .stat-icon {
+          color: #00875a;
+        }
       }
-    }
 
-    &.completion {
-      border-left-color: #6554c0;
-      
-      .stat-icon {
-        color: #6554c0;
-      }
-    }
-
-    .stat-icon {
+      &.completion {
+        border-left-color: #6554c0;
+        
+        .stat-icon {
+          color: #6554c0;
+        }
+      }    .stat-icon {
       margin-right: 16px;
       opacity: 0.8;
     }
@@ -260,14 +247,14 @@
 
   .progress-bar {
     height: 8px;
-    background: #f4f5f7;
-    border-radius: 4px;
+    background: #dfe1e6;
+    border-radius: 3px;
     overflow: hidden;
 
     .progress-fill {
       height: 100%;
       background: linear-gradient(90deg, #00875a, #36b37e);
-      border-radius: 4px;
+      border-radius: 3px;
       transition: width 0.3s ease;
     }
   }
@@ -279,7 +266,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 16px 0;
-    border-bottom: 1px solid #f4f5f7;
+    border-bottom: 1px solid #dfe1e6;
 
     &:last-child {
       border-bottom: none;
@@ -287,15 +274,15 @@
 
     .setting-content {
       .setting-title {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 500;
         color: #172b4d;
         margin-bottom: 4px;
       }
 
       .setting-description {
-        font-size: 14px;
-        color: #6b778c;
+        font-size: 13px;
+        color: #5e6c84;
       }
     }
   }
@@ -306,7 +293,7 @@
     display: flex;
     align-items: center;
     padding: 16px 0;
-    border-bottom: 1px solid #f4f5f7;
+    border-bottom: 1px solid #dfe1e6;
 
     &:last-child {
       border-bottom: none;
@@ -316,17 +303,17 @@
       width: 32px;
       height: 32px;
       background: #f4f5f7;
-      border-radius: 50%;
+      border-radius: 3px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-right: 16px;
-      color: #6b778c;
+      color: #5e6c84;
     }
 
     .activity-content {
       .activity-title {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 500;
         color: #172b4d;
         margin-bottom: 2px;
@@ -334,7 +321,7 @@
 
       .activity-time {
         font-size: 12px;
-        color: #6b778c;
+        color: #5e6c84;
       }
     }
   }
@@ -348,17 +335,13 @@
 
   .loading-content {
     margin-top: 16px;
-    font-size: 16px;
-    color: #6b778c;
+    font-size: 15px;
+    color: #5e6c84;
   }
 }
 
 // Responsive adjustments
 @media (max-width: 768px) {
-  .profile-page-container {
-    padding: 16px;
-  }
-
   .profile-main,
   .statistics-section,
   .settings-section,

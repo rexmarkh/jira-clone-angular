@@ -1,20 +1,20 @@
-<div class="profile-page-container">
-  <!-- Header -->
-  <div class="profile-header">
+<div class="flex flex-col w-full h-full py-8 pl-8 pr-6">
+  <!-- Breadcrumbs Header -->
+  <div class="breadcrumb-section">
+    <nz-breadcrumb>
+      <nz-breadcrumb-item>Projects</nz-breadcrumb-item>
+      <nz-breadcrumb-item>Angular Jira Clone</nz-breadcrumb-item>
+      <nz-breadcrumb-item>Profile</nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </div>
+  <header class="flex justify-between mt-3 text-textDarkest">
+    <div class="text-2xl font-medium">User Profile</div>
     <div class="header-actions">
-      <j-button 
-        icon="arrow-left" 
-        [iconSize]="20"
-        className="btn-empty"
-        (click)="goBack()">
-        Back to Board
-      </j-button>
-      <div class="flex-auto"></div>
       <j-button 
         *ngIf="!isEditing"
         icon="edit" 
         [iconSize]="16"
-        className="btn-primary"
+        className="btn-primary mr-2"
         (click)="toggleEditMode()">
         Edit Profile
       </j-button>
@@ -22,7 +22,7 @@
         <j-button 
           icon="save" 
           [iconSize]="16"
-          className="btn-primary"
+          className="btn-primary mr-2"
           (click)="saveProfile()">
           Save Changes
         </j-button>
@@ -35,7 +35,7 @@
         </j-button>
       </div>
     </div>
-  </div>
+  </header>
 
   <!-- Profile Content -->
   <div class="profile-content" *ngIf="currentUser">
