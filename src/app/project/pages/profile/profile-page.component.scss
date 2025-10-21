@@ -95,6 +95,20 @@
   .info-group {
     margin-bottom: 24px;
 
+    &.email-group {
+      background: #f8f9ff;
+      border: 1px solid #dfe1e6;
+      border-left: 4px solid #0052cc;
+      padding: 16px;
+      border-radius: 3px;
+      margin-bottom: 32px;
+
+      .info-label {
+        color: #0052cc;
+        font-weight: 600;
+      }
+    }
+
     .info-label {
       display: block;
       font-size: 12px;
@@ -117,6 +131,28 @@
         border-radius: 3px;
         font-size: 13px;
         color: #5e6c84;
+      }
+
+      &.email-value {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        
+        .email-text {
+          font-weight: 500;
+          color: #0052cc;
+        }
+        
+        .email-badge {
+          font-size: 11px;
+          background: #e3fcef;
+          color: #006644;
+          padding: 4px 8px;
+          border-radius: 12px;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
       }
     }
 

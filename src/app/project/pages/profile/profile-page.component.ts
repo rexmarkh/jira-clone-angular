@@ -23,6 +23,8 @@ export class ProfilePageComponent implements OnInit {
   totalIssuesAssigned = 0;
   completedIssues = 0;
   activeIssues = 0;
+  loginEmail = '';
+  lastLoginTime = new Date();
 
   constructor(
     private authQuery: AuthQuery,
@@ -38,6 +40,8 @@ export class ProfilePageComponent implements OnInit {
       this.currentUser = user;
       if (user) {
         this.calculateUserStats(user);
+        this.loginEmail = user.email || '';
+        this.lastLoginTime = new Date(); // In a real app, this would come from auth state
       }
     });
   }
@@ -115,7 +119,24 @@ export class ProfilePageComponent implements OnInit {
   }
 
   onAvatarClick(): void {
-    // Handle avatar change/upload
-    console.log('Avatar clicked - implement file upload');
+    // TODO: Implement avatar upload functionality
+    console.log('Avatar clicked - implement upload functionality');
+  }
+
+  getLoginType(): string {
+    if (!this.loginEmail) return 'Email';
+    
+    if (this.loginEmail.includes('@gmail.com')) {
+      return 'Google';
+    } else if (this.loginEmail.includes('@github.com')) {
+      return 'GitHub';
+    } else {
+      return 'Email';
+    }
+  }
+
+  getLoginBadgeText(): string {
+    const loginType = this.getLoginType();
+    return loginType === 'Email' ? 'Active Login' : `${loginType} Login`;
   }
 }

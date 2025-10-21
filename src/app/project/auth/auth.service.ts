@@ -20,9 +20,11 @@ export class AuthService {
       .get<JUser>(`${this.baseUrl}/auth.json`)
       .pipe(
         map((user) => {
+          // Update the user data with the login email
           this._store.update((state) => ({
             ...state,
-            ...user
+            ...user,
+            email: email // Use the email from the login form
           }));
         }),
         finalize(() => {

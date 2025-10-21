@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
+import { AuthService } from '../project/auth/auth.service';
+import { AuthQuery } from '../project/auth/auth.query';
 
 @UntilDestroy()
 @Component({
@@ -18,7 +20,9 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService,
+    private authQuery: AuthQuery
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -29,7 +33,12 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     // Check if user is already authenticated
-    // If yes, redirect to board
+    this.authQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
+      if (user && user.id) {
+        // User is already logged in, redirect to board
+        this.router.navigate(['/project/board']);
+      }
+    });
   }
 
   async onSubmit(): Promise<void> {
@@ -40,11 +49,17 @@ export class LoginComponent implements OnInit {
       try {
         const { email, password } = this.loginForm.value;
         
-        // TODO: Implement actual login logic with Appwrite
-        console.log('Login attempt:', { email, password });
+        // Call the auth service to login with the form data
+        this.authService.login({ email, password });
         
-        // Simulate login delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Wait for authentication to complete
+        await new Promise(resolve => {
+          this.authQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
+            if (user && user.id) {
+              resolve(user);
+            }
+          });
+        });
         
         // On successful login, redirect to board
         this.router.navigate(['/project/board']);
@@ -65,11 +80,20 @@ export class LoginComponent implements OnInit {
     this.error = null;
 
     try {
-      // TODO: Implement Google OAuth with Appwrite
-      console.log('Google Sign-In attempt');
+      // For demo purposes, use a Google OAuth email
+      const googleEmail = 'user@gmail.com';
       
-      // Simulate Google sign-in delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Call the auth service with Google email
+      this.authService.login({ email: googleEmail, password: 'oauth' });
+      
+      // Wait for authentication to complete
+      await new Promise(resolve => {
+        this.authQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
+          if (user && user.id) {
+            resolve(user);
+          }
+        });
+      });
       
       // On successful login, redirect to board
       this.router.navigate(['/project/board']);
@@ -87,11 +111,20 @@ export class LoginComponent implements OnInit {
     this.error = null;
 
     try {
-      // TODO: Implement GitHub OAuth with Appwrite
-      console.log('GitHub Sign-In attempt');
+      // For demo purposes, use a GitHub OAuth email
+      const githubEmail = 'user@github.com';
       
-      // Simulate GitHub sign-in delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Call the auth service with GitHub email
+      this.authService.login({ email: githubEmail, password: 'oauth' });
+      
+      // Wait for authentication to complete
+      await new Promise(resolve => {
+        this.authQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
+          if (user && user.id) {
+            resolve(user);
+          }
+        });
+      });
       
       // On successful login, redirect to board
       this.router.navigate(['/project/board']);
