@@ -57,6 +57,19 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           </div>
           
           <div class="flex items-center gap-1">
+            <!-- Edit Icon -->
+            <button 
+              *ngIf="canEdit()"
+              nz-button 
+              nzType="text" 
+              nzSize="small"
+              (click)="startEditing()"
+              [nz-tooltip]="'Edit note'"
+              class="opacity-60 hover:opacity-100 edit-button"
+            >
+              <span nz-icon nzType="edit" nzTheme="outline"></span>
+            </button>
+
             <!-- Color Picker -->
             <nz-popover 
               *ngIf="canEdit()"
@@ -68,6 +81,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
                 nzType="text" 
                 nzSize="small"
                 nz-popover
+                [nz-tooltip]="'Change color'"
                 class="opacity-60 hover:opacity-100"
               >
                 <span nz-icon nzType="bg-colors" nzTheme="outline"></span>
@@ -88,7 +102,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
             <!-- More Actions -->
             <nz-popover 
-              *ngIf="canEdit() || canDelete()"
+              *ngIf="canDelete()"
               nzTitle="Actions" 
               nzTrigger="click"
             >
@@ -97,6 +111,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
                 nzType="text" 
                 nzSize="small"
                 nz-popover
+                [nz-tooltip]="'More actions'"
                 class="opacity-60 hover:opacity-100"
               >
                 <span nz-icon nzType="more" nzTheme="outline"></span>
@@ -104,18 +119,6 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
               <ng-template #nzPopoverContent>
                 <div class="flex flex-col gap-1">
                   <button 
-                    *ngIf="canEdit()"
-                    nz-button 
-                    nzType="text" 
-                    nzSize="small"
-                    (click)="startEditing()"
-                    class="flex items-center gap-2 w-full justify-start"
-                  >
-                    <span nz-icon nzType="edit" nzTheme="outline"></span>
-                    Edit
-                  </button>
-                  <button 
-                    *ngIf="canDelete()"
                     nz-button 
                     nzType="text" 
                     nzSize="small"
@@ -136,12 +139,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
         <div class="mb-3">
           <div 
             *ngIf="!isEditing" 
-            class="text-sm leading-relaxed min-h-[40px] p-2 rounded transition-colors"
-            [class.cursor-text]="canEdit()"
-            [class.hover:bg-opacity-5]="canEdit()"
-            [class.cursor-not-allowed]="!canEdit()"
-            [nz-tooltip]="!canEdit() ? getEditRestrictionMessage() : ''"
-            (click)="canEdit() && startEditing()"
+            class="text-sm leading-relaxed min-h-[40px] p-2 rounded"
           >
             {{ note.content }}
           </div>
@@ -157,6 +155,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
             [cdkAutosizeMaxRows]="6"
             (blur)="saveEdit()"
             (keydown.enter)="$event.ctrlKey && saveEdit()"
+            (keydown.escape)="cancelEdit()"
             placeholder="Enter your note..."
             #editInput
           ></textarea>
@@ -230,6 +229,15 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
     .drag-handle:active {
       cursor: grabbing;
+    }
+
+    .edit-button {
+      transition: all 0.2s ease;
+    }
+
+    .edit-button:hover {
+      background-color: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
     }
 
     ::ng-deep .ant-card-body {
@@ -336,16 +344,6 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
            this.note.authorId === this.currentUserId;
   }
 
-  getEditRestrictionMessage(): string {
-    if (this.currentPhase !== RetroPhase.BRAINSTORMING) {
-      return 'Notes can only be edited during the Brainstorming phase';
-    }
-    if (this.note.authorId !== this.currentUserId) {
-      return 'You can only edit your own notes';
-    }
-    return '';
-  }
-
   startEditing() {
     if (!this.canEdit()) {
       return;
@@ -373,6 +371,11 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
       };
       this.noteChange.emit(updatedNote);
     }
+    this.isEditing = false;
+  }
+
+  cancelEdit() {
+    this.editContent = this.note.content; // Reset to original content
     this.isEditing = false;
   }
 

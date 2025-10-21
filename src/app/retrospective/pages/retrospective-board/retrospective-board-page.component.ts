@@ -135,52 +135,40 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
             >
               <nz-step 
                 nzTitle="Brainstorming" 
-                nzDescription="Add your thoughts"
                 nzIcon="bulb"
+                [nzDescription]="brainstormingDescTemplate"
               ></nz-step>
               <nz-step 
                 nzTitle="Grouping" 
-                nzDescription="Group similar ideas"
                 nzIcon="group"
+                [nzDescription]="groupingDescTemplate"
               ></nz-step>
               <nz-step 
                 nzTitle="Voting" 
-                nzDescription="Vote on priority items"
                 nzIcon="like"
+                [nzDescription]="votingDescTemplate"
               ></nz-step>
               <nz-step 
                 nzTitle="Discussion" 
-                nzDescription="Discuss top items"
                 nzIcon="message"
+                [nzDescription]="discussionDescTemplate"
               ></nz-step>
               <nz-step 
                 nzTitle="Action Items" 
-                nzDescription="Define next steps"
                 nzIcon="check-circle"
+                [nzDescription]="actionItemsDescTemplate"
               ></nz-step>
             </nz-steps>
           </div>
         </nz-header>
 
         <!-- Board Content -->
+        <!-- Board Content -->
         <nz-content class="p-6 overflow-hidden">
           <div class="h-full">
-            <!-- Phase Instructions -->
-            <div class="mb-6">
-              <nz-card nzSize="small" class="bg-blue-50 border-blue-200">
-                <div class="flex items-start gap-3">
-                  <span nz-icon [nzType]="getPhaseIcon(currentBoard.currentPhase)" nzTheme="outline" class="text-blue-600 text-lg mt-1"></span>
-                  <div>
-                    <h3 class="font-semibold text-blue-900 mb-1">{{ getPhaseLabel(currentBoard.currentPhase) }}</h3>
-                    <p class="text-sm text-blue-700 mb-0">{{ getPhaseInstructions(currentBoard.currentPhase) }}</p>
-                  </div>
-                </div>
-              </nz-card>
-            </div>
-
             <!-- Columns Grid -->
             <div 
-              class="columns-grid h-full"
+              class="columns-grid h-full gap-6"
               cdkDropListGroup
             >
               <app-retro-column
@@ -335,6 +323,72 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
         <p class="text-gray-500">Loading retrospective board...</p>
       </div>
     </div>
+
+    <!-- Step Description Templates -->
+    <ng-template #brainstormingDescTemplate>
+      <div class="flex items-center gap-1">
+        <span>Add your thoughts</span>
+        <span 
+          nz-icon 
+          nzType="info-circle" 
+          nzTheme="outline"
+          [nz-tooltip]="getPhaseInstructions(RetroPhase.BRAINSTORMING)"
+          class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
+        ></span>
+      </div>
+    </ng-template>
+
+    <ng-template #groupingDescTemplate>
+      <div class="flex items-center gap-1">
+        <span>Group similar ideas</span>
+        <span 
+          nz-icon 
+          nzType="info-circle" 
+          nzTheme="outline"
+          [nz-tooltip]="getPhaseInstructions(RetroPhase.GROUPING)"
+          class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
+        ></span>
+      </div>
+    </ng-template>
+
+    <ng-template #votingDescTemplate>
+      <div class="flex items-center gap-1">
+        <span>Vote on priority items</span>
+        <span 
+          nz-icon 
+          nzType="info-circle" 
+          nzTheme="outline"
+          [nz-tooltip]="getPhaseInstructions(RetroPhase.VOTING)"
+          class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
+        ></span>
+      </div>
+    </ng-template>
+
+    <ng-template #discussionDescTemplate>
+      <div class="flex items-center gap-1">
+        <span>Discuss top items</span>
+        <span 
+          nz-icon 
+          nzType="info-circle" 
+          nzTheme="outline"
+          [nz-tooltip]="getPhaseInstructions(RetroPhase.DISCUSSION)"
+          class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
+        ></span>
+      </div>
+    </ng-template>
+
+    <ng-template #actionItemsDescTemplate>
+      <div class="flex items-center gap-1">
+        <span>Define next steps</span>
+        <span 
+          nz-icon 
+          nzType="info-circle" 
+          nzTheme="outline"
+          [nz-tooltip]="getPhaseInstructions(RetroPhase.ACTION_ITEMS)"
+          class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
+        ></span>
+      </div>
+    </ng-template>
   `,
   styles: [`
     .retrospective-board {
@@ -373,6 +427,10 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
     ::ng-deep .ant-steps-small .ant-steps-item-description {
       font-size: 11px;
+    }
+
+    ::ng-deep .ant-steps .ant-steps-item-description .anticon-info-circle {
+      transition: color 0.2s ease;
     }
 
     // Modal form styles to match create issue modal
@@ -429,6 +487,9 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 })
 export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  
+  // Make RetroPhase enum available in template
+  RetroPhase = RetroPhase;
   
   currentBoard: RetrospectiveBoard | null = null;
   isPhaseModalVisible = false;
