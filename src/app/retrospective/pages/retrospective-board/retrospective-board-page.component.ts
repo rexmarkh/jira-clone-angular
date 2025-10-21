@@ -53,18 +53,6 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
         <nz-header class="bg-white border-b border-gray-200 px-6 h-auto py-4">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
-              <button 
-                nz-button 
-                nzType="text" 
-                nzSize="large"
-                (click)="goBack()"
-                class="flex items-center gap-2"
-              >
-                <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
-                Back
-              </button>
-              
-              <nz-divider nzType="vertical"></nz-divider>
               
               <div>
                 <h1 class="text-2xl font-bold text-gray-900 mb-1">{{ currentBoard.title }}</h1>
@@ -164,7 +152,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
         <!-- Board Content -->
         <!-- Board Content -->
-        <nz-content class="p-6 overflow-hidden">
+        <nz-content class="p-4 overflow-hidden">
           <div class="h-full">
             <!-- Columns Grid -->
             <div 
@@ -333,6 +321,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           nzType="info-circle" 
           nzTheme="outline"
           [nz-tooltip]="getPhaseInstructions(RetroPhase.BRAINSTORMING)"
+          nzTooltipPlacement="bottom"
           class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
         ></span>
       </div>
@@ -346,6 +335,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           nzType="info-circle" 
           nzTheme="outline"
           [nz-tooltip]="getPhaseInstructions(RetroPhase.GROUPING)"
+          nzTooltipPlacement="bottom"
           class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
         ></span>
       </div>
@@ -359,6 +349,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           nzType="info-circle" 
           nzTheme="outline"
           [nz-tooltip]="getPhaseInstructions(RetroPhase.VOTING)"
+          nzTooltipPlacement="bottom"
           class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
         ></span>
       </div>
@@ -372,6 +363,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           nzType="info-circle" 
           nzTheme="outline"
           [nz-tooltip]="getPhaseInstructions(RetroPhase.DISCUSSION)"
+          nzTooltipPlacement="bottom"
           class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
         ></span>
       </div>
@@ -385,6 +377,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           nzType="info-circle" 
           nzTheme="outline"
           [nz-tooltip]="getPhaseInstructions(RetroPhase.ACTION_ITEMS)"
+          nzTooltipPlacement="bottom"
           class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
         ></span>
       </div>
@@ -398,10 +391,10 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     .columns-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 24px;
-      height: calc(100% - 120px);
+      gap: 1rem;
+      height: 100%;
       overflow-x: auto;
-      overflow-y: hidden;
+      overflow-y: auto;
       padding-bottom: 16px;
     }
 
@@ -422,9 +415,9 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     }
 
     ::ng-deep .ant-steps-small .ant-steps-item-title {
-      font-size: 12px;
+      font-size: 13px;
     }
-
+    
     ::ng-deep .ant-steps-small .ant-steps-item-description {
       font-size: 11px;
     }

@@ -59,7 +59,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           </div>
 
           <!-- Sticky Notes List -->
-          <div class="notes-container flex-1 overflow-y-auto space-y-3" *ngIf="stickyNotes.length > 0">
+          <div class="notes-container overflow-y-auto space-y-3" *ngIf="stickyNotes.length > 0">
             <app-sticky-note
               *ngFor="let note of stickyNotes; trackBy: trackByNoteId"
               [note]="note"
@@ -73,7 +73,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           </div>
 
           <!-- Empty State -->
-          <div *ngIf="stickyNotes.length === 0" class="flex-1 flex items-center justify-center">
+          <div *ngIf="stickyNotes.length === 0" class="flex items-center justify-center">
             <nz-empty 
               [nzNotFoundContent]="emptyTemplate"
               nzNotFoundImage="simple"
@@ -186,17 +186,23 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
   styles: [`
     .retro-column {
       width: 100%;
-      max-width: 400px;
       min-width: 320px;
     }
 
     .column-content {
-      max-height: calc(100vh - 200px);
+      max-height: 100%;
     }
 
     .notes-container {
       scrollbar-width: thin;
       scrollbar-color: #e5e7eb transparent;
+      gap: 5px;
+      display: flex;
+      flex-direction: column;
+    }
+      
+    .notes-container:last-child {
+        padding-bottom: 5px;
     }
 
     .notes-container::-webkit-scrollbar {

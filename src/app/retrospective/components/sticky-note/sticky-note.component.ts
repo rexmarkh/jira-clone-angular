@@ -56,7 +56,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
             <span class="text-xs text-gray-600 font-medium">{{ note.authorName }}</span>
           </div>
           
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-0.5">
             <!-- Edit Icon -->
             <button 
               *ngIf="canEdit()"
@@ -65,9 +65,24 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
               nzSize="small"
               (click)="startEditing()"
               [nz-tooltip]="'Edit note'"
+              nzTooltipPlacement="bottom"
               class="opacity-60 hover:opacity-100 edit-button"
             >
               <span nz-icon nzType="edit" nzTheme="outline"></span>
+            </button>
+
+            <!-- Delete Icon -->
+            <button 
+              *ngIf="canDelete()"
+              nz-button 
+              nzType="text" 
+              nzSize="small"
+              (click)="confirmDelete()"
+              [nz-tooltip]="'Delete note'"
+              nzTooltipPlacement="bottom"
+              class="opacity-60 hover:opacity-100 delete-button"
+            >
+              <span nz-icon nzType="delete" nzTheme="outline"></span>
             </button>
 
             <!-- Color Picker -->
@@ -96,39 +111,6 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
                     [class.border-gray-300]="note.color !== color"
                     (click)="changeColor(color)"
                   ></div>
-                </div>
-              </ng-template>
-            </nz-popover>
-
-            <!-- More Actions -->
-            <nz-popover 
-              *ngIf="canDelete()"
-              nzTitle="Actions" 
-              nzTrigger="click"
-            >
-              <button 
-                nz-button 
-                nzType="text" 
-                nzSize="small"
-                nz-popover
-                [nz-tooltip]="'More actions'"
-                class="opacity-60 hover:opacity-100"
-              >
-                <span nz-icon nzType="more" nzTheme="outline"></span>
-              </button>
-              <ng-template #nzPopoverContent>
-                <div class="flex flex-col gap-1">
-                  <button 
-                    nz-button 
-                    nzType="text" 
-                    nzSize="small"
-                    nzDanger
-                    (click)="confirmDelete()"
-                    class="flex items-center gap-2 w-full justify-start"
-                  >
-                    <span nz-icon nzType="delete" nzTheme="outline"></span>
-                    Delete
-                  </button>
                 </div>
               </ng-template>
             </nz-popover>
@@ -238,6 +220,15 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     .edit-button:hover {
       background-color: rgba(59, 130, 246, 0.1);
       color: #3b82f6;
+    }
+
+    .delete-button {
+      transition: all 0.2s ease;
+    }
+
+    .delete-button:hover {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
     }
 
     ::ng-deep .ant-card-body {
@@ -399,8 +390,13 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
   }
 
   confirmDelete() {
-    // In a real app, you might want to show a confirmation modal
-    if (confirm('Are you sure you want to delete this note?')) {
+    if (!this.canDelete()) {
+      return;
+    }
+    
+    // Show confirmation dialog with more context
+    const confirmMessage = `Are you sure you want to delete this note?\n\n"${this.note.content}"\n\nThis action cannot be undone.`;
+    if (confirm(confirmMessage)) {
       this.noteDelete.emit(this.note.id);
     }
   }
