@@ -296,6 +296,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
               </label>
               <input
                 [(ngModel)]="newBoardTitle"
+                name="boardTitle"
                 class="form-input"
                 placeholder="e.g., Sprint 23 Retrospective"
                 #titleInput
@@ -308,6 +309,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
               </label>
               <textarea
                 [(ngModel)]="newBoardDescription"
+                name="boardDescription"
                 class="form-input"
                 cdkTextareaAutosize
                 #cdkTextareaAutosize="cdkTextareaAutosize"
@@ -331,7 +333,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
             <div class="mt-5 form-group form-action">
               <j-button className="btn-primary mr-2"
-                        type="submit"
+                        type="button"
                         [disabled]="!newBoardTitle.trim()"
                         (click)="createBoard()">
                 Create Board
@@ -525,13 +527,23 @@ export class RetrospectiveLandingPageComponent implements OnInit, OnDestroy {
   }
 
   createBoard() {
+    console.log('createBoard called, title:', this.newBoardTitle);
+    console.log('User from auth:', this.authQuery.getValue());
     if (this.newBoardTitle.trim()) {
-      const board = this.retrospectiveService.createBoard(
-        this.newBoardTitle.trim(),
-        this.newBoardDescription.trim()
-      );
-      this.cancelCreateBoard();
-      this.openBoard(board.id);
+      console.log('Creating board with title:', this.newBoardTitle.trim());
+      try {
+        const board = this.retrospectiveService.createBoard(
+          this.newBoardTitle.trim(),
+          this.newBoardDescription.trim()
+        );
+        console.log('Board created:', board);
+        this.cancelCreateBoard();
+        this.openBoard(board.id);
+      } catch (error) {
+        console.error('Error creating board:', error);
+      }
+    } else {
+      console.log('Title is empty, not creating board');
     }
   }
 

@@ -138,6 +138,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
               </label>
               <textarea
                 [(ngModel)]="newNoteContent"
+                name="noteContent"
                 class="form-input"
                 cdkTextareaAutosize
                 #cdkTextareaAutosize="cdkTextareaAutosize"
@@ -166,7 +167,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
             
             <div class="mt-5 form-group form-action">
               <j-button className="btn-primary mr-2"
-                        type="submit"
+                        type="button"
                         [disabled]="!newNoteContent.trim()"
                         (click)="addNote()">
                 Add Note
@@ -326,13 +327,19 @@ export class RetroColumnComponent {
   }
 
   addNote() {
+    console.log('addNote called, content:', this.newNoteContent);
+    console.log('Column ID:', this.column.id);
+    console.log('Selected color:', this.selectedColor);
     if (this.newNoteContent.trim()) {
+      console.log('Emitting noteAdd event');
       this.noteAdd.emit({
         columnId: this.column.id,
         content: this.newNoteContent.trim(),
         color: this.selectedColor
       });
       this.cancelAddNote();
+    } else {
+      console.log('Content is empty, not adding note');
     }
   }
 

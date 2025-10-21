@@ -91,10 +91,17 @@ export class RetrospectiveService {
   }
 
   addStickyNote(columnId: string, content: string, color: StickyNoteColor = StickyNoteColor.YELLOW): void {
+    console.log('addStickyNote called with:', { columnId, content, color });
     const user = this.authQuery.getValue();
     const currentState = this.store.getValue();
     
-    if (!currentState.currentBoard || !user) return;
+    console.log('User from auth:', user);
+    console.log('Current board:', currentState.currentBoard);
+    
+    if (!currentState.currentBoard || !user) {
+      console.error('Missing current board or user');
+      return;
+    }
 
     const newNote: StickyNote = {
       id: this.generateId(),
@@ -111,11 +118,15 @@ export class RetrospectiveService {
       updatedAt: new Date().toISOString()
     };
 
+    console.log('Created new note:', newNote);
+
     const updatedBoard = {
       ...currentState.currentBoard,
       stickyNotes: [...currentState.currentBoard.stickyNotes, newNote],
       updatedAt: new Date().toISOString()
     };
+
+    console.log('Updated board:', updatedBoard);
 
     this.store.update(state => ({
       ...state,
@@ -124,6 +135,8 @@ export class RetrospectiveService {
         board.id === updatedBoard.id ? updatedBoard : board
       )
     }));
+
+    console.log('Store updated successfully');
   }
 
   updateStickyNote(noteId: string, updates: Partial<StickyNote>): void {
