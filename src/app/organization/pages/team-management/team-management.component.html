@@ -1,0 +1,300 @@
+<div class="team-management p-6">
+  <!-- Header -->
+  <div class="mb-6">
+    <nz-breadcrumb class="mb-4">
+      <nz-breadcrumb-item>
+        <a (click)="navigateBack()">Organization Management</a>
+      </nz-breadcrumb-item>
+      <nz-breadcrumb-item>
+        <span>{{ team?.name }}</span>
+      </nz-breadcrumb-item>
+    </nz-breadcrumb>
+
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+          {{ getTeamInitials() }}
+        </div>
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-1">{{ team?.name }}</h1>
+          <p class="text-lg text-gray-600">{{ team?.description || 'No description' }}</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <button 
+          nz-button 
+          nzType="default"
+          nzSize="large"
+          (click)="showTeamSettings()"
+          class="flex items-center gap-2"
+        >
+          <span nz-icon nzType="setting" nzTheme="outline"></span>
+          Team Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Team Stats -->
+  <div class="mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <nz-card nzSize="small" class="stat-card">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-blue-600 mb-1">{{ members.length }}</div>
+          <div class="text-sm text-gray-600">Team Members</div>
+        </div>
+      </nz-card>
+      
+      <nz-card nzSize="small" class="stat-card">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-green-600 mb-1">{{ projects.length }}</div>
+          <div class="text-sm text-gray-600">Active Projects</div>
+        </div>
+      </nz-card>
+      
+      <nz-card nzSize="small" class="stat-card">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-purple-600 mb-1">{{ getActiveTasksCount() }}</div>
+          <div class="text-sm text-gray-600">Active Tasks</div>
+        </div>
+      </nz-card>
+      
+      <nz-card nzSize="small" class="stat-card">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-orange-600 mb-1">{{ getCompletionRate() }}%</div>
+          <div class="text-sm text-gray-600">Completion Rate</div>
+        </div>
+      </nz-card>
+    </div>
+  </div>
+
+  <!-- Members Section -->
+  <div class="mb-8">
+    <nz-card nzTitle="Team Members" [nzExtra]="membersExtra">
+      <div *ngIf="members.length > 0">
+        <nz-table 
+          #membersTable 
+          [nzData]="members" 
+          [nzBordered]="false"
+          [nzPageSize]="10"
+        >
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Role</th>
+              <th>Join Date</th>
+              <th>Projects</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let member of membersTable.data">
+              <td>
+                <div class="flex items-center gap-3">
+                  <nz-avatar [nzSrc]="member.avatar" [nzSize]="32">
+                    {{ getInitials(member.name) }}
+                  </nz-avatar>
+                  <div>
+                    <div class="font-medium">{{ member.name }}</div>
+                    <div class="text-sm text-gray-500">{{ member.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <nz-tag [nzColor]="getRoleColor(member.role)">
+                  {{ formatRole(member.role) }}
+                </nz-tag>
+              </td>
+              <td>{{ formatDate(member.joinDate) }}</td>
+              <td>
+                <div class="flex flex-wrap gap-1">
+                  <nz-tag 
+                    *ngFor="let projectId of member.projectIds; let i = index"
+                    [style.display]="i < 2 ? 'inline-block' : 'none'"
+                    nzColor="blue"
+                    class="text-xs"
+                  >
+                    {{ getProjectName(projectId) }}
+                  </nz-tag>
+                  <nz-tag 
+                    *ngIf="member.projectIds.length > 2"
+                    nzColor="default"
+                    class="text-xs"
+                  >
+                    +{{ member.projectIds.length - 2 }}
+                  </nz-tag>
+                </div>
+              </td>
+              <td>
+                <span [class]="'status-' + member.status">
+                  {{ formatStatus(member.status) }}
+                </span>
+              </td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <button 
+                    nz-button 
+                    nzType="text" 
+                    nzSize="small"
+                    (click)="editMember(member)"
+                  >
+                    <span nz-icon nzType="edit" nzTheme="outline"></span>
+                  </button>
+                  <button 
+                    nz-button 
+                    nzType="text" 
+                    nzSize="small"
+                    nzDanger
+                    (click)="removeMember(member)"
+                  >
+                    <span nz-icon nzType="delete" nzTheme="outline"></span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </nz-table>
+      </div>
+
+      <div *ngIf="members.length === 0" class="text-center py-12">
+        <nz-empty 
+          nzNotFoundImage="simple"
+          nzNotFoundContent="No team members yet. Add your first member to get started."
+        ></nz-empty>
+      </div>
+    </nz-card>
+  </div>
+
+  <!-- Projects Section -->
+  <div class="mb-8">
+    <nz-card nzTitle="Team Projects" [nzExtra]="projectsExtra">
+      <div *ngIf="projects.length > 0">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <nz-card 
+            *ngFor="let project of projects"
+            nzSize="small"
+            [nzActions]="[settingsTemplate, viewTemplate]"
+            class="project-card"
+          >
+            <div class="mb-3">
+              <h4 class="font-semibold mb-1">{{ project.name }}</h4>
+              <p class="text-sm text-gray-600 line-clamp-2">{{ project.description }}</p>
+            </div>
+            
+            <div class="flex items-center justify-between mb-2">
+              <nz-tag [nzColor]="getProjectStatusColor(project.status)">
+                {{ formatProjectStatus(project.status) }}
+              </nz-tag>
+              <span class="text-xs text-gray-500">{{ formatDate(project.dueDate) }}</span>
+            </div>
+            
+            <div class="flex items-center justify-between">
+              <div class="text-sm text-gray-600">
+                {{ project.completedTasks || 0 }}/{{ project.totalTasks || 0 }} tasks
+              </div>
+              <div class="flex -space-x-2">
+                <nz-avatar 
+                  *ngFor="let memberId of project.memberIds.slice(0, 3)"
+                  [nzSize]="24"
+                  class="ring-2 ring-white"
+                >
+                  {{ getMemberInitials(memberId) }}
+                </nz-avatar>
+                <nz-avatar 
+                  *ngIf="project.memberIds.length > 3"
+                  [nzSize]="24"
+                  class="ring-2 ring-white bg-gray-100 text-gray-600"
+                >
+                  +{{ project.memberIds.length - 3 }}
+                </nz-avatar>
+              </div>
+            </div>
+
+            <ng-template #settingsTemplate>
+              <span nz-icon nzType="setting" (click)="editProject(project)"></span>
+            </ng-template>
+            <ng-template #viewTemplate>
+              <span nz-icon nzType="eye" (click)="viewProject(project)"></span>
+            </ng-template>
+          </nz-card>
+        </div>
+      </div>
+
+      <div *ngIf="projects.length === 0" class="text-center py-12">
+        <nz-empty 
+          nzNotFoundImage="simple"
+          nzNotFoundContent="No projects yet. Create your first project to organize work."
+        ></nz-empty>
+      </div>
+    </nz-card>
+  </div>
+</div>
+
+<!-- Extra Templates -->
+<ng-template #membersExtra>
+  <button 
+    nz-button 
+    nzType="primary"
+    (click)="showAddMemberModal()"
+    class="flex items-center gap-2"
+  >
+    <span nz-icon nzType="plus" nzTheme="outline"></span>
+    Add Member
+  </button>
+</ng-template>
+
+<ng-template #projectsExtra>
+  <button 
+    nz-button 
+    nzType="primary"
+    (click)="showCreateProjectModal()"
+    class="flex items-center gap-2"
+  >
+    <span nz-icon nzType="plus" nzTheme="outline"></span>
+    Create Project
+  </button>
+</ng-template>
+
+<!-- Add Member Modal -->
+<nz-modal
+  [(nzVisible)]="isAddMemberModalVisible"
+  nzClosable="false"
+  nzFooter="null"
+  nzWidth="600px"
+>
+  <ng-container *nzModalContent>
+    <div class="px-8 py-5">
+      <div class="flex items-center py-3 text-textDarkest">
+        <div class="text-xl">
+          Add Team Member
+        </div>
+        <div class="flex-auto"></div>
+        <j-button icon="times"
+                  [iconSize]="24"
+                  (click)="cancelAddMember()"
+                  [className]="'btn-empty'">
+        </j-button>
+      </div>
+      <form class="member-form modal-form">
+        <!-- Member form fields will be added here -->
+        <div class="text-center py-8 text-gray-500">
+          Member addition form will be implemented here
+        </div>
+
+        <div class="mt-5 form-group form-action">
+          <j-button className="btn-primary mr-2"
+                    type="button"
+                    (click)="addMember()">
+            Add Member
+          </j-button>
+          <j-button className="btn-empty"
+                    (click)="cancelAddMember()">
+            Cancel
+          </j-button>
+        </div>
+      </form>
+    </div>
+  </ng-container>
+</nz-modal>

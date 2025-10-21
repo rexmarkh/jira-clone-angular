@@ -1,0 +1,230 @@
+<div class="organization-dashboard p-6">
+  <!-- Header -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Organization Management</h1>
+        <p class="text-lg text-gray-600">Manage your organizations and teams</p>
+      </div>
+      
+      <div class="flex items-center gap-3">
+        <button 
+          nz-button 
+          nzType="default"
+          nzSize="large"
+          (click)="loadSampleData()"
+          class="flex items-center gap-2"
+        >
+          <span nz-icon nzType="experiment" nzTheme="outline"></span>
+          Load Sample Data
+        </button>
+        
+        <button 
+          nz-button 
+          nzType="primary"
+          nzSize="large"
+          (click)="showCreateOrganizationModal()"
+          class="flex items-center gap-2"
+        >
+          <span nz-icon nzType="plus" nzTheme="outline"></span>
+          Create Organization
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content - Organizations Grid -->
+  <div class="tab-content">
+    <!-- Organizations Grid -->
+    <div *ngIf="organizations.length > 0" class="organizations-grid">
+      <app-organization-card
+        *ngFor="let org of organizations; trackBy: trackByOrgId"
+        [organization]="org"
+        (cardClick)="selectOrganization($event)"
+        (settings)="showOrganizationSettings($event)"
+        (delete)="deleteOrganization($event)"
+      ></app-organization-card>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="organizations.length === 0" class="empty-state">
+      <nz-empty 
+        [nzNotFoundContent]="emptyOrganizationsTemplate"
+        nzNotFoundImage="simple"
+      ></nz-empty>
+    </div>
+  </div>
+</div>
+
+<!-- Empty State Templates -->
+<ng-template #emptyOrganizationsTemplate>
+  <div class="text-center py-12">
+    <div class="mb-4">
+      <span nz-icon nzType="apartment" nzTheme="outline" class="text-6xl text-gray-300"></span>
+    </div>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">No organizations yet</h3>
+    <p class="text-gray-500 mb-6">Create your first organization to start managing teams and projects</p>
+    <button 
+      nz-button 
+      nzType="primary" 
+      nzSize="large"
+      (click)="showCreateOrganizationModal()"
+      class="flex items-center gap-2 mx-auto"
+    >
+      <span nz-icon nzType="plus" nzTheme="outline"></span>
+      Create Your First Organization
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #emptyTeamsTemplate>
+  <div class="text-center py-12">
+    <div class="mb-4">
+      <span nz-icon nzType="team" nzTheme="outline" class="text-6xl text-gray-300"></span>
+    </div>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">No teams yet</h3>
+    <p class="text-gray-500 mb-6">Create your first team to organize your members and projects</p>
+    <button 
+      nz-button 
+      nzType="primary" 
+      nzSize="large"
+      (click)="showCreateTeamModal()"
+      class="flex items-center gap-2 mx-auto"
+    >
+      <span nz-icon nzType="plus" nzTheme="outline"></span>
+      Create Your First Team
+    </button>
+  </div>
+</ng-template>
+
+<!-- Create Organization Modal -->
+<nz-modal
+  [(nzVisible)]="isCreateOrgModalVisible"
+  nzClosable="false"
+  nzFooter="null"
+  nzWidth="700px"
+>
+  <ng-container *nzModalContent>
+    <div class="px-8 py-5">
+      <div class="flex items-center py-3 text-textDarkest">
+        <div class="text-xl">
+          Create New Organization
+        </div>
+        <div class="flex-auto"></div>
+        <j-button icon="times"
+                  [iconSize]="24"
+                  (click)="cancelCreateOrganization()"
+                  [className]="'btn-empty'">
+        </j-button>
+      </div>
+      <form class="org-form modal-form">
+        <div class="form-group">
+          <label class="label">
+            Organization Name *
+          </label>
+          <input
+            [(ngModel)]="newOrgName"
+            name="orgName"
+            class="form-input"
+            placeholder="e.g., Acme Corporation"
+            #nameInput
+          />
+        </div>
+        
+        <div class="mt-3 form-group">
+          <label class="label">
+            Description
+          </label>
+          <textarea
+            [(ngModel)]="newOrgDescription"
+            name="orgDescription"
+            class="form-input"
+            cdkTextareaAutosize
+            [cdkAutosizeMinRows]="3"
+            [cdkAutosizeMaxRows]="6"
+            placeholder="Describe your organization's purpose and goals"
+          ></textarea>
+        </div>
+
+        <div class="mt-5 form-group form-action">
+          <j-button className="btn-primary mr-2"
+                    type="button"
+                    [disabled]="!newOrgName.trim()"
+                    (click)="createOrganization()">
+            Create Organization
+          </j-button>
+          <j-button className="btn-empty"
+                    (click)="cancelCreateOrganization()">
+            Cancel
+          </j-button>
+        </div>
+      </form>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<!-- Create Team Modal -->
+<nz-modal
+  [(nzVisible)]="isCreateTeamModalVisible"
+  nzClosable="false"
+  nzFooter="null"
+  nzWidth="700px"
+>
+  <ng-container *nzModalContent>
+    <div class="px-8 py-5">
+      <div class="flex items-center py-3 text-textDarkest">
+        <div class="text-xl">
+          Create New Team
+        </div>
+        <div class="flex-auto"></div>
+        <j-button icon="times"
+                  [iconSize]="24"
+                  (click)="cancelCreateTeam()"
+                  [className]="'btn-empty'">
+        </j-button>
+      </div>
+      <form class="team-form modal-form">
+        <div class="form-group">
+          <label class="label">
+            Team Name *
+          </label>
+          <input
+            [(ngModel)]="newTeamName"
+            name="teamName"
+            class="form-input"
+            placeholder="e.g., Engineering Team"
+            #teamNameInput
+          />
+        </div>
+        
+        <div class="mt-3 form-group">
+          <label class="label">
+            Description
+          </label>
+          <textarea
+            [(ngModel)]="newTeamDescription"
+            name="teamDescription"
+            class="form-input"
+            cdkTextareaAutosize
+            [cdkAutosizeMinRows]="3"
+            [cdkAutosizeMaxRows]="6"
+            placeholder="Describe the team's role and responsibilities"
+          ></textarea>
+        </div>
+
+        <div class="mt-5 form-group form-action">
+          <j-button className="btn-primary mr-2"
+                    type="button"
+                    [disabled]="!newTeamName.trim() || !currentOrganization"
+                    (click)="createTeam()">
+            Create Team
+          </j-button>
+          <j-button className="btn-empty"
+                    (click)="cancelCreateTeam()">
+            Cancel
+          </j-button>
+        </div>
+      </form>
+    </div>
+  </ng-container>
+</nz-modal>

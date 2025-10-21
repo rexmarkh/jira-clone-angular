@@ -1,0 +1,34 @@
+.organization-details {
+//   max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.member-list {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.empty-state {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .organization-details {
+    padding: 16px;
+  }
+  
+  .teams-grid {
+    grid-template-columns: 1fr;
+  }
+}

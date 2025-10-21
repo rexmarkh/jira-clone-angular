@@ -1,0 +1,102 @@
+<nz-card 
+  [nzActions]="[editAction, membersAction, settingsAction, deleteAction]"
+  class="team-card hover:shadow-lg transition-shadow cursor-pointer"
+  (click)="onCardClick()"
+>
+  <nz-card-meta
+    [nzTitle]="team.name"
+    [nzDescription]="team.description || 'No description provided'"
+    [nzAvatar]="avatarTemplate"
+  ></nz-card-meta>
+  
+  <div class="mt-4 space-y-3">
+    <!-- Team Lead -->
+    <div *ngIf="team.lead" class="flex items-center gap-2">
+      <span class="text-xs text-gray-500">Lead:</span>
+      <div class="flex items-center gap-2">
+        <j-avatar 
+          [avatarUrl]="team.lead.avatarUrl" 
+          [name]="team.lead.name"
+          [size]="20"
+        ></j-avatar>
+        <span class="text-sm text-gray-700">{{ team.lead.name }}</span>
+      </div>
+    </div>
+
+    <!-- Team Stats -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4 text-sm text-gray-600">
+        <span class="flex items-center gap-1">
+          <span nz-icon nzType="user" nzTheme="outline"></span>
+          {{ team.memberCount }} member{{ team.memberCount !== 1 ? 's' : '' }}
+        </span>
+        <span class="flex items-center gap-1">
+          <span nz-icon nzType="project" nzTheme="outline"></span>
+          {{ team.projectCount }} project{{ team.projectCount !== 1 ? 's' : '' }}
+        </span>
+      </div>
+      <nz-tag *ngIf="team.status" [nzColor]="getStatusColor()">
+        {{ team.status }}
+      </nz-tag>
+    </div>
+
+    <!-- Created Date -->
+    <div class="text-xs text-gray-500">
+      <span>Created {{ formatDate() }}</span>
+    </div>
+  </div>
+
+  <ng-template #avatarTemplate>
+    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center text-white text-lg font-bold">
+      {{ getInitials() }}
+    </div>
+  </ng-template>
+
+  <ng-template #editAction>
+    <span 
+      nz-icon 
+      nzType="edit" 
+      nzTheme="outline"
+      (click)="$event.stopPropagation(); onEdit()"
+      class="action-icon"
+      nz-tooltip
+      nzTooltipTitle="Edit Team"
+    ></span>
+  </ng-template>
+
+  <ng-template #membersAction>
+    <span 
+      nz-icon 
+      nzType="team" 
+      nzTheme="outline"
+      (click)="$event.stopPropagation(); onManageMembers()"
+      class="action-icon"
+      nz-tooltip
+      nzTooltipTitle="Manage Members"
+    ></span>
+  </ng-template>
+
+  <ng-template #settingsAction>
+    <span 
+      nz-icon 
+      nzType="setting" 
+      nzTheme="outline"
+      (click)="$event.stopPropagation(); onSettings()"
+      class="action-icon"
+      nz-tooltip
+      nzTooltipTitle="Team Settings"
+    ></span>
+  </ng-template>
+
+  <ng-template #deleteAction>
+    <span 
+      nz-icon 
+      nzType="delete" 
+      nzTheme="outline"
+      (click)="$event.stopPropagation(); onDelete()"
+      class="action-icon text-red-500 hover:text-red-600"
+      nz-tooltip
+      nzTooltipTitle="Delete Team"
+    ></span>
+  </ng-template>
+</nz-card>

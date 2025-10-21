@@ -28,6 +28,7 @@ import { IssueTypeSelectComponent } from './components/add-issue-modal/issue-typ
 import { BoardPageComponents } from './components/board';
 import { IssueUtilComponents } from './components/issues';
 import { NavigationComponents } from './components/navigation';
+import { NavbarLeftComponent } from './components/navigation/navbar-left/navbar-left.component';
 import { ResizerComponent } from './components/navigation/resizer/resizer.component';
 import { IssueResultComponent } from './components/search/issue-result/issue-result.component';
 import { SearchDrawerComponent } from './components/search/search-drawer/search-drawer.component';
@@ -83,6 +84,9 @@ import { ProjectComponent } from './project.component';
     JiraControlModule,
     ContentLoaderModule,
     QuillModule
+  ],
+  exports: [
+    NavbarLeftComponent
   ]
 })
 export class ProjectModule {}

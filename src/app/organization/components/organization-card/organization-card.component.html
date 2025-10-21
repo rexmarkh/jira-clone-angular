@@ -1,0 +1,73 @@
+<nz-card 
+  [nzActions]="[settingsAction, deleteAction]"
+  class="organization-card hover:shadow-lg transition-shadow cursor-pointer"
+  (click)="onCardClick()"
+>
+  <nz-card-meta
+    [nzTitle]="organization.name"
+    [nzDescription]="organization.description"
+    [nzAvatar]="avatarTemplate"
+  ></nz-card-meta>
+  
+  <div class="mt-4 space-y-3">
+    <!-- Organization Stats -->
+    <div class="flex items-center justify-between">
+      <nz-tag [nzColor]="getVisibilityColor()">
+        <span nz-icon [nzType]="getVisibilityIcon()" nzTheme="outline"></span>
+        {{ getVisibilityLabel() }}
+      </nz-tag>
+      <span class="text-xs text-gray-500">
+        {{ getTimeAgo() }}
+      </span>
+    </div>
+
+    <!-- Members and Teams Count -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4 text-sm text-gray-600">
+        <span class="flex items-center gap-1">
+          <span nz-icon nzType="team" nzTheme="outline"></span>
+          {{ organization.memberCount }} member{{ organization.memberCount !== 1 ? 's' : '' }}
+        </span>
+        <span class="flex items-center gap-1">
+          <span nz-icon nzType="apartment" nzTheme="outline"></span>
+          {{ organization.teamCount }} team{{ organization.teamCount !== 1 ? 's' : '' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Owner Info -->
+    <div class="text-xs text-gray-500">
+      <span>Created {{ formatDate() }}</span>
+    </div>
+  </div>
+
+  <ng-template #avatarTemplate>
+    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-lg font-bold">
+      {{ getInitials() }}
+    </div>
+  </ng-template>
+
+  <ng-template #settingsAction>
+    <span 
+      nz-icon 
+      nzType="setting" 
+      nzTheme="outline"
+      (click)="$event.stopPropagation(); onSettings()"
+      class="action-icon"
+      nz-tooltip
+      nzTooltipTitle="Organization Settings"
+    ></span>
+  </ng-template>
+
+  <ng-template #deleteAction>
+    <span 
+      nz-icon 
+      nzType="delete" 
+      nzTheme="outline"
+      (click)="$event.stopPropagation(); onDelete()"
+      class="action-icon text-red-500 hover:text-red-600"
+      nz-tooltip
+      nzTooltipTitle="Delete Organization"
+    ></span>
+  </ng-template>
+</nz-card>

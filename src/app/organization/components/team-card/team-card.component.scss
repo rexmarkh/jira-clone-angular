@@ -1,0 +1,41 @@
+.team-card {
+  transition: all 0.2s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.team-card:hover {
+  transform: translateY(-2px);
+  border-color: #10b981;
+}
+
+.action-icon {
+  color: #6b7280;
+  transition: color 0.2s ease;
+}
+
+.action-icon:hover {
+  color: #10b981;
+}
+
+::ng-deep .ant-card-meta-title {
+  color: #111827;
+  font-weight: 600;
+}
+
+::ng-deep .ant-card-meta-description {
+  color: #6b7280;
+}
+
+::ng-deep .ant-card-actions > li {
+  margin: 6px 0;
+}
+
+::ng-deep .ant-card-actions > li > span:not(.ant-card-actions-separator) {
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+::ng-deep .ant-card-actions > li > span:hover {
+  background-color: #f3f4f6;
+}
