@@ -1,0 +1,489 @@
+// Login page styles using the same design elements as other components
+:host {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.login-content {
+  background: white;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
+  padding: 48px;
+  width: 100%;
+  max-width: 400px;
+}
+
+// Header Section
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  .logo-section {
+    margin-bottom: 24px;
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      color: #0052cc;
+      margin: 0 auto;
+    }
+  }
+
+  .login-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #172b4d;
+    margin: 0 0 8px 0;
+    line-height: 1.2;
+  }
+
+  .login-subtitle {
+    font-size: 14px;
+    color: #5e6c84;
+    margin: 0;
+    line-height: 1.4;
+  }
+}
+
+// Error Message
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffebe6;
+  border: 1px solid #ff8f73;
+  border-radius: 3px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: #bf2600;
+
+  .error-icon {
+    color: #de350b;
+    flex-shrink: 0;
+  }
+}
+
+// Form Styles
+.login-form {
+  .form-group {
+    margin-bottom: 24px;
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #5e6c84;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #dfe1e6;
+      border-radius: 3px;
+      font-size: 15px;
+      color: #172b4d;
+      background: #fafbfc;
+      transition: all 0.2s ease;
+
+      &::placeholder {
+        color: #97a0af;
+      }
+
+      &:hover {
+        border-color: #c1c7d0;
+        background: white;
+      }
+
+      &:focus {
+        border-color: #4c9aff;
+        background: white;
+        box-shadow: 0 0 0 1px #4c9aff;
+        outline: none;
+      }
+
+      &.input-error {
+        border-color: #de350b;
+        background: #ffebe6;
+
+        &:focus {
+          border-color: #de350b;
+          box-shadow: 0 0 0 1px #de350b;
+        }
+      }
+
+      &.password-input {
+        padding-right: 48px;
+      }
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #5e6c84;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 3px;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #172b4d;
+      }
+
+      &:focus {
+        outline: 2px solid #4c9aff;
+        outline-offset: 2px;
+      }
+    }
+
+    .input-error-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #de350b;
+      pointer-events: none;
+
+      &.password-error-icon {
+        right: 44px;
+      }
+    }
+
+    .field-error {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #de350b;
+    }
+  }
+}
+
+// Form Options
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+
+  .checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+
+    .checkbox-input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+
+      &:checked + .checkbox-custom {
+        background: #0052cc;
+        border-color: #0052cc;
+
+        &::after {
+          opacity: 1;
+          transform: rotate(45deg) scale(1);
+        }
+      }
+
+      &:focus + .checkbox-custom {
+        box-shadow: 0 0 0 1px #4c9aff;
+      }
+    }
+
+    .checkbox-custom {
+      position: relative;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #dfe1e6;
+      border-radius: 3px;
+      background: white;
+      margin-right: 8px;
+      transition: all 0.2s ease;
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: 2px;
+        top: -1px;
+        width: 4px;
+        height: 8px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        opacity: 0;
+        transform: rotate(45deg) scale(0.8);
+        transition: all 0.2s ease;
+      }
+    }
+
+    .checkbox-label {
+      font-size: 14px;
+      color: #172b4d;
+    }
+  }
+
+  .forgot-password-link {
+    background: none;
+    border: none;
+    color: #0052cc;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 4px;
+    border-radius: 3px;
+
+    &:hover {
+      text-decoration: underline;
+      color: #0065ff;
+    }
+
+    &:focus {
+      outline: 2px solid #4c9aff;
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Login Button
+.login-button {
+  width: 100%;
+  padding: 12px 24px;
+  background: #0052cc;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:hover:not(:disabled) {
+    background: #0065ff;
+  }
+
+  &:focus {
+    outline: 2px solid #4c9aff;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &.loading {
+    pointer-events: none;
+  }
+
+  .login-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+// Divider
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 32px 0;
+
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: #dfe1e6;
+  }
+
+  .divider-text {
+    padding: 0 16px;
+    font-size: 12px;
+    color: #5e6c84;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// Social Login
+.social-login {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+
+  .social-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 24px;
+    border: 2px solid #dfe1e6;
+    border-radius: 3px;
+    background: white;
+    color: #172b4d;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      border-color: #c1c7d0;
+      background: #fafbfc;
+    }
+
+    &:focus {
+      outline: 2px solid #4c9aff;
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .social-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+
+      &.github-icon {
+        color: #172b4d;
+      }
+    }
+
+    &.google {
+      &:hover:not(:disabled) {
+        border-color: #4285f4;
+      }
+    }
+
+    &.github {
+      &:hover:not(:disabled) {
+        border-color: #172b4d;
+      }
+    }
+  }
+}
+
+// Create Account Section
+.create-account {
+  text-align: center;
+  margin-bottom: 24px;
+
+  .create-account-text {
+    font-size: 14px;
+    color: #5e6c84;
+    margin-right: 4px;
+  }
+
+  .create-account-link {
+    background: none;
+    border: none;
+    color: #0052cc;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 4px;
+    border-radius: 3px;
+
+    &:hover {
+      text-decoration: underline;
+      color: #0065ff;
+    }
+
+    &:focus {
+      outline: 2px solid #4c9aff;
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Footer
+.login-footer {
+  .footer-text {
+    font-size: 12px;
+    color: #5e6c84;
+    text-align: center;
+    line-height: 1.4;
+    margin: 0;
+
+    .footer-link {
+      color: #0052cc;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .login-container {
+    padding: 16px;
+    align-items: flex-start;
+    min-height: calc(100vh - 80px);
+  }
+
+  .login-content {
+    padding: 32px 24px;
+    max-width: none;
+  }
+
+  .login-header {
+    margin-bottom: 24px;
+
+    .login-title {
+      font-size: 20px;
+    }
+  }
+
+  .social-login {
+    .social-button {
+      font-size: 14px;
+      padding: 10px 16px;
+
+      .social-icon {
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+}
+
+// Focus improvements for accessibility
+*:focus {
+  outline-color: #4c9aff;
+}
+
+// Spinner animation
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

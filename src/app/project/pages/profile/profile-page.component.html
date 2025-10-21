@@ -20,18 +20,18 @@
       </j-button>
       <div *ngIf="isEditing" class="edit-actions">
         <j-button 
-          icon="save" 
-          [iconSize]="16"
-          className="btn-primary mr-2"
-          (click)="saveProfile()">
-          Save Changes
-        </j-button>
-        <j-button 
           icon="times" 
           [iconSize]="16"
           className="btn-secondary"
           (click)="cancelEdit()">
           Cancel
+        </j-button>
+        <j-button 
+          icon="save" 
+          [iconSize]="16"
+          className="btn-primary mr-2"
+          (click)="saveProfile()">
+          Save Changes
         </j-button>
       </div>
     </div>
