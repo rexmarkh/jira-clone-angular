@@ -1,0 +1,276 @@
+import { Injectable } from '@angular/core';
+import { RetrospectiveStore } from './retrospective.store';
+import { RetrospectiveBoard, StickyNote, StickyNoteColor, RetroPhase, RetroColumn } from '../interfaces/retrospective.interface';
+import { AuthQuery } from '../../project/auth/auth.query';
+
+@Injectable({ providedIn: 'root' })
+export class RetrospectiveService {
+  constructor(
+    private store: RetrospectiveStore,
+    private authQuery: AuthQuery
+  ) {}
+
+  createBoard(title: string, description: string): RetrospectiveBoard {
+    const user = this.authQuery.getValue();
+    const boardId = this.generateId();
+    
+    const defaultColumns: RetroColumn[] = [
+      {
+        id: 'went-well',
+        title: 'What went well?',
+        description: 'Things that worked well in this sprint',
+        color: '#4CAF50',
+        position: 1
+      },
+      {
+        id: 'improve',
+        title: 'What can be improved?',
+        description: 'Things that could be done better',
+        color: '#FF9800',
+        position: 2
+      },
+      {
+        id: 'action-items',
+        title: 'Action Items',
+        description: 'Concrete actions for the next sprint',
+        color: '#2196F3',
+        position: 3
+      }
+    ];
+
+    const newBoard: RetrospectiveBoard = {
+      id: boardId,
+      title,
+      description,
+      facilitatorId: user?.id || '',
+      participants: [user?.id || ''],
+      columns: defaultColumns,
+      stickyNotes: [],
+      isActive: true,
+      currentPhase: RetroPhase.BRAINSTORMING,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    this.store.update(state => ({
+      ...state,
+      currentBoard: newBoard,
+      boards: [...state.boards, newBoard]
+    }));
+
+    return newBoard;
+  }
+
+  loadBoard(boardId: string) {
+    // In a real app, this would fetch from API
+    // For now, we'll create a demo board
+    if (boardId === 'demo') {
+      this.createDemoBoard();
+    }
+  }
+
+  addStickyNote(columnId: string, content: string, color: StickyNoteColor = StickyNoteColor.YELLOW): void {
+    const user = this.authQuery.getValue();
+    const currentState = this.store.getValue();
+    
+    if (!currentState.currentBoard || !user) return;
+
+    const newNote: StickyNote = {
+      id: this.generateId(),
+      content,
+      authorId: user.id,
+      authorName: user.name,
+      authorAvatar: user.avatarUrl,
+      columnId,
+      color,
+      position: { x: 0, y: 0 },
+      votes: 0,
+      voterIds: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const updatedBoard = {
+      ...currentState.currentBoard,
+      stickyNotes: [...currentState.currentBoard.stickyNotes, newNote],
+      updatedAt: new Date().toISOString()
+    };
+
+    this.store.update(state => ({
+      ...state,
+      currentBoard: updatedBoard,
+      boards: state.boards.map(board => 
+        board.id === updatedBoard.id ? updatedBoard : board
+      )
+    }));
+  }
+
+  updateStickyNote(noteId: string, updates: Partial<StickyNote>): void {
+    const currentState = this.store.getValue();
+    
+    if (!currentState.currentBoard) return;
+
+    const updatedBoard = {
+      ...currentState.currentBoard,
+      stickyNotes: currentState.currentBoard.stickyNotes.map(note =>
+        note.id === noteId 
+          ? { ...note, ...updates, updatedAt: new Date().toISOString() }
+          : note
+      ),
+      updatedAt: new Date().toISOString()
+    };
+
+    this.store.update(state => ({
+      ...state,
+      currentBoard: updatedBoard,
+      boards: state.boards.map(board => 
+        board.id === updatedBoard.id ? updatedBoard : board
+      )
+    }));
+  }
+
+  deleteStickyNote(noteId: string): void {
+    const currentState = this.store.getValue();
+    
+    if (!currentState.currentBoard) return;
+
+    const updatedBoard = {
+      ...currentState.currentBoard,
+      stickyNotes: currentState.currentBoard.stickyNotes.filter(note => note.id !== noteId),
+      updatedAt: new Date().toISOString()
+    };
+
+    this.store.update(state => ({
+      ...state,
+      currentBoard: updatedBoard,
+      boards: state.boards.map(board => 
+        board.id === updatedBoard.id ? updatedBoard : board
+      )
+    }));
+  }
+
+  voteOnStickyNote(noteId: string): void {
+    const user = this.authQuery.getValue();
+    if (!user) return;
+
+    const currentState = this.store.getValue();
+    if (!currentState.currentBoard) return;
+
+    const note = currentState.currentBoard.stickyNotes.find(n => n.id === noteId);
+    if (!note) return;
+
+    const hasVoted = note.voterIds.includes(user.id);
+    const updatedNote = hasVoted 
+      ? {
+          ...note,
+          votes: note.votes - 1,
+          voterIds: note.voterIds.filter(id => id !== user.id)
+        }
+      : {
+          ...note,
+          votes: note.votes + 1,
+          voterIds: [...note.voterIds, user.id]
+        };
+
+    this.updateStickyNote(noteId, updatedNote);
+  }
+
+  updatePhase(phase: RetroPhase): void {
+    const currentState = this.store.getValue();
+    
+    if (!currentState.currentBoard) return;
+
+    const updatedBoard = {
+      ...currentState.currentBoard,
+      currentPhase: phase,
+      updatedAt: new Date().toISOString()
+    };
+
+    this.store.update(state => ({
+      ...state,
+      currentBoard: updatedBoard,
+      boards: state.boards.map(board => 
+        board.id === updatedBoard.id ? updatedBoard : board
+      )
+    }));
+  }
+
+  private createDemoBoard(): void {
+    const user = this.authQuery.getValue();
+    
+    const demoBoard: RetrospectiveBoard = {
+      id: 'demo',
+      title: 'Sprint 23 Retrospective',
+      description: 'Team retrospective for Sprint 23 - Q4 2025',
+      facilitatorId: user?.id || 'demo-user',
+      participants: [user?.id || 'demo-user'],
+      columns: [
+        {
+          id: 'went-well',
+          title: 'What went well?',
+          description: 'Things that worked well in this sprint',
+          color: '#4CAF50',
+          position: 1
+        },
+        {
+          id: 'improve',
+          title: 'What can be improved?',
+          description: 'Things that could be done better',
+          color: '#FF9800',
+          position: 2
+        },
+        {
+          id: 'action-items',
+          title: 'Action Items',
+          description: 'Concrete actions for the next sprint',
+          color: '#2196F3',
+          position: 3
+        }
+      ],
+      stickyNotes: [
+        {
+          id: 'note-1',
+          content: 'Great team collaboration on the login feature',
+          authorId: user?.id || 'demo-user',
+          authorName: user?.name || 'Demo User',
+          authorAvatar: user?.avatarUrl,
+          columnId: 'went-well',
+          color: StickyNoteColor.GREEN,
+          position: { x: 10, y: 10 },
+          votes: 3,
+          voterIds: ['user-1', 'user-2', 'user-3'],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 'note-2',
+          content: 'Need better communication during code reviews',
+          authorId: user?.id || 'demo-user',
+          authorName: user?.name || 'Demo User',
+          authorAvatar: user?.avatarUrl,
+          columnId: 'improve',
+          color: StickyNoteColor.ORANGE,
+          position: { x: 10, y: 10 },
+          votes: 1,
+          voterIds: ['user-1'],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ],
+      isActive: true,
+      currentPhase: RetroPhase.BRAINSTORMING,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    this.store.update(state => ({
+      ...state,
+      currentBoard: demoBoard,
+      boards: [...state.boards, demoBoard]
+    }));
+  }
+
+  private generateId(): string {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  }
+}

@@ -25,6 +25,10 @@ const routes: Routes = [
         component: ProfilePageComponent
       },
       {
+        path: 'retrospective',
+        loadChildren: () => import('../retrospective/retrospective.module').then(m => m.RetrospectiveModule)
+      },
+      {
         path: `issue/:${ProjectConst.IssueId}`,
         component: FullIssueDetailComponent
       },
