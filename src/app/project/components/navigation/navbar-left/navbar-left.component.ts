@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthQuery } from '@trungk18/project/auth/auth.query';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { SearchDrawerComponent } from '../../search/search-drawer/search-drawer.component';
@@ -16,7 +17,8 @@ export class NavbarLeftComponent implements OnInit {
   constructor(
     public authQuery: AuthQuery,
     private _drawerService: NzDrawerService,
-    private _modalService: NzModalService
+    private _modalService: NzModalService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -43,6 +45,10 @@ export class NavbarLeftComponent implements OnInit {
       nzClosable: false,
       nzWidth: 500
     });
+  }
+
+  navigateToProfile() {
+    this.router.navigate(['/project/profile']);
   }
 }
 
