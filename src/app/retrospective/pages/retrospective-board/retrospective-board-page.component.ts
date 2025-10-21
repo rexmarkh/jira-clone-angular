@@ -193,8 +193,8 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
                 (noteDelete)="onNoteDelete($event)"
                 (noteVote)="onNoteVote($event)"
                 (noteDrop)="onNoteDrop($event)"
-                (positionChange)="onPositionChange($event)"
                 class="column-item"
+                [attr.data-column-id]="column.id"
               ></app-retro-column>
             </div>
           </div>
@@ -205,37 +205,61 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     <!-- Phase Management Modal -->
     <nz-modal
       [(nzVisible)]="isPhaseModalVisible"
-      nzTitle="Manage Retrospective Phase"
-      nzOkText="Update Phase"
-      nzCancelText="Cancel"
-      (nzOnOk)="updatePhase()"
-      (nzOnCancel)="cancelPhaseUpdate()"
+      nzClosable="false"
+      nzFooter="null"
       nzWidth="600px"
     >
       <ng-container *nzModalContent>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Current Phase</label>
-            <nz-select 
-              [(ngModel)]="selectedPhase" 
-              nzSize="large"
-              class="w-full"
-              nzPlaceHolder="Select phase"
-            >
-              <nz-option 
-                *ngFor="let phase of phaseOptions" 
-                [nzValue]="phase.value" 
-                [nzLabel]="phase.label"
-              >
-                <span nz-icon [nzType]="phase.icon" nzTheme="outline" class="mr-2"></span>
-                {{ phase.label }}
-              </nz-option>
-            </nz-select>
+        <div class="px-8 py-5">
+          <div class="flex items-center py-3 text-textDarkest">
+            <div class="text-xl">
+              Retrospective Phases
+            </div>
+            <div class="flex-auto"></div>
+            <j-button icon="times"
+                      [iconSize]="24"
+                      (click)="cancelPhaseChange()"
+                      [className]="'btn-empty'">
+            </j-button>
           </div>
-          
-          <div class="bg-gray-50 p-4 rounded-lg">
-            <h4 class="font-medium text-gray-900 mb-2">Phase Description</h4>
-            <p class="text-sm text-gray-600">{{ getPhaseDescription(selectedPhase) }}</p>
+          <div class="phase-form retro-modal-form">
+            <div class="form-group">
+              <label class="label">
+                Current Phase
+              </label>
+              <div class="space-y-3">
+                <div 
+                  *ngFor="let phase of retroPhases" 
+                  class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer transition-colors"
+                  [class.bg-blue-50]="selectedPhase === phase"
+                  [class.border-blue-300]="selectedPhase === phase"
+                  (click)="selectedPhase = phase"
+                >
+                  <div class="flex-1">
+                    <div class="font-medium text-gray-900">{{ getPhaseTitle(phase) }}</div>
+                    <div class="text-sm text-gray-500">{{ getPhaseDescription(phase) }}</div>
+                  </div>
+                  <div 
+                    *ngIf="selectedPhase === phase" 
+                    class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center"
+                  >
+                    <span nz-icon nzType="check" class="text-white text-xs"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-5 form-group form-action">
+              <j-button className="btn-primary mr-2"
+                        [disabled]="selectedPhase === currentBoard?.currentPhase"
+                        (click)="updatePhase()">
+                Update Phase
+              </j-button>
+              <j-button className="btn-empty"
+                        (click)="cancelPhaseChange()">
+                Cancel
+              </j-button>
+            </div>
           </div>
         </div>
       </ng-container>
@@ -244,32 +268,61 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     <!-- Settings Modal -->
     <nz-modal
       [(nzVisible)]="isSettingsModalVisible"
-      nzTitle="Board Settings"
-      nzOkText="Save"
-      nzCancelText="Cancel"
-      (nzOnOk)="saveSettings()"
-      (nzOnCancel)="cancelSettings()"
+      nzClosable="false"
+      nzFooter="null"
       nzWidth="600px"
     >
       <ng-container *nzModalContent>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Board Title</label>
-            <nz-input [(ngModel)]="settingsTitle" nzSize="large" placeholder="Enter board title"></nz-input>
+        <div class="px-8 py-5">
+          <div class="flex items-center py-3 text-textDarkest">
+            <div class="text-xl">
+              Board Settings
+            </div>
+            <div class="flex-auto"></div>
+            <j-button icon="times"
+                      [iconSize]="24"
+                      (click)="cancelSettings()"
+                      [className]="'btn-empty'">
+            </j-button>
           </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <textarea
-              [(ngModel)]="settingsDescription"
-              class="w-full p-3 border border-gray-300 rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-              cdkTextareaAutosize
-              #cdkTextareaAutosize="cdkTextareaAutosize"
-              [cdkAutosizeMinRows]="3"
-              [cdkAutosizeMaxRows]="6"
-              placeholder="Enter board description"
-            ></textarea>
-          </div>
+          <form class="settings-form retro-modal-form">
+            <div class="form-group">
+              <label class="label">
+                Board Title
+              </label>
+              <input 
+                [(ngModel)]="settingsTitle" 
+                class="form-input"
+                placeholder="Enter board title"
+              />
+            </div>
+            
+            <div class="mt-3 form-group">
+              <label class="label">
+                Description
+              </label>
+              <textarea
+                [(ngModel)]="settingsDescription"
+                class="form-input"
+                cdkTextareaAutosize
+                #cdkTextareaAutosize="cdkTextareaAutosize"
+                [cdkAutosizeMinRows]="3"
+                [cdkAutosizeMaxRows]="6"
+                placeholder="Enter board description"
+              ></textarea>
+            </div>
+
+            <div class="mt-5 form-group form-action">
+              <j-button className="btn-primary mr-2"
+                        (click)="saveSettings()">
+                Save
+              </j-button>
+              <j-button className="btn-empty"
+                        (click)="cancelSettings()">
+                Cancel
+              </j-button>
+            </div>
+          </form>
         </div>
       </ng-container>
     </nz-modal>
@@ -319,6 +372,57 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
     ::ng-deep .ant-steps-small .ant-steps-item-description {
       font-size: 11px;
+    }
+
+    // Modal form styles to match create issue modal
+    .form-action {
+      text-align: right;
+    }
+
+    .phase-form,
+    .settings-form {
+      .form-group {
+        margin-bottom: 1rem;
+        
+        .label {
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          font-size: 0.8125rem;
+          color: #5e6c84;
+          display: block;
+        }
+      }
+
+      // Consistent input styling
+      .form-input {
+        height: 32px !important;
+        padding: 8px 11px !important;
+        border-radius: 3px !important;
+        border: 1px solid #dfe1e6 !important;
+        background: #fafbfc !important;
+        font-size: 14px !important;
+        line-height: 1.42857143 !important;
+        width: 100% !important;
+        transition: background 0.1s, border-color 0.1s !important;
+        
+        &:hover {
+          background: #ebecf0 !important;
+          border-color: #c1c7d0 !important;
+        }
+        
+        &:focus {
+          background: #fff !important;
+          border-color: #4c9aff !important;
+          box-shadow: 0 0 0 1px #4c9aff !important;
+          outline: none !important;
+        }
+
+        // Textarea specific styles
+        &[cdkTextareaAutosize] {
+          height: auto !important;
+          resize: none !important;
+        }
+      }
     }
   `]
 })
@@ -550,7 +654,25 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  onPositionChange(data: { noteId: string, position: { x: number, y: number } }) {
-    this.retrospectiveService.updateStickyNote(data.noteId, { position: data.position });
+  // Phase management methods
+  get retroPhases() {
+    return Object.values(RetroPhase);
+  }
+
+  getPhaseTitle(phase: RetroPhase): string {
+    const titles = {
+      [RetroPhase.BRAINSTORMING]: 'Brainstorming',
+      [RetroPhase.GROUPING]: 'Grouping',
+      [RetroPhase.VOTING]: 'Voting', 
+      [RetroPhase.DISCUSSION]: 'Discussion',
+      [RetroPhase.ACTION_ITEMS]: 'Action Items',
+      [RetroPhase.COMPLETED]: 'Completed'
+    };
+    return titles[phase] || 'Unknown';
+  }
+
+  cancelPhaseChange() {
+    this.isPhaseModalVisible = false;
+    this.selectedPhase = this.currentBoard?.currentPhase || RetroPhase.BRAINSTORMING;
   }
 }

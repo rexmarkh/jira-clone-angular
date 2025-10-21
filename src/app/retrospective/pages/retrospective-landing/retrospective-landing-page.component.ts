@@ -272,48 +272,76 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     <!-- Create Board Modal -->
     <nz-modal
       [(nzVisible)]="isCreateModalVisible"
-      nzTitle="Create New Retrospective Board"
-      [nzOkDisabled]="!newBoardTitle.trim()"
-      nzOkText="Create Board"
-      nzCancelText="Cancel"
-      (nzOnOk)="createBoard()"
-      (nzOnCancel)="cancelCreateBoard()"
-      nzWidth="600px"
+      nzClosable="false"
+      nzFooter="null"
+      nzWidth="700px"
     >
       <ng-container *nzModalContent>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Board Title *</label>
-            <nz-input
-              [(ngModel)]="newBoardTitle"
-              nzSize="large"
-              placeholder="e.g., Sprint 23 Retrospective"
-              #titleInput
-            ></nz-input>
+        <div class="px-8 py-5">
+          <div class="flex items-center py-3 text-textDarkest">
+            <div class="text-xl">
+              Create New Retrospective Board
+            </div>
+            <div class="flex-auto"></div>
+            <j-button icon="times"
+                      [iconSize]="24"
+                      (click)="cancelCreateBoard()"
+                      [className]="'btn-empty'">
+            </j-button>
           </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-            <textarea
-              [(ngModel)]="newBoardDescription"
-              class="w-full p-3 border border-gray-300 rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-              cdkTextareaAutosize
-              #cdkTextareaAutosize="cdkTextareaAutosize"
-              [cdkAutosizeMinRows]="3"
-              [cdkAutosizeMaxRows]="6"
-              placeholder="What will you be retrospecting on? (optional)"
-            ></textarea>
-          </div>
+          <form class="board-form retro-modal-form">
+            <div class="form-group">
+              <label class="label">
+                Board Title *
+              </label>
+              <input
+                [(ngModel)]="newBoardTitle"
+                class="form-input"
+                placeholder="e.g., Sprint 23 Retrospective"
+                #titleInput
+              />
+            </div>
+            
+            <div class="mt-3 form-group">
+              <label class="label">
+                Description
+              </label>
+              <textarea
+                [(ngModel)]="newBoardDescription"
+                class="form-input"
+                cdkTextareaAutosize
+                #cdkTextareaAutosize="cdkTextareaAutosize"
+                [cdkAutosizeMinRows]="3"
+                [cdkAutosizeMaxRows]="6"
+                placeholder="What will you be retrospecting on? (optional)"
+              ></textarea>
+            </div>
 
-          <div class="bg-blue-50 p-4 rounded-lg">
-            <h4 class="font-medium text-blue-900 mb-2">What's included:</h4>
-            <ul class="text-sm text-blue-700 space-y-1">
-              <li>• Three default columns (What went well, What can be improved, Action items)</li>
-              <li>• Collaborative sticky notes with voting</li>
-              <li>• Guided retrospective phases</li>
-              <li>• Real-time team collaboration</li>
-            </ul>
-          </div>
+            <div class="mt-3 form-group">
+              <div class="bg-blue-50 p-4 rounded-lg">
+                <h4 class="font-medium text-blue-900 mb-2">What's included:</h4>
+                <ul class="text-sm text-blue-700 space-y-1">
+                  <li>• Three default columns (What went well, What can be improved, Action items)</li>
+                  <li>• Collaborative sticky notes with voting</li>
+                  <li>• Guided retrospective phases</li>
+                  <li>• Real-time team collaboration</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="mt-5 form-group form-action">
+              <j-button className="btn-primary mr-2"
+                        type="submit"
+                        [disabled]="!newBoardTitle.trim()"
+                        (click)="createBoard()">
+                Create Board
+              </j-button>
+              <j-button className="btn-empty"
+                        (click)="cancelCreateBoard()">
+                Cancel
+              </j-button>
+            </div>
+          </form>
         </div>
       </ng-container>
     </nz-modal>
@@ -398,6 +426,56 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
     ::ng-deep .ant-card-actions > li > span:hover {
       background-color: #f3f4f6;
+    }
+
+    // Modal form styles to match create issue modal
+    .form-action {
+      text-align: right;
+    }
+
+    .board-form {
+      .form-group {
+        margin-bottom: 1rem;
+        
+        .label {
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          font-size: 0.8125rem;
+          color: #5e6c84;
+          display: block;
+        }
+      }
+
+      // Consistent input styling
+      .form-input {
+        height: 32px !important;
+        padding: 8px 11px !important;
+        border-radius: 3px !important;
+        border: 1px solid #dfe1e6 !important;
+        background: #fafbfc !important;
+        font-size: 14px !important;
+        line-height: 1.42857143 !important;
+        width: 100% !important;
+        transition: background 0.1s, border-color 0.1s !important;
+        
+        &:hover {
+          background: #ebecf0 !important;
+          border-color: #c1c7d0 !important;
+        }
+        
+        &:focus {
+          background: #fff !important;
+          border-color: #4c9aff !important;
+          box-shadow: 0 0 0 1px #4c9aff !important;
+          outline: none !important;
+        }
+
+        // Textarea specific styles
+        &[cdkTextareaAutosize] {
+          height: auto !important;
+          resize: none !important;
+        }
+      }
     }
   `]
 })

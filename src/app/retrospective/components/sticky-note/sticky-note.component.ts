@@ -9,7 +9,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { StickyNote, StickyNoteColor } from '../../interfaces/retrospective.interface';
 import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
@@ -35,8 +35,6 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       class="sticky-note" 
       [style.background-color]="getBackgroundColor()"
       [style.border-left]="'4px solid ' + getBorderColor()"
-      cdkDrag
-      (cdkDragEnded)="onDragEnd($event)"
     >
       <nz-card 
         [nzBordered]="false"
@@ -131,7 +129,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
         <div class="mb-3">
           <div 
             *ngIf="!isEditing" 
-            class="text-sm leading-relaxed cursor-text min-h-[40px] p-2 rounded hover:bg-black hover:bg-opacity-5 transition-colors"
+            class="text-sm leading-relaxed cursor-text min-h-[40px] p-2 rounded hover:bg-opacity-5 transition-colors"
             (click)="startEditing()"
           >
             {{ note.content }}
@@ -184,7 +182,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
   `,
   styles: [`
     .sticky-note {
-      width: 240px;
+      width: 100%;
       min-height: 120px;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -199,11 +197,15 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
     .sticky-note.cdk-drag-preview {
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      transform: rotate(3deg);
+      transform: rotate(2deg) scale(1.05);
+      z-index: 1000;
     }
 
     .cdk-drag-placeholder {
-      opacity: 0.3;
+      opacity: 0.4;
+      background: #f9fafb;
+      border: 2px dashed #d1d5db;
+      min-height: 120px;
     }
 
     .cdk-drag-animating {
@@ -231,7 +233,6 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
   @Output() noteChange = new EventEmitter<StickyNote>();
   @Output() noteDelete = new EventEmitter<string>();
   @Output() noteVote = new EventEmitter<string>();
-  @Output() positionChange = new EventEmitter<{ noteId: string, position: { x: number, y: number } }>();
 
   isEditing = false;
   editContent = '';
@@ -348,20 +349,6 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
     // In a real app, you might want to show a confirmation modal
     if (confirm('Are you sure you want to delete this note?')) {
       this.noteDelete.emit(this.note.id);
-    }
-  }
-
-  onDragEnd(event: CdkDragDrop<any>) {
-    if (event.distance.x !== 0 || event.distance.y !== 0) {
-      const newPosition = {
-        x: this.note.position.x + event.distance.x,
-        y: this.note.position.y + event.distance.y
-      };
-      
-      this.positionChange.emit({
-        noteId: this.note.id,
-        position: newPosition
-      });
     }
   }
 }

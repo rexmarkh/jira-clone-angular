@@ -62,10 +62,31 @@ export class RetrospectiveService {
   }
 
   loadBoard(boardId: string) {
-    // In a real app, this would fetch from API
-    // For now, we'll create a demo board
+    const currentState = this.store.getValue();
+    
     if (boardId === 'demo') {
-      this.createDemoBoard();
+      // Check if demo board already exists
+      const existingDemoBoard = currentState.boards.find(board => board.id === 'demo');
+      
+      if (existingDemoBoard) {
+        // Use existing demo board
+        this.store.update(state => ({
+          ...state,
+          currentBoard: existingDemoBoard
+        }));
+      } else {
+        // Create new demo board only if it doesn't exist
+        this.createDemoBoard();
+      }
+    } else {
+      // For other board IDs, find and load the board
+      const board = currentState.boards.find(b => b.id === boardId);
+      if (board) {
+        this.store.update(state => ({
+          ...state,
+          currentBoard: board
+        }));
+      }
     }
   }
 
@@ -197,6 +218,10 @@ export class RetrospectiveService {
 
   private createDemoBoard(): void {
     const user = this.authQuery.getValue();
+    const currentState = this.store.getValue();
+    
+    // Remove any existing demo boards first to prevent duplicates
+    const boardsWithoutDemo = currentState.boards.filter(board => board.id !== 'demo');
     
     const demoBoard: RetrospectiveBoard = {
       id: 'demo',
@@ -266,7 +291,7 @@ export class RetrospectiveService {
     this.store.update(state => ({
       ...state,
       currentBoard: demoBoard,
-      boards: [...state.boards, demoBoard]
+      boards: [...boardsWithoutDemo, demoBoard]
     }));
   }
 
