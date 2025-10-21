@@ -9,7 +9,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { CdkDropList, CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { RetroColumn, StickyNote, StickyNoteColor } from '../../interfaces/retrospective.interface';
+import { RetroColumn, StickyNote, StickyNoteColor, RetroPhase } from '../../interfaces/retrospective.interface';
 import { StickyNoteComponent } from '../sticky-note/sticky-note.component';
 import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
@@ -64,6 +64,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
               *ngFor="let note of stickyNotes; trackBy: trackByNoteId"
               [note]="note"
               [currentUserId]="currentUserId"
+              [currentPhase]="currentPhase"
               (noteChange)="onNoteChange($event)"
               (noteDelete)="onNoteDelete($event)"
               (noteVote)="onNoteVote($event)"
@@ -299,6 +300,7 @@ export class RetroColumnComponent {
   @Input() column!: RetroColumn;
   @Input() stickyNotes: StickyNote[] = [];
   @Input() currentUserId: string = '';
+  @Input() currentPhase!: RetroPhase;
   
   @Output() noteAdd = new EventEmitter<{ columnId: string, content: string, color: StickyNoteColor }>();
   @Output() noteChange = new EventEmitter<StickyNote>();

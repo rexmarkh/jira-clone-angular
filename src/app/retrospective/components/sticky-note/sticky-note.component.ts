@@ -9,8 +9,9 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { StickyNote, StickyNoteColor } from '../../interfaces/retrospective.interface';
+import { StickyNote, StickyNoteColor, RetroPhase } from '../../interfaces/retrospective.interface';
 import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
 @Component({
@@ -27,6 +28,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     NzModalModule,
     NzPopoverModule,
     NzTagModule,
+    NzToolTipModule,
     DragDropModule,
     JiraControlModule
   ],
@@ -35,6 +37,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       class="sticky-note" 
       [style.background-color]="getBackgroundColor()"
       [style.border-left]="'4px solid ' + getBorderColor()"
+      [class.opacity-75]="!canEdit() && !canDelete()"
     >
       <nz-card 
         [nzBordered]="false"
@@ -56,6 +59,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           <div class="flex items-center gap-1">
             <!-- Color Picker -->
             <nz-popover 
+              *ngIf="canEdit()"
               nzTitle="Change Color" 
               nzTrigger="click"
             >
@@ -84,6 +88,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
             <!-- More Actions -->
             <nz-popover 
+              *ngIf="canEdit() || canDelete()"
               nzTitle="Actions" 
               nzTrigger="click"
             >
@@ -99,6 +104,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
               <ng-template #nzPopoverContent>
                 <div class="flex flex-col gap-1">
                   <button 
+                    *ngIf="canEdit()"
                     nz-button 
                     nzType="text" 
                     nzSize="small"
@@ -109,6 +115,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
                     Edit
                   </button>
                   <button 
+                    *ngIf="canDelete()"
                     nz-button 
                     nzType="text" 
                     nzSize="small"
@@ -129,8 +136,12 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
         <div class="mb-3">
           <div 
             *ngIf="!isEditing" 
-            class="text-sm leading-relaxed cursor-text min-h-[40px] p-2 rounded hover:bg-opacity-5 transition-colors"
-            (click)="startEditing()"
+            class="text-sm leading-relaxed min-h-[40px] p-2 rounded transition-colors"
+            [class.cursor-text]="canEdit()"
+            [class.hover:bg-opacity-5]="canEdit()"
+            [class.cursor-not-allowed]="!canEdit()"
+            [nz-tooltip]="!canEdit() ? getEditRestrictionMessage() : ''"
+            (click)="canEdit() && startEditing()"
           >
             {{ note.content }}
           </div>
@@ -138,6 +149,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           <textarea
             *ngIf="isEditing"
             [(ngModel)]="editContent"
+            name="editNoteContent"
             class="w-full p-2 border border-gray-300 rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             cdkTextareaAutosize
             #cdkTextareaAutosize="cdkTextareaAutosize"
@@ -230,6 +242,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 export class StickyNoteComponent implements OnInit, OnDestroy {
   @Input() note!: StickyNote;
   @Input() currentUserId: string = '';
+  @Input() currentPhase: RetroPhase = RetroPhase.BRAINSTORMING;
   @Output() noteChange = new EventEmitter<StickyNote>();
   @Output() noteDelete = new EventEmitter<string>();
   @Output() noteVote = new EventEmitter<string>();
@@ -304,7 +317,40 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
     return `${diffDays}d ago`;
   }
 
+  // Permission methods
+  canEdit(): boolean {
+    // Edit is only allowed during brainstorming phase and for the note author or facilitator
+    return this.currentPhase === RetroPhase.BRAINSTORMING && 
+           (this.note.authorId === this.currentUserId);
+  }
+
+  canDelete(): boolean {
+    // Delete is allowed during brainstorming phase for the note author
+    return this.currentPhase === RetroPhase.BRAINSTORMING && 
+           this.note.authorId === this.currentUserId;
+  }
+
+  canChangeColor(): boolean {
+    // Color change is only allowed during brainstorming phase
+    return this.currentPhase === RetroPhase.BRAINSTORMING && 
+           this.note.authorId === this.currentUserId;
+  }
+
+  getEditRestrictionMessage(): string {
+    if (this.currentPhase !== RetroPhase.BRAINSTORMING) {
+      return 'Notes can only be edited during the Brainstorming phase';
+    }
+    if (this.note.authorId !== this.currentUserId) {
+      return 'You can only edit your own notes';
+    }
+    return '';
+  }
+
   startEditing() {
+    if (!this.canEdit()) {
+      return;
+    }
+    
     this.isEditing = true;
     this.editContent = this.note.content;
     
@@ -331,6 +377,10 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
   }
 
   changeColor(color: StickyNoteColor) {
+    if (!this.canChangeColor()) {
+      return;
+    }
+    
     if (color !== this.note.color) {
       const updatedNote = {
         ...this.note,

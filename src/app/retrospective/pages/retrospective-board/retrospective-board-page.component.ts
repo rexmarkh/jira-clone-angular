@@ -188,6 +188,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
                 [column]="column"
                 [stickyNotes]="getStickyNotesForColumn(column.id)"
                 [currentUserId]="getCurrentUserId()"
+                [currentPhase]="currentBoard.currentPhase"
                 (noteAdd)="onNoteAdd($event)"
                 (noteChange)="onNoteChange($event)"
                 (noteDelete)="onNoteDelete($event)"
