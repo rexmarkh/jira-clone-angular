@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
@@ -17,6 +17,7 @@ import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { OrganizationService } from '../../state/organization.service';
 import { OrganizationQuery } from '../../state/organization.query';
@@ -80,8 +81,10 @@ export class OrganizationDashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private organizationService: OrganizationService,
-    private organizationQuery: OrganizationQuery
+    private organizationQuery: OrganizationQuery,
+    private message: NzMessageService
   ) {}
 
   ngOnInit() {
@@ -107,11 +110,105 @@ export class OrganizationDashboardComponent implements OnInit, OnDestroy {
           ? teams.filter(team => team.organizationId === this.currentOrganization!.id)
           : [];
       });
+
+    // Check for OAuth callback parameters
+    this.handleOAuthCallback();
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // Handle OAuth callback from Jira integration
+  private handleOAuthCallback() {
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        const orgId = params['orgId'];
+        const site = params['site'];
+        
+        if (orgId && site) {
+          console.log('OAuth callback detected:', { orgId, site });
+          
+          try {
+            this.createOrganizationFromJiraCallback(orgId, site);
+            
+            // Clear the URL parameters after processing
+            this.cleanUrlAfterCallback();
+          } catch (error) {
+            console.error('Error processing OAuth callback:', error);
+            this.message.error('Failed to process Jira integration. Please try again.');
+            this.cleanUrlAfterCallback();
+          }
+        }
+      });
+  }
+
+  // Create organization from Jira OAuth callback
+  private createOrganizationFromJiraCallback(orgId: string, site: string) {
+    console.log('Creating organization from Jira callback:', { orgId, site });
+    
+    // Validate inputs
+    if (!orgId || !site) {
+      throw new Error('Invalid OAuth callback parameters');
+    }
+    
+    // Check if organization with this name already exists
+    const existingOrg = this.organizations.find(org => 
+      org.name.toLowerCase() === orgId.toLowerCase()
+    );
+    
+    if (existingOrg) {
+      console.log('Organization already exists, updating with Jira integration');
+      
+      // Update existing organization with Jira integration
+      const jiraIntegration = {
+        isConnected: true,
+        siteUrl: `https://${site}.atlassian.net`,
+        connectedAt: new Date().toISOString()
+      };
+      
+      this.organizationService.updateOrganization(existingOrg.id, { jiraIntegration });
+      this.message.success(`Jira integration successfully connected to ${existingOrg.name}!`);
+      return;
+    }
+    
+    // Create new organization with Jira integration
+    const orgName = this.capitalizeFirstLetter(orgId);
+    const orgDescription = `Organization integrated with Jira site: ${site}.atlassian.net`;
+    
+    const jiraIntegration = {
+      isConnected: true,
+      siteUrl: `https://${site}.atlassian.net`,
+      connectedAt: new Date().toISOString()
+    };
+    
+    try {
+      // First create the organization
+      const newOrganization = this.organizationService.createOrganization(
+        orgName,
+        orgDescription
+      );
+      
+      // Then update it with Jira integration
+      this.organizationService.updateOrganization(newOrganization.id, { jiraIntegration });
+      
+      this.message.success(`Organization "${orgName}" created and linked to Jira successfully!`);
+      console.log('Organization created successfully with Jira integration!');
+    } catch (error) {
+      console.error('Error creating organization:', error);
+      throw new Error('Failed to create organization with Jira integration');
+    }
+  }
+
+  private capitalizeFirstLetter(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  // Clean URL by removing OAuth callback parameters  
+  private cleanUrlAfterCallback() {
+    this.router.navigate(['/organization'], { replaceUrl: true });
   }
 
   // Organization Management
@@ -262,41 +359,44 @@ export class OrganizationDashboardComponent implements OnInit, OnDestroy {
   }
 
   async connectJira() {
-    if (!this.isJiraConfigValid() || !this.selectedOrgForJira) {
+    if (!this.isJiraConfigValid()) {
       return;
     }
 
     this.isConnecting = true;
     
     try {
-      // Simulate API call to connect Jira
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Extract organization ID from Jira URL
+      const orgId = this.extractOrgIdFromJiraUrl(this.jiraConfig.siteUrl);
+      console.log('Extracted orgId:', orgId);
       
-      // Update organization with Jira integration info
-      const jiraIntegration = {
-        isConnected: true,
-        siteUrl: this.jiraConfig.siteUrl,
-        connectedAt: new Date().toISOString()
-      };
+      // Build the OAuth URL for your backend
+      const baseUrl = 'https://68f7adcd0002bcc324ff.fra.appwrite.run/start';
+      const params = new URLSearchParams({
+        orgId: orgId,
+        site: orgId
+      });
+      const oauthUrl = `${baseUrl}?${params.toString()}`;
       
-      // Update the organization in the service
-      this.organizationService.updateOrganization(this.selectedOrgForJira.id, { jiraIntegration });
+      console.log('Redirecting to OAuth URL:', oauthUrl);
       
-      // Update the local selectedOrgForJira object to reflect the changes immediately
-      this.selectedOrgForJira = {
-        ...this.selectedOrgForJira,
-        jiraIntegration
-      };
+      // Redirect to your backend OAuth flow
+      window.location.href = oauthUrl;
       
-      // Also update the organization in the organizations array for immediate UI update
-      this.updateOrganizationInArrays(this.selectedOrgForJira);
-      
-      console.log('Jira connected successfully!');
-      this.resetJiraConfig();
     } catch (error) {
-      console.error('Failed to connect Jira:', error);
-    } finally {
+      console.error('Failed to initiate Jira connection:', error);
       this.isConnecting = false;
+    }
+  }
+
+  private extractOrgIdFromJiraUrl(url: string): string {
+    // Extract organization ID from Jira URL
+    // e.g., https://mycompany.atlassian.net -> mycompany
+    try {
+      const match = url.match(/https?:\/\/([^.]+)\.atlassian\.net/);
+      return match ? match[1] : 'unknown';
+    } catch {
+      return 'unknown';
     }
   }
 

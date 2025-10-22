@@ -197,38 +197,48 @@ export class OrganizationDetailsComponent implements OnInit, OnDestroy {
   }
 
   async connectJira() {
+    console.log('connectJira called with:', this.jiraConfig);
+    console.log('organization:', this.organization);
+    
     if (!this.jiraConfig.siteUrl?.trim() || !this.organization) {
+      console.log('Validation failed - siteUrl:', this.jiraConfig.siteUrl, 'organization:', this.organization);
       return;
     }
 
     this.isConnecting = true;
     
     try {
-      // Simulate API call to connect Jira
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Extract organization ID from Jira URL
+      const orgId = this.extractOrgIdFromJiraUrl(this.jiraConfig.siteUrl);
+      console.log('Extracted orgId:', orgId);
       
-      // Update organization with Jira integration info
-      const jiraIntegration = {
-        isConnected: true,
-        siteUrl: this.jiraConfig.siteUrl,
-        connectedAt: new Date().toISOString()
-      };
+      // Build the OAuth URL for your backend
+      const baseUrl = 'https://68f7adcd0002bcc324ff.fra.appwrite.run/start';
+      const params = new URLSearchParams({
+        orgId: orgId,
+        site: orgId
+      });
+      const oauthUrl = `${baseUrl}?${params.toString()}`;
       
-      // Update the organization in the service
-      this.organizationService.updateOrganization(this.organization.id, { jiraIntegration });
+      console.log('Redirecting to OAuth URL:', oauthUrl);
       
-      // Update the local organization object to reflect the changes immediately
-      this.organization = {
-        ...this.organization,
-        jiraIntegration
-      };
+      // Redirect to your backend OAuth flow
+      window.location.href = oauthUrl;
       
-      console.log('Jira connected successfully!');
-      this.resetJiraConfig();
     } catch (error) {
-      console.error('Failed to connect Jira:', error);
-    } finally {
+      console.error('Failed to initiate Jira connection:', error);
       this.isConnecting = false;
+    }
+  }
+
+  private extractOrgIdFromJiraUrl(url: string): string {
+    // Extract organization ID from Jira URL
+    // e.g., https://mycompany.atlassian.net -> mycompany
+    try {
+      const match = url.match(/https?:\/\/([^.]+)\.atlassian\.net/);
+      return match ? match[1] : 'unknown';
+    } catch {
+      return 'unknown';
     }
   }
 

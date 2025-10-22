@@ -53,7 +53,7 @@
   
   .modal-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 32px;
+    padding: 20px 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -62,11 +62,11 @@
     .header-content {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 16px;
       
       .header-icon {
-        width: 64px;
-        height: 64px;
+        width: 48px;
+        height: 48px;
         background: rgba(255, 255, 255, 0.2);
         display: flex;
         align-items: center;
@@ -74,21 +74,21 @@
         backdrop-filter: blur(10px);
         
         .icon {
-          font-size: 28px;
+          font-size: 22px;
           color: white;
         }
       }
       
       .header-text {
         .title {
-          font-size: 28px;
+          font-size: 22px;
           font-weight: 700;
-          margin: 0 0 8px 0;
+          margin: 0 0 4px 0;
           color: white;
         }
         
         .subtitle {
-          font-size: 16px;
+          font-size: 14px;
           margin: 0;
           opacity: 0.9;
           color: rgba(255, 255, 255, 0.9);
@@ -112,188 +112,283 @@
   }
   
   .modal-content {
-    padding: 32px;
+    padding: 20px;
     min-height: 400px;
+    max-height: 500px;
+    display: flex;
+    gap: 24px;
+    overflow: hidden;
     
-    .org-details-header {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 32px;
-      padding-bottom: 20px;
-      border-bottom: 2px solid #f3f4f6;
+    .organization-section {
+      flex: 1;
       
-      .org-avatar {
-        width: 48px;
-        height: 48px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      .section-header {
         display: flex;
         align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 16px;
-        font-weight: 700;
-      }
-      
-      .org-info {
-        .org-name {
+        justify-content: space-between;
+        margin-bottom: 24px;
+        
+        .section-title {
           font-size: 20px;
           font-weight: 600;
-          margin: 0 0 8px 0;
+          margin: 0;
           color: #1f2937;
         }
+      }
+      
+      .org-card {
+        border: 2px solid #e5e7eb;
+        padding: 20px;
+        background: white;
         
-        .connection-status {
+        &.selected {
+          border-color: #3b82f6;
+          background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .org-card-content {
           display: flex;
           align-items: center;
-          gap: 8px;
-          font-size: 14px;
-          color: #ef4444;
-          font-weight: 500;
+          gap: 16px;
           
-          &.connected {
-            color: #059669;
+          .org-avatar {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
           }
           
-          .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ef4444;
-          }
-          
-          &.connected .status-dot {
-            background: #059669;
+          .org-info {
+            flex: 1;
+            
+            .org-name {
+              font-size: 18px;
+              font-weight: 600;
+              margin: 0 0 4px 0;
+              color: #1f2937;
+            }
+            
+            .org-description {
+              font-size: 14px;
+              color: #6b7280;
+              margin: 0 0 12px 0;
+              line-height: 1.4;
+            }
+            
+            .org-meta {
+              display: flex;
+              gap: 16px;
+              
+              .meta-item {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 12px;
+                color: #9ca3af;
+                
+                span[nz-icon] {
+                  font-size: 14px;
+                }
+              }
+            }
           }
         }
       }
     }
     
-    .connection-form {
-      margin-top: 24px;
+    .config-section {
+      flex: 1;
+      background: #f8fafc;
+      padding: 16px;
       
-      .modern-form {
-        .ant-form-item {
-          margin-bottom: 24px;
+      .config-header {
+        margin-bottom: 24px;
+        
+        .selected-org {
+          display: flex;
+          align-items: center;
+          gap: 16px;
           
-          .ant-form-item-label {
-            label {
-              font-weight: 500;
-              color: #374151;
-            }
+          .selected-org-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
           }
           
-          .ant-input-group {
-            .ant-input {
-              border: 2px solid #e5e7eb;
-              padding: 12px 16px;
-              font-size: 14px;
-              transition: all 0.3s;
-              
-              &:focus {
-                border-color: #3b82f6;
-                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-              }
+          .selected-org-info {
+            .selected-org-name {
+              font-size: 20px;
+              font-weight: 600;
+              margin: 0 0 8px 0;
+              color: #1f2937;
             }
             
-            .ant-input-group-addon {
-              border: 2px solid #e5e7eb;
-              background: #f9fafb;
+            .connection-status {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 14px;
+              color: #ef4444;
+              font-weight: 500;
               
-              .anticon {
-                color: #6b7280;
+              &.connected {
+                color: #059669;
+              }
+              
+              .status-dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: #ef4444;
+              }
+              
+              &.connected .status-dot {
+                background: #059669;
               }
             }
           }
         }
+      }
+      
+      .connection-form {
+        margin-top: 16px;
         
-        .form-actions {
+        .modern-form {
+          .ant-form-item {
+            margin-bottom: 16px;
+            
+            .ant-form-item-label {
+              label {
+                font-weight: 500;
+                color: #374151;
+              }
+            }
+            
+            .ant-input-group {
+              .ant-input {
+                border: 2px solid #e5e7eb;
+                padding: 10px 14px;
+                font-size: 14px;
+                transition: all 0.3s;
+                
+                &:focus {
+                  border-color: #3b82f6;
+                  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                }
+              }
+              
+              .ant-input-group-addon {
+                border: 2px solid #e5e7eb;
+                background: #f9fafb;
+                
+                .anticon {
+                  color: #6b7280;
+                }
+              }
+            }
+          }
+          
+          .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            
+            .action-btn {
+              height: 40px;
+              padding: 0 24px;
+              font-weight: 500;
+              transition: all 0.3s;
+              
+              &.primary {
+                background: #3b82f6;
+                border: 2px solid #3b82f6;
+                
+                &:hover {
+                  background: #2563eb;
+                  border-color: #2563eb;
+                  transform: translateY(-1px);
+                }
+                
+                &:disabled {
+                  opacity: 0.5;
+                  transform: none;
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      .connected-state {
+        .connection-details {
+          background: white;
+          border: 1px solid #e5e7eb;
+          overflow: hidden;
+          margin-bottom: 24px;
+          
+          .detail-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            
+            &:last-child {
+              border-bottom: none;
+            }
+            
+            .detail-label {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              font-size: 14px;
+              font-weight: 500;
+              color: #6b7280;
+              
+              span[nz-icon] {
+                font-size: 16px;
+                color: #9ca3af;
+              }
+            }
+            
+            .detail-value {
+              font-size: 14px;
+              font-weight: 500;
+              color: #1f2937;
+            }
+          }
+        }
+        
+        .connection-actions {
           display: flex;
           gap: 16px;
           justify-content: flex-end;
-          margin-top: 32px;
           
           .action-btn {
-            height: 48px;
-            padding: 0 32px;
+            height: 40px;
+            padding: 0 24px;
             font-weight: 500;
             transition: all 0.3s;
             
-            &.primary {
-              background: #3b82f6;
-              border: 2px solid #3b82f6;
-              
+            &.danger {
               &:hover {
-                background: #2563eb;
-                border-color: #2563eb;
                 transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(239, 68, 68, 0.25);
               }
-              
-              &:disabled {
-                opacity: 0.5;
-                transform: none;
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    .connected-state {
-      .connection-details {
-        background: white;
-        border: 1px solid #e5e7eb;
-        overflow: hidden;
-        margin-bottom: 32px;
-        
-        .detail-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 16px 20px;
-          border-bottom: 1px solid #f3f4f6;
-          
-          &:last-child {
-            border-bottom: none;
-          }
-          
-          .detail-label {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #6b7280;
-            
-            span[nz-icon] {
-              font-size: 16px;
-              color: #9ca3af;
-            }
-          }
-          
-          .detail-value {
-            font-size: 14px;
-            font-weight: 500;
-            color: #1f2937;
-          }
-        }
-      }
-      
-      .connection-actions {
-        display: flex;
-        gap: 16px;
-        justify-content: flex-end;
-        
-        .action-btn {
-          height: 48px;
-          padding: 0 32px;
-          font-weight: 500;
-          transition: all 0.3s;
-          
-          &.danger {
-            &:hover {
-              transform: translateY(-1px);
-              box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
             }
           }
         }
