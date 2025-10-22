@@ -12,6 +12,18 @@
           nz-button 
           nzType="default"
           nzSize="large"
+          (click)="showLinkJiraModal()"
+          class="flex items-center gap-2 jira-link-button"
+          [class.linked]="hasAnyJiraLinkedOrg()"
+        >
+          <span nz-icon nzType="link" nzTheme="outline"></span>
+          {{ hasAnyJiraLinkedOrg() ? 'Manage Jira Links' : 'Link Jira' }}
+        </button>
+        
+        <button 
+          nz-button 
+          nzType="default"
+          nzSize="large"
           (click)="loadSampleData()"
           class="flex items-center gap-2"
         >
@@ -225,6 +237,216 @@
           </j-button>
         </div>
       </form>
+    </div>
+  </ng-container>
+</nz-modal>
+
+<!-- Jira Link Management Modal -->
+<nz-modal
+  [(nzVisible)]="isJiraLinkModalVisible"
+  [nzTitle]="null"
+  [nzFooter]="null"
+  [nzClosable]="false"
+  (nzOnCancel)="cancelJiraLink()"
+  nzWidth="900px"
+  nzBodyStyle="padding: 0"
+  nzClassName="jira-modal"
+>
+  <ng-container *nzModalContent>
+    <div class="jira-modal-container">
+      <!-- Modern Header -->
+      <div class="modal-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <span nz-icon nzType="api" nzTheme="outline" class="icon"></span>
+          </div>
+          <div class="header-text">
+            <h2 class="title">Jira Integration</h2>
+            <p class="subtitle">Connect your organizations to Jira for seamless project management</p>
+          </div>
+        </div>
+        <button 
+          nz-button 
+          nzType="text" 
+          nzSize="large"
+          (click)="cancelJiraLink()"
+          class="close-btn"
+        >
+          <span nz-icon nzType="close" nzTheme="outline"></span>
+        </button>
+      </div>
+
+      <!-- Content Area -->
+      <div class="modal-content">
+        <!-- Organizations Grid -->
+        <div class="organizations-section">
+          <div class="section-header">
+            <h3 class="section-title">Select Organization</h3>
+            <div class="section-badge">{{ organizations.length }} organization{{ organizations.length !== 1 ? 's' : '' }}</div>
+          </div>
+          
+          <div class="organizations-grid" *ngIf="organizations.length > 0">
+            <div 
+              *ngFor="let org of organizations; trackBy: trackByOrgId"
+              class="org-card"
+              [class.selected]="selectedOrgForJira?.id === org.id"
+              [class.connected]="org.jiraIntegration?.isConnected"
+              (click)="selectOrganizationForJira(org)"
+            >
+              <div class="org-card-content">
+                <div class="org-avatar">
+                  {{ getOrgInitials(org) }}
+                </div>
+                <div class="org-info">
+                  <h4 class="org-name">{{ org.name }}</h4>
+                  <p class="org-description">{{ org.description }}</p>
+                  <div class="org-meta">
+                    <span class="meta-item">
+                      <span nz-icon nzType="team" nzTheme="outline"></span>
+                      {{ org.memberCount }} members
+                    </span>
+                    <span class="meta-item">
+                      <span nz-icon nzType="apartment" nzTheme="outline"></span>
+                      {{ org.teamCount }} teams
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="organizations.length === 0" class="empty-organizations">
+            <div class="empty-icon">
+              <span nz-icon nzType="apartment" nzTheme="outline"></span>
+            </div>
+            <h3 class="empty-title">No Organizations Found</h3>
+            <p class="empty-description">Create your first organization to get started with Jira integration</p>
+            <button 
+              nz-button 
+              nzType="primary"
+              nzSize="large"
+              (click)="showCreateOrganizationModalFromJira()"
+              class="empty-action"
+            >
+              <span nz-icon nzType="plus" nzTheme="outline"></span>
+              Create Organization
+            </button>
+          </div>
+        </div>
+
+        <!-- Configuration Panel -->
+        <div class="config-section" *ngIf="selectedOrgForJira">
+          <div class="config-header">
+            <div class="selected-org">
+              <div class="selected-org-avatar">
+                {{ getOrgInitials(selectedOrgForJira) }}
+              </div>
+              <div class="selected-org-info">
+                <h3 class="selected-org-name">{{ selectedOrgForJira.name }}</h3>
+                <div class="connection-status" [class.connected]="selectedOrgForJira.jiraIntegration?.isConnected">
+                  <div class="status-dot"></div>
+                  <span>{{ selectedOrgForJira.jiraIntegration?.isConnected ? 'Jira Integration Active' : 'Not connected' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Not Connected State -->
+          <div *ngIf="!selectedOrgForJira.jiraIntegration?.isConnected" class="connection-form">
+            <form nz-form [nzLayout]="'vertical'" class="modern-form">
+              <nz-form-item>
+                <nz-form-label nzRequired>Jira Site URL</nz-form-label>
+                <nz-form-control>
+                  <nz-input-group nzPrefixIcon="global">
+                    <input 
+                      nz-input 
+                      [(ngModel)]="jiraConfig.siteUrl" 
+                      name="siteUrl"
+                      placeholder="https://yourcompany.atlassian.net"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+
+              <div class="form-actions">
+                <button 
+                  nz-button 
+                  nzType="primary" 
+                  nzSize="large"
+                  (click)="connectJira()"
+                  [nzLoading]="isConnecting"
+                  [disabled]="!jiraConfig.siteUrl?.trim()"
+                  class="action-btn primary"
+                >
+                  <span nz-icon nzType="thunderbolt" nzTheme="outline" *ngIf="!isConnecting"></span>
+                  {{ isConnecting ? 'Connecting...' : 'Connect to Jira' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Connected State -->
+          <div *ngIf="selectedOrgForJira.jiraIntegration?.isConnected" class="connected-state">
+            <div class="connection-details">
+              <div class="detail-row">
+                <div class="detail-label">
+                  <span nz-icon nzType="global" nzTheme="outline"></span>
+                  Jira Site
+                </div>
+                <div class="detail-value">{{ selectedOrgForJira.jiraIntegration?.siteUrl }}</div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-label">
+                  <span nz-icon nzType="calendar" nzTheme="outline"></span>
+                  Connected
+                </div>
+                <div class="detail-value">{{ selectedOrgForJira.jiraIntegration?.connectedAt | date:'MMM d, yyyy \'at\' h:mm a' }}</div>
+              </div>
+            </div>
+
+            <div class="connection-actions">
+              <button 
+                nz-button 
+                nzType="primary" 
+                nzDanger
+                nzSize="large"
+                (click)="disconnectJira()"
+                [nzLoading]="isDisconnecting"
+                class="action-btn danger"
+              >
+                <span nz-icon nzType="disconnect" nzTheme="outline" *ngIf="!isDisconnecting"></span>
+                {{ isDisconnecting ? 'Disconnecting...' : 'Disconnect' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Getting Started State -->
+        <div class="getting-started" *ngIf="!selectedOrgForJira && organizations.length > 0">
+          <div class="getting-started-content">
+            <div class="getting-started-icon">
+              <span nz-icon nzType="rocket" nzTheme="outline"></span>
+            </div>
+            <h3>Get Started with Jira Integration</h3>
+            <p>Select an organization from the list to configure Jira integration and start syncing your projects, issues, and workflows.</p>
+            <div class="features-list">
+              <div class="feature-item">
+                <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+                <span>Sync projects and issues</span>
+              </div>
+              <div class="feature-item">
+                <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+                <span>Track work progress</span>
+              </div>
+              <div class="feature-item">
+                <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+                <span>Manage team workflows</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </ng-container>
 </nz-modal>

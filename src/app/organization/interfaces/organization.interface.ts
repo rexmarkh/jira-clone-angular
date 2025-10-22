@@ -10,6 +10,7 @@ export interface Organization {
   ownerId: string;
   isPrivate: boolean;
   settings?: OrganizationSettings;
+  jiraIntegration?: JiraIntegration;
 }
 
 export interface Team {
@@ -140,4 +141,10 @@ export enum InviteStatus {
   ACCEPTED = 'accepted',
   DECLINED = 'declined',
   EXPIRED = 'expired'
+}
+
+export interface JiraIntegration {
+  isConnected: boolean;
+  siteUrl: string;
+  connectedAt: string;
 }

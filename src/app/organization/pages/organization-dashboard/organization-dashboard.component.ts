@@ -15,6 +15,8 @@ import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSwitchModule } from 'ng-zorro-antd/switch';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { OrganizationService } from '../../state/organization.service';
 import { OrganizationQuery } from '../../state/organization.query';
@@ -40,6 +42,8 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     NzTabsModule,
     NzSelectModule,
     NzSwitchModule,
+    NzFormModule,
+    NzTagModule,
     OrganizationCardComponent,
     JiraControlModule
   ],
@@ -55,6 +59,19 @@ export class OrganizationDashboardComponent implements OnInit, OnDestroy {
   
   isCreateOrgModalVisible = false;
   isCreateTeamModalVisible = false;
+  
+  // Jira Integration Modal
+  isJiraLinkModalVisible = false;
+  isConnecting = false;
+  isDisconnecting = false;
+  showApiToken = false;
+  selectedOrgForJira: Organization | null = null;
+  
+  jiraConfig = {
+    siteUrl: '',
+    email: '',
+    apiToken: ''
+  };
   
   newOrgName = '';
   newOrgDescription = '';
@@ -198,5 +215,141 @@ export class OrganizationDashboardComponent implements OnInit, OnDestroy {
 
   loadSampleData() {
     this.organizationService.loadSampleData();
+  }
+
+  // Jira Integration Methods
+  hasAnyJiraLinkedOrg(): boolean {
+    return this.organizations.some(org => org.jiraIntegration?.isConnected);
+  }
+
+  showLinkJiraModal() {
+    this.isJiraLinkModalVisible = true;
+    this.selectedOrgForJira = null;
+    this.resetJiraConfig();
+  }
+
+  cancelJiraLink() {
+    this.isJiraLinkModalVisible = false;
+    this.selectedOrgForJira = null;
+    this.resetJiraConfig();
+  }
+
+  selectOrganizationForJira(organization: Organization) {
+    this.selectedOrgForJira = organization;
+    this.resetJiraConfig();
+  }
+
+  // Helper method to update the organization in the local arrays
+  private updateOrganizationInArrays(updatedOrg: Organization) {
+    // Update in the organizations array
+    const orgIndex = this.organizations.findIndex(org => org.id === updatedOrg.id);
+    if (orgIndex !== -1) {
+      this.organizations[orgIndex] = updatedOrg;
+    }
+  }
+
+  resetJiraConfig() {
+    this.jiraConfig = {
+      siteUrl: '',
+      email: '',
+      apiToken: ''
+    };
+    this.showApiToken = false;
+  }
+
+  isJiraConfigValid(): boolean {
+    return this.jiraConfig.siteUrl.trim() !== '';
+  }
+
+  async connectJira() {
+    if (!this.isJiraConfigValid() || !this.selectedOrgForJira) {
+      return;
+    }
+
+    this.isConnecting = true;
+    
+    try {
+      // Simulate API call to connect Jira
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Update organization with Jira integration info
+      const jiraIntegration = {
+        isConnected: true,
+        siteUrl: this.jiraConfig.siteUrl,
+        connectedAt: new Date().toISOString()
+      };
+      
+      // Update the organization in the service
+      this.organizationService.updateOrganization(this.selectedOrgForJira.id, { jiraIntegration });
+      
+      // Update the local selectedOrgForJira object to reflect the changes immediately
+      this.selectedOrgForJira = {
+        ...this.selectedOrgForJira,
+        jiraIntegration
+      };
+      
+      // Also update the organization in the organizations array for immediate UI update
+      this.updateOrganizationInArrays(this.selectedOrgForJira);
+      
+      console.log('Jira connected successfully!');
+      this.resetJiraConfig();
+    } catch (error) {
+      console.error('Failed to connect Jira:', error);
+    } finally {
+      this.isConnecting = false;
+    }
+  }
+
+  async disconnectJira() {
+    if (!this.selectedOrgForJira) {
+      return;
+    }
+
+    this.isDisconnecting = true;
+    
+    try {
+      // Simulate API call to disconnect Jira
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Update organization to remove Jira integration
+      const jiraIntegration = {
+        isConnected: false,
+        siteUrl: '',
+        connectedAt: ''
+      };
+      
+      // Update the organization in the service
+      this.organizationService.updateOrganization(this.selectedOrgForJira.id, { jiraIntegration });
+      
+      // Update the local selectedOrgForJira object to reflect the changes immediately
+      this.selectedOrgForJira = {
+        ...this.selectedOrgForJira,
+        jiraIntegration
+      };
+      
+      // Also update the organization in the organizations array for immediate UI update
+      this.updateOrganizationInArrays(this.selectedOrgForJira);
+      
+      console.log('Jira disconnected successfully!');
+      this.resetJiraConfig();
+    } catch (error) {
+      console.error('Failed to disconnect Jira:', error);
+    } finally {
+      this.isDisconnecting = false;
+    }
+  }
+
+  getOrgInitials(org: Organization): string {
+    return org.name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }
+
+  showCreateOrganizationModalFromJira() {
+    this.cancelJiraLink();
+    this.showCreateOrganizationModal();
   }
 }
