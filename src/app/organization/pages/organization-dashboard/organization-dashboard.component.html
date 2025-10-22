@@ -422,6 +422,62 @@
           </div>
         </div>
 
+        <!-- No Organizations Jira Setup State -->
+        <div class="config-section" *ngIf="organizations.length === 0">
+          <div class="getting-started-content">
+            <h3>Get Started with Jira Integration</h3>
+            <p>Connect your Jira account to start syncing your projects, issues, and workflows.</p>
+            <div class="features-list">
+              <div class="feature-item">
+                <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+                <span>Sync projects and issues</span>
+              </div>
+              <div class="feature-item">
+                <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+                <span>Track work progress</span>
+              </div>
+              <div class="feature-item">
+                <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+                <span>Manage team workflows</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Direct Jira Connection Form for No Organizations -->
+          <div class="connection-form">
+            <form nz-form [nzLayout]="'vertical'" class="modern-form">
+              <nz-form-item>
+                <nz-form-label nzRequired>Jira Site URL</nz-form-label>
+                <nz-form-control>
+                  <nz-input-group nzPrefixIcon="global">
+                    <input 
+                      nz-input 
+                      [(ngModel)]="jiraConfig.siteUrl" 
+                      name="siteUrl"
+                      placeholder="https://yourcompany.atlassian.net"
+                    />
+                  </nz-input-group>
+                </nz-form-control>
+              </nz-form-item>
+
+              <div class="form-actions">
+                <button 
+                  nz-button 
+                  nzType="primary" 
+                  nzSize="medium"
+                  (click)="connectJira()"
+                  [nzLoading]="isConnecting"
+                  [disabled]="!jiraConfig.siteUrl?.trim()"
+                  class="action-btn primary"
+                >
+                  <span nz-icon nzType="thunderbolt" nzTheme="outline" *ngIf="!isConnecting"></span>
+                  {{ isConnecting ? 'Connecting...' : 'Connect to Jira' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <!-- Getting Started State -->
         <div class="getting-started" *ngIf="!selectedOrgForJira && organizations.length > 0">
           <div class="getting-started-content">

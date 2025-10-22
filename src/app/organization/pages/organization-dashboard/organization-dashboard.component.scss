@@ -58,7 +58,7 @@
   
   .modal-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    padding: 32px;
+    padding: 20px 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -67,11 +67,11 @@
     .header-content {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 16px;
       
       .header-icon {
-        width: 64px;
-        height: 64px;
+        width: 48px;
+        height: 48px;
         background: rgba(255, 255, 255, 0.2);
         display: flex;
         align-items: center;
@@ -79,21 +79,21 @@
         backdrop-filter: blur(10px);
         
         .icon {
-          font-size: 28px;
+          font-size: 22px;
           color: white;
         }
       }
       
       .header-text {
         .title {
-          font-size: 28px;
+          font-size: 22px;
           font-weight: 700;
-          margin: 0 0 8px 0;
+          margin: 0 0 4px 0;
           color: white;
         }
         
         .subtitle {
-          font-size: 16px;
+          font-size: 14px;
           margin: 0;
           opacity: 0.9;
           color: rgba(255, 255, 255, 0.9);
@@ -117,10 +117,12 @@
   }
   
   .modal-content {
-    padding: 32px;
-    min-height: 500px;
+    padding: 20px;
+    min-height: 400px;
+    max-height: 500px;
     display: flex;
-    gap: 32px;
+    gap: 24px;
+    overflow: hidden;
     
     .organizations-section {
       flex: 1;
@@ -298,7 +300,60 @@
     .config-section {
       flex: 1;
       background: #f8fafc;
-      padding: 24px;
+      padding: 16px;
+      
+      // Shared styles for getting started content (both with and without orgs)
+      .getting-started-content {
+        text-align: center;
+        max-width: 400px;
+        margin: 0 auto;
+        
+        .getting-started-icon {
+          width: 60px;
+          height: 60px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 16px;
+          color: white;
+          font-size: 24px;
+        }
+        
+        h3 {
+          font-size: 20px;
+          font-weight: 600;
+          margin: 0 0 12px 0;
+          color: #1f2937;
+        }
+        
+        p {
+          font-size: 14px;
+          color: #6b7280;
+          margin: 0 0 20px 0;
+          line-height: 1.5;
+        }
+        
+        .features-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-bottom: 20px;
+          
+          .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #374151;
+            
+            span[nz-icon] {
+              color: #10b981;
+              font-size: 14px;
+            }
+          }
+        }
+      }
       
       .config-header {
         margin-bottom: 32px;
@@ -356,11 +411,11 @@
       }
       
       .connection-form {
-        margin-top: 24px;
+        margin-top: 16px;
         
         .modern-form {
           .ant-form-item {
-            margin-bottom: 24px;
+            margin-bottom: 16px;
             
             .ant-form-item-label {
               label {
@@ -372,7 +427,7 @@
             .ant-input-group {
               .ant-input {
                 border: 2px solid #e5e7eb;
-                padding: 12px 16px;
+                padding: 10px 14px;
                 font-size: 14px;
                 transition: all 0.3s;
                 
@@ -413,13 +468,13 @@
           
           .form-actions {
             display: flex;
-            gap: 16px;
+            gap: 12px;
             justify-content: flex-end;
-            margin-top: 32px;
+            margin-top: 20px;
             
             .action-btn {
-              height: 48px;
-              padding: 0 32px;
+              height: 40px;
+              padding: 0 24px;
               font-weight: 500;
               transition: all 0.3s;
               
@@ -533,55 +588,7 @@
       align-items: center;
       justify-content: center;
       
-      .getting-started-content {
-        text-align: center;
-        max-width: 400px;
-        
-        .getting-started-icon {
-          width: 80px;
-          height: 80px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 24px;
-          color: white;
-          font-size: 32px;
-        }
-        
-        h3 {
-          font-size: 24px;
-          font-weight: 600;
-          margin: 0 0 16px 0;
-          color: #1f2937;
-        }
-        
-        p {
-          font-size: 16px;
-          color: #6b7280;
-          margin: 0 0 32px 0;
-          line-height: 1.6;
-        }
-        
-        .features-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          
-          .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 14px;
-            color: #374151;
-            
-            span[nz-icon] {
-              color: #10b981;
-              font-size: 16px;
-            }
-          }
-        }
-      }
+      // Uses the shared .getting-started-content styles from .config-section
     }
   }
 }
