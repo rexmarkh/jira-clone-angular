@@ -15,6 +15,10 @@ import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { FormsModule } from '@angular/forms';
 
 // Components
 import { TeamCardComponent } from '../../components/team-card/team-card.component';
@@ -29,6 +33,7 @@ import { Organization, Team, OrganizationMember } from '../../interfaces/organiz
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     NzLayoutModule,
     NzCardModule,
     NzButtonModule,
@@ -39,6 +44,9 @@ import { Organization, Team, OrganizationMember } from '../../interfaces/organiz
     NzTagModule,
     NzTableModule,
     NzAvatarModule,
+    NzModalModule,
+    NzFormModule,
+    NzInputModule,
     TeamCardComponent
   ],
   templateUrl: './organization-details.component.html',
@@ -50,6 +58,17 @@ export class OrganizationDetailsComponent implements OnInit, OnDestroy {
   organization: Organization | null = null;
   teams: Team[] = [];
   members: OrganizationMember[] = [];
+  
+  // Jira Integration
+  isJiraLinkModalVisible = false;
+  isConnecting = false;
+  isDisconnecting = false;
+  
+  jiraConfig = {
+    siteUrl: '',
+    email: '',
+    apiToken: ''
+  };
   
   constructor(
     private route: ActivatedRoute,
@@ -155,6 +174,97 @@ export class OrganizationDetailsComponent implements OnInit, OnDestroy {
       case 'pending': return 'orange';
       case 'suspended': return 'red';
       default: return 'default';
+    }
+  }
+
+  // Jira Integration Methods
+  showLinkJiraModal() {
+    this.isJiraLinkModalVisible = true;
+    this.resetJiraConfig();
+  }
+
+  cancelJiraLink() {
+    this.isJiraLinkModalVisible = false;
+    this.resetJiraConfig();
+  }
+
+  resetJiraConfig() {
+    this.jiraConfig = {
+      siteUrl: '',
+      email: '',
+      apiToken: ''
+    };
+  }
+
+  async connectJira() {
+    if (!this.jiraConfig.siteUrl?.trim() || !this.organization) {
+      return;
+    }
+
+    this.isConnecting = true;
+    
+    try {
+      // Simulate API call to connect Jira
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Update organization with Jira integration info
+      const jiraIntegration = {
+        isConnected: true,
+        siteUrl: this.jiraConfig.siteUrl,
+        connectedAt: new Date().toISOString()
+      };
+      
+      // Update the organization in the service
+      this.organizationService.updateOrganization(this.organization.id, { jiraIntegration });
+      
+      // Update the local organization object to reflect the changes immediately
+      this.organization = {
+        ...this.organization,
+        jiraIntegration
+      };
+      
+      console.log('Jira connected successfully!');
+      this.resetJiraConfig();
+    } catch (error) {
+      console.error('Failed to connect Jira:', error);
+    } finally {
+      this.isConnecting = false;
+    }
+  }
+
+  async disconnectJira() {
+    if (!this.organization) {
+      return;
+    }
+
+    this.isDisconnecting = true;
+    
+    try {
+      // Simulate API call to disconnect Jira
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Update organization to remove Jira integration
+      const jiraIntegration = {
+        isConnected: false,
+        siteUrl: '',
+        connectedAt: ''
+      };
+      
+      // Update the organization in the service
+      this.organizationService.updateOrganization(this.organization.id, { jiraIntegration });
+      
+      // Update the local organization object to reflect the changes immediately
+      this.organization = {
+        ...this.organization,
+        jiraIntegration
+      };
+      
+      console.log('Jira disconnected successfully!');
+      this.resetJiraConfig();
+    } catch (error) {
+      console.error('Failed to disconnect Jira:', error);
+    } finally {
+      this.isDisconnecting = false;
     }
   }
 }

@@ -11,7 +11,7 @@
         <button 
           nz-button 
           nzType="default"
-          nzSize="large"
+          nzSize="medium"
           (click)="showLinkJiraModal()"
           class="flex items-center gap-2 jira-link-button"
           [class.linked]="hasAnyJiraLinkedOrg()"
@@ -23,7 +23,7 @@
         <button 
           nz-button 
           nzType="default"
-          nzSize="large"
+          nzSize="medium"
           (click)="loadSampleData()"
           class="flex items-center gap-2"
         >
@@ -34,7 +34,7 @@
         <button 
           nz-button 
           nzType="primary"
-          nzSize="large"
+          nzSize="medium"
           (click)="showCreateOrganizationModal()"
           class="flex items-center gap-2"
         >
@@ -79,7 +79,7 @@
     <button 
       nz-button 
       nzType="primary" 
-      nzSize="large"
+      nzSize="medium"
       (click)="showCreateOrganizationModal()"
       class="flex items-center gap-2 mx-auto"
     >
@@ -99,7 +99,7 @@
     <button 
       nz-button 
       nzType="primary" 
-      nzSize="large"
+      nzSize="medium"
       (click)="showCreateTeamModal()"
       class="flex items-center gap-2 mx-auto"
     >
@@ -268,7 +268,7 @@
         <button 
           nz-button 
           nzType="text" 
-          nzSize="large"
+          nzSize="medium"
           (click)="cancelJiraLink()"
           class="close-btn"
         >
@@ -325,7 +325,7 @@
             <button 
               nz-button 
               nzType="primary"
-              nzSize="large"
+              nzSize="medium"
               (click)="showCreateOrganizationModalFromJira()"
               class="empty-action"
             >
@@ -373,7 +373,7 @@
                 <button 
                   nz-button 
                   nzType="primary" 
-                  nzSize="large"
+                  nzSize="medium"
                   (click)="connectJira()"
                   [nzLoading]="isConnecting"
                   [disabled]="!jiraConfig.siteUrl?.trim()"
@@ -410,7 +410,7 @@
                 nz-button 
                 nzType="primary" 
                 nzDanger
-                nzSize="large"
+                nzSize="medium"
                 (click)="disconnectJira()"
                 [nzLoading]="isDisconnecting"
                 class="action-btn danger"

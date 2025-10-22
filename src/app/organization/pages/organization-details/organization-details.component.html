@@ -36,6 +36,18 @@
           <button 
             nz-button 
             nzType="default"
+            nzSize="medium"
+            (click)="showLinkJiraModal()"
+            class="flex items-center gap-2 jira-link-button"
+            [class.linked]="organization.jiraIntegration?.isConnected"
+          >
+            <span nz-icon nzType="link" nzTheme="outline"></span>
+            {{ organization.jiraIntegration?.isConnected ? 'Manage Jira' : 'Link Jira' }}
+          </button>
+          <button 
+            nz-button 
+            nzType="default"
+            nzSize="medium"
             (click)="showInviteMemberModal()"
             class="flex items-center gap-2"
           >
@@ -45,6 +57,7 @@
           <button 
             nz-button 
             nzType="primary"
+            nzSize="medium"
             (click)="showCreateTeamModal()"
             class="flex items-center gap-2"
           >
@@ -82,6 +95,7 @@
                 <button 
                   nz-button 
                   nzType="primary"
+                  nzSize="medium"
                   (click)="showCreateTeamModal()"
                   class="flex items-center gap-2 mx-auto"
                 >
@@ -107,7 +121,7 @@
                   <nz-avatar 
                     [nzSrc]="member.user.avatarUrl" 
                     [nzText]="member.user.name"
-                    nzSize="small"
+                    nzSize="medium"
                   ></nz-avatar>
                   <div>
                     <div class="font-medium text-gray-900">{{ member.user.name }}</div>
@@ -115,10 +129,10 @@
                   </div>
                 </div>
                 <div class="flex flex-col items-end gap-1">
-                  <nz-tag [nzColor]="getRoleColor(member.role)" nzSize="small">
+                  <nz-tag [nzColor]="getRoleColor(member.role)" nzSize="medium">
                     {{ member.role }}
                   </nz-tag>
-                  <nz-tag [nzColor]="getStatusColor(member.status)" nzSize="small">
+                  <nz-tag [nzColor]="getStatusColor(member.status)" nzSize="medium">
                     {{ member.status }}
                   </nz-tag>
                 </div>
@@ -138,6 +152,7 @@
                 <button 
                   nz-button 
                   nzType="primary"
+                  nzSize="medium"
                   (click)="showInviteMemberModal()"
                   class="flex items-center gap-2 mx-auto"
                 >
@@ -157,3 +172,126 @@
     <div class="text-lg text-gray-500">Loading organization details...</div>
   </div>
 </div>
+
+<!-- Jira Link Management Modal -->
+<nz-modal
+  [(nzVisible)]="isJiraLinkModalVisible"
+  [nzTitle]="null"
+  [nzFooter]="null"
+  [nzClosable]="false"
+  (nzOnCancel)="cancelJiraLink()"
+  nzWidth="900px"
+  nzBodyStyle="padding: 0"
+  nzClassName="jira-modal"
+>
+  <ng-container *nzModalContent>
+    <div class="jira-modal-container">
+      <!-- Modern Header -->
+      <div class="modal-header">
+        <div class="header-content">
+          <div class="header-icon">
+            <span nz-icon nzType="api" nzTheme="outline" class="icon"></span>
+          </div>
+          <div class="header-text">
+            <h2 class="title">Jira Integration</h2>
+            <p class="subtitle">Connect {{ organization?.name }} to Jira for seamless project management</p>
+          </div>
+        </div>
+        <button 
+          nz-button 
+          nzType="text" 
+          nzSize="medium"
+          (click)="cancelJiraLink()"
+          class="close-btn"
+        >
+          <span nz-icon nzType="close" nzTheme="outline"></span>
+        </button>
+      </div>
+
+      <!-- Content Area -->
+      <div class="modal-content">
+        <div class="org-details-header" *ngIf="organization">
+          <div class="org-avatar">
+            {{ getOrganizationInitials() }}
+          </div>
+          <div class="org-info">
+            <h3 class="org-name">{{ organization.name }}</h3>
+            <div class="connection-status" [class.connected]="organization.jiraIntegration?.isConnected">
+              <div class="status-dot"></div>
+              <span>{{ organization.jiraIntegration?.isConnected ? 'Jira Integration Active' : 'Not connected' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Not Connected State -->
+        <div *ngIf="!organization?.jiraIntegration?.isConnected" class="connection-form">
+          <form nz-form [nzLayout]="'vertical'" class="modern-form">
+            <nz-form-item>
+              <nz-form-label nzRequired>Jira Site URL</nz-form-label>
+              <nz-form-control>
+                <nz-input-group nzPrefixIcon="global">
+                  <input 
+                    nz-input 
+                    [(ngModel)]="jiraConfig.siteUrl" 
+                    name="siteUrl"
+                    placeholder="https://yourcompany.atlassian.net"
+                  />
+                </nz-input-group>
+              </nz-form-control>
+            </nz-form-item>
+
+            <div class="form-actions">
+              <button 
+                nz-button 
+                nzType="primary" 
+                nzSize="medium"
+                (click)="connectJira()"
+                [nzLoading]="isConnecting"
+                [disabled]="!jiraConfig.siteUrl?.trim()"
+                class="action-btn primary"
+              >
+                <span nz-icon nzType="thunderbolt" nzTheme="outline" *ngIf="!isConnecting"></span>
+                {{ isConnecting ? 'Connecting...' : 'Connect to Jira' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Connected State -->
+        <div *ngIf="organization?.jiraIntegration?.isConnected" class="connected-state">
+          <div class="connection-details">
+            <div class="detail-row">
+              <div class="detail-label">
+                <span nz-icon nzType="global" nzTheme="outline"></span>
+                Jira Site
+              </div>
+              <div class="detail-value">{{ organization.jiraIntegration?.siteUrl }}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">
+                <span nz-icon nzType="calendar" nzTheme="outline"></span>
+                Connected
+              </div>
+              <div class="detail-value">{{ organization.jiraIntegration?.connectedAt | date:'MMM d, yyyy \'at\' h:mm a' }}</div>
+            </div>
+          </div>
+
+          <div class="connection-actions">
+            <button 
+              nz-button 
+              nzType="primary" 
+              nzDanger
+              nzSize="medium"
+              (click)="disconnectJira()"
+              [nzLoading]="isDisconnecting"
+              class="action-btn danger"
+            >
+              <span nz-icon nzType="disconnect" nzTheme="outline" *ngIf="!isDisconnecting"></span>
+              {{ isDisconnecting ? 'Disconnecting...' : 'Disconnect' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</nz-modal>
