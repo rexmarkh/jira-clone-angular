@@ -297,6 +297,25 @@ export class OrganizationService {
     return newProject;
   }
 
+  // Utility methods for URL generation
+  getTeamUrl(organization: Organization, teamId: string): string[] {
+    // Extract orgId from Jira integration or use organization name
+    let orgId = organization.name.toLowerCase();
+    
+    if (organization.jiraIntegration?.siteUrl) {
+      const siteUrlMatch = organization.jiraIntegration.siteUrl.match(/https:\/\/(.+)\.atlassian\.net/);
+      if (siteUrlMatch && siteUrlMatch[1]) {
+        orgId = siteUrlMatch[1];
+      }
+    }
+    
+    return ['/organization', orgId, 'teams', teamId];
+  }
+
+  getOrganizationDetailsUrl(organization: Organization): string[] {
+    return ['/organization/org', organization.id];
+  }
+
   // Utility methods
   loadSampleData(): void {
     const user = this.authQuery.getValue();
@@ -306,6 +325,14 @@ export class OrganizationService {
       'Acme Corporation',
       'A leading technology company focused on innovation and excellence.'
     );
+
+    // Add sample Jira integration for testing URL generation
+    const jiraIntegration = {
+      isConnected: true,
+      siteUrl: 'https://learnship.atlassian.net',
+      connectedAt: new Date().toISOString()
+    };
+    this.updateOrganization(sampleOrg.id, { jiraIntegration });
     
     // Create sample teams
     const engineeringTeam = this.createTeam('Engineering', 'Software development team', sampleOrg.id);

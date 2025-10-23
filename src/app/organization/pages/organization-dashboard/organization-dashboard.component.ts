@@ -211,6 +211,22 @@ export class OrganizationDashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/organization'], { replaceUrl: true });
   }
 
+  // Helper method to get orgId from current organization's Jira integration
+  private getOrgIdFromCurrentOrganization(): string | null {
+    if (!this.currentOrganization) return null;
+    
+    // If Jira integration exists, extract orgId from site URL
+    if (this.currentOrganization.jiraIntegration?.siteUrl) {
+      const siteUrlMatch = this.currentOrganization.jiraIntegration.siteUrl.match(/https:\/\/(.+)\.atlassian\.net/);
+      if (siteUrlMatch && siteUrlMatch[1]) {
+        return siteUrlMatch[1];
+      }
+    }
+    
+    // Fallback to organization name as orgId
+    return this.currentOrganization.name.toLowerCase();
+  }
+
   // Organization Management
   showCreateOrganizationModal() {
     this.isCreateOrgModalVisible = true;
@@ -277,7 +293,13 @@ export class OrganizationDashboardComponent implements OnInit, OnDestroy {
   }
 
   openTeamManagement(team: Team) {
-    this.router.navigate(['/organization/teams', team.id]);
+    if (this.currentOrganization) {
+      const teamUrl = this.organizationService.getTeamUrl(this.currentOrganization, team.id);
+      this.router.navigate(teamUrl);
+    } else {
+      // Fallback to old route structure
+      this.router.navigate(['/organization/teams', team.id]);
+    }
   }
 
   showTeamSettings(team: Team) {

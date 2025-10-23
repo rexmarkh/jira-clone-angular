@@ -145,6 +145,25 @@ export enum InviteStatus {
 
 export interface JiraIntegration {
   isConnected: boolean;
-  siteUrl: string;
-  connectedAt: string;
+  siteUrl?: string;
+  connectedAt?: string;
+}
+
+export interface JiraBoard {
+  id: string;
+  name: string;
+  type: 'kanban' | 'scrum';
+  projectKey: string;
+  projectName: string;
+  self: string;
+  location?: {
+    type: string;
+    name: string;
+    displayName: string;
+    avatarURI?: string;
+  };
+  createdDate?: string;
+  totalIssues?: number;
+  inProgressIssues?: number;
+  completedIssues?: number;
 }

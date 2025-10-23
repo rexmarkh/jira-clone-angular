@@ -19,6 +19,10 @@ const routes: Routes = [
         component: OrganizationDetailsComponent
       },
       {
+        path: ':orgId/teams/:teamId',
+        component: TeamManagementComponent
+      },
+      {
         path: 'teams/:teamId',
         component: TeamManagementComponent
       }

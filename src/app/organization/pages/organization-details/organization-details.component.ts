@@ -130,7 +130,13 @@ export class OrganizationDetailsComponent implements OnInit, OnDestroy {
   }
 
   onTeamClick(team: Team) {
-    this.router.navigate(['/organization/teams', team.id]);
+    if (this.organization) {
+      const teamUrl = this.organizationService.getTeamUrl(this.organization, team.id);
+      this.router.navigate(teamUrl);
+    } else {
+      // Fallback to old route structure
+      this.router.navigate(['/organization/teams', team.id]);
+    }
   }
 
   onTeamSettings(team: Team) {
@@ -143,6 +149,22 @@ export class OrganizationDetailsComponent implements OnInit, OnDestroy {
 
   trackByTeamId(index: number, team: Team): string {
     return team.id;
+  }
+
+  // Helper method to get orgId from current organization's Jira integration
+  private getOrgIdFromCurrentOrganization(): string | null {
+    if (!this.organization) return null;
+    
+    // If Jira integration exists, extract orgId from site URL
+    if (this.organization.jiraIntegration?.siteUrl) {
+      const siteUrlMatch = this.organization.jiraIntegration.siteUrl.match(/https:\/\/(.+)\.atlassian\.net/);
+      if (siteUrlMatch && siteUrlMatch[1]) {
+        return siteUrlMatch[1];
+      }
+    }
+    
+    // Fallback to organization name as orgId
+    return this.organization.name.toLowerCase();
   }
 
   trackByMemberId(index: number, member: OrganizationMember): string {

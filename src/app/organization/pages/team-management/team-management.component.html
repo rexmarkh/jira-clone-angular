@@ -5,6 +5,9 @@
       <nz-breadcrumb-item>
         <a (click)="navigateBack()">Organization Management</a>
       </nz-breadcrumb-item>
+      <nz-breadcrumb-item *ngIf="orgId">
+        <span>{{ orgId }}</span>
+      </nz-breadcrumb-item>
       <nz-breadcrumb-item>
         <span>{{ team?.name }}</span>
       </nz-breadcrumb-item>
@@ -38,7 +41,7 @@
 
   <!-- Team Stats -->
   <div class="mb-8">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
       <nz-card nzSize="small" class="stat-card">
         <div class="text-center">
           <div class="text-3xl font-bold text-blue-600 mb-1">{{ members.length }}</div>
@@ -55,18 +58,104 @@
       
       <nz-card nzSize="small" class="stat-card">
         <div class="text-center">
-          <div class="text-3xl font-bold text-purple-600 mb-1">{{ getActiveTasksCount() }}</div>
+          <div class="text-3xl font-bold text-purple-600 mb-1">{{ jiraBoards.length }}</div>
+          <div class="text-sm text-gray-600">Jira Boards</div>
+        </div>
+      </nz-card>
+      
+      <nz-card nzSize="small" class="stat-card">
+        <div class="text-center">
+          <div class="text-3xl font-bold text-orange-600 mb-1">{{ getActiveTasksCount() }}</div>
           <div class="text-sm text-gray-600">Active Tasks</div>
         </div>
       </nz-card>
       
       <nz-card nzSize="small" class="stat-card">
         <div class="text-center">
-          <div class="text-3xl font-bold text-orange-600 mb-1">{{ getCompletionRate() }}%</div>
+          <div class="text-3xl font-bold text-teal-600 mb-1">{{ getCompletionRate() }}%</div>
           <div class="text-sm text-gray-600">Completion Rate</div>
         </div>
       </nz-card>
     </div>
+  </div>
+
+  <!-- Jira Boards Section -->
+  <div class="mb-8">
+    <nz-card nzTitle="Jira Boards" [nzExtra]="boardsExtra">
+      <nz-spin [nzSpinning]="isLoadingBoards" tip="Loading boards...">
+        <!-- Boards Grid -->
+        <div *ngIf="jiraBoards.length > 0 && !boardsError" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <nz-card 
+            *ngFor="let board of jiraBoards"
+            nzSize="small"
+            [nzActions]="[viewBoardTemplate]"
+            class="board-card hover:shadow-lg transition-shadow"
+          >
+            <div class="mb-3">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-white font-bold text-xs">
+                  {{ getBoardInitials(board.name) }}
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-sm mb-1 line-clamp-1">{{ board.name }}</h4>
+                  <div class="flex items-center gap-2">
+                    <nz-tag [nzColor]="getBoardTypeColor(board.type)" class="text-xs">
+                      {{ formatBoardType(board.type) }}
+                    </nz-tag>
+                    <span class="text-xs text-gray-500">{{ board.projectKey }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="text-sm text-gray-600 mb-2">
+                <strong>Project:</strong> {{ board.projectName }}
+              </div>
+            </div>
+            
+            <!-- Board Stats -->
+            <div class="grid grid-cols-3 gap-2 text-center border-t pt-3">
+              <div class="text-xs">
+                <div class="font-semibold text-gray-900">{{ board.totalIssues || 0 }}</div>
+                <div class="text-gray-500">Total</div>
+              </div>
+              <div class="text-xs">
+                <div class="font-semibold text-orange-600">{{ board.inProgressIssues || 0 }}</div>
+                <div class="text-gray-500">In Progress</div>
+              </div>
+              <div class="text-xs">
+                <div class="font-semibold text-green-600">{{ board.completedIssues || 0 }}</div>
+                <div class="text-gray-500">Done</div>
+              </div>
+            </div>
+
+            <ng-template #viewBoardTemplate>
+              <span nz-icon nzType="eye" title="View Board"></span>
+            </ng-template>
+          </nz-card>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="boardsError && !isLoadingBoards" class="text-center py-12">
+          <div class="text-red-500 mb-4">
+            <span nz-icon nzType="exclamation-circle" nzTheme="outline" class="text-2xl"></span>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Unable to load boards</h3>
+          <p class="text-gray-600 mb-4">{{ boardsError }}</p>
+          <button nz-button nzType="primary" (click)="refreshBoards()">
+            <span nz-icon nzType="reload" nzTheme="outline"></span>
+            Try Again
+          </button>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="jiraBoards.length === 0 && !boardsError && !isLoadingBoards" class="text-center py-12">
+          <nz-empty 
+            nzNotFoundImage="simple"
+            nzNotFoundContent="No Jira boards found for this organization."
+          ></nz-empty>
+        </div>
+      </nz-spin>
+    </nz-card>
   </div>
 
   <!-- Members Section -->
@@ -233,6 +322,20 @@
 </div>
 
 <!-- Extra Templates -->
+<ng-template #boardsExtra>
+  <button 
+    nz-button 
+    nzType="text"
+    nzSize="small"
+    (click)="refreshBoards()"
+    [nzLoading]="isLoadingBoards"
+    class="flex items-center gap-2"
+  >
+    <span nz-icon nzType="reload" nzTheme="outline"></span>
+    Refresh
+  </button>
+</ng-template>
+
 <ng-template #membersExtra>
   <button 
     nz-button 

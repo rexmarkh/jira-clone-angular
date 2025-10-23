@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { HttpClientModule } from '@angular/common/http';
+import { Subject, takeUntil, finalize, map } from 'rxjs';
 import { NzLayoutModule } from 'ng-zorro-antd/layout';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -17,10 +18,13 @@ import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { OrganizationService } from '../../state/organization.service';
 import { OrganizationQuery } from '../../state/organization.query';
-import { Team, TeamMember, Project } from '../../interfaces/organization.interface';
+import { JiraApiService } from '../../services/jira-api.service';
+import { Team, TeamMember, Project, JiraBoard } from '../../interfaces/organization.interface';
 import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
 @Component({
@@ -29,6 +33,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
   imports: [
     CommonModule,
     FormsModule,
+    HttpClientModule,
     NzLayoutModule,
     NzCardModule,
     NzButtonModule,
@@ -43,6 +48,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     NzInputModule,
     NzSelectModule,
     NzDatePickerModule,
+    NzSpinModule,
     JiraControlModule
   ],
   templateUrl: './team-management.component.html',
@@ -54,6 +60,15 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
   team: Team | null = null;
   members: TeamMember[] = [];
   projects: Project[] = [];
+  jiraBoards: JiraBoard[] = [];
+  
+  // Route parameters
+  orgId: string | null = null;
+  teamId: string | null = null;
+  
+  // Loading states
+  isLoadingBoards = false;
+  boardsError: string | null = null;
   
   isAddMemberModalVisible = false;
 
@@ -61,17 +76,23 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private organizationService: OrganizationService,
-    private organizationQuery: OrganizationQuery
+    private organizationQuery: OrganizationQuery,
+    private jiraApiService: JiraApiService,
+    private message: NzMessageService
   ) {}
 
   ngOnInit() {
-    // Get team ID from route
+    // Get route parameters
     this.route.params
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
-        const teamId = params['teamId'];
-        if (teamId) {
-          this.loadTeamData(teamId);
+        this.orgId = params['orgId'] || null;
+        this.teamId = params['teamId'] || null;
+        
+        console.log('Route params:', { orgId: this.orgId, teamId: this.teamId });
+        
+        if (this.teamId) {
+          this.loadTeamData(this.teamId);
         }
       });
   }
@@ -87,6 +108,11 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(teams => {
         this.team = teams.find(team => team.id === teamId) || null;
+        
+        // Load Jira boards when team is loaded
+        if (this.team) {
+          this.loadJiraBoards();
+        }
       });
 
     // Load members and projects for this team
@@ -107,7 +133,96 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
 
   // Navigation
   navigateBack() {
-    this.router.navigate(['/organization']);
+    if (this.orgId) {
+      // Navigate back to organization details with orgId
+      this.router.navigate(['/organization/org', this.orgId]);
+    } else {
+      // Fallback to organization dashboard
+      this.router.navigate(['/organization']);
+    }
+  }
+
+  // Helper method to get organization from orgId route parameter
+  private getOrganizationByOrgId(orgId: string) {
+    return this.organizationQuery.organizations$.pipe(
+      map(organizations => 
+        organizations.find(org => {
+          // Check if orgId matches Jira site URL
+          if (org.jiraIntegration?.siteUrl) {
+            const siteUrlMatch = org.jiraIntegration.siteUrl.match(/https:\/\/(.+)\.atlassian\.net/);
+            if (siteUrlMatch && siteUrlMatch[1] === orgId) {
+              return true;
+            }
+          }
+          // Fallback to organization name
+          return org.name.toLowerCase() === orgId.toLowerCase();
+        })
+      )
+    );
+  }
+
+  // Jira Integration
+  loadJiraBoards() {
+    if (!this.team) return;
+    
+    // Use orgId from route if available, otherwise get from current organization
+    if (this.orgId) {
+      this.loadBoardsForOrgId(this.orgId);
+    } else {
+      // Fallback to current organization logic
+      this.organizationQuery.currentOrganization$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(org => {
+          if (org && org.jiraIntegration?.isConnected) {
+            // Extract orgId from Jira site URL or use organization name
+            let orgId = org.name.toLowerCase();
+            
+            if (org.jiraIntegration.siteUrl) {
+              const siteUrlMatch = org.jiraIntegration.siteUrl.match(/https:\/\/(.+)\.atlassian\.net/);
+              if (siteUrlMatch && siteUrlMatch[1]) {
+                orgId = siteUrlMatch[1];
+              }
+            }
+            
+            this.loadBoardsForOrgId(orgId);
+          } else {
+            this.jiraBoards = [];
+            this.boardsError = 'Jira integration not connected for this organization';
+            console.log('Jira not connected for organization:', org?.name);
+          }
+        });
+    }
+  }
+
+  private loadBoardsForOrgId(orgId: string) {
+    this.isLoadingBoards = true;
+    this.boardsError = null;
+    
+    console.log('Loading boards for orgId:', orgId);
+    
+    this.jiraApiService.getBoardsByOrganization(orgId)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoadingBoards = false)
+      )
+      .subscribe({
+        next: (boards) => {
+          this.jiraBoards = boards;
+          console.log('Loaded Jira boards:', boards);
+          if (boards.length === 0) {
+            this.message.info('No boards found for this organization');
+          }
+        },
+        error: (error) => {
+          this.boardsError = error.message;
+          this.message.error('Failed to load Jira boards: ' + error.message);
+          console.error('Error loading Jira boards:', error);
+        }
+      });
+  }
+
+  refreshBoards() {
+    this.loadJiraBoards();
   }
 
   // Team Management
@@ -176,6 +291,23 @@ export class TeamManagementComponent implements OnInit, OnDestroy {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  }
+
+  getBoardTypeColor(type: string): string {
+    return type === 'kanban' ? 'blue' : 'green';
+  }
+
+  getBoardInitials(name: string): string {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  }
+
+  formatBoardType(type: string): string {
+    return type.charAt(0).toUpperCase() + type.slice(1);
   }
 
   getMemberInitials(memberId: string): string {
