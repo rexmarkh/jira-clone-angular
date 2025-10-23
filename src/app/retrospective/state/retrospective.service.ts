@@ -308,6 +308,72 @@ export class RetrospectiveService {
     }));
   }
 
+  updateNotePosition(noteId: string, position: { x: number; y: number }, newColumnId?: string): void {
+    const currentState = this.store.getValue();
+    
+    if (!currentState.currentBoard) return;
+
+    const updates: Partial<StickyNote> = {
+      position,
+      updatedAt: new Date().toISOString()
+    };
+
+    if (newColumnId) {
+      updates.columnId = newColumnId;
+    }
+
+    this.updateStickyNote(noteId, updates);
+  }
+
+  updateNotesOrder(columnId: string, noteIds: string[]): void {
+    const currentState = this.store.getValue();
+    
+    if (!currentState.currentBoard) return;
+
+    const updatedNotes = currentState.currentBoard.stickyNotes.map(note => {
+      if (note.columnId === columnId) {
+        const orderIndex = noteIds.indexOf(note.id);
+        if (orderIndex !== -1) {
+          // Update position based on order (simple y-positioning)
+          return {
+            ...note,
+            position: {
+              ...note.position,
+              y: orderIndex * 120 + 10 // Space notes vertically
+            },
+            updatedAt: new Date().toISOString()
+          };
+        }
+      }
+      return note;
+    });
+
+    const updatedBoard = {
+      ...currentState.currentBoard,
+      stickyNotes: updatedNotes,
+      updatedAt: new Date().toISOString()
+    };
+
+    this.store.update(state => ({
+      ...state,
+      currentBoard: updatedBoard,
+      boards: state.boards.map(board => 
+        board.id === updatedBoard.id ? updatedBoard : board
+      )
+    }));
+  }
+
+  moveNoteBetweenColumns(noteId: string, fromColumnId: string, toColumnId: string, position: { x: number; y: number }): void {
+    const currentState = this.store.getValue();
+    
+    if (!currentState.currentBoard) return;
+
+    const note = currentState.currentBoard.stickyNotes.find(n => n.id === noteId);
+    if (!note || note.columnId !== fromColumnId) return;
+
+    this.updateNotePosition(noteId, position, toColumnId);
+  }
+
   private generateId(): string {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }

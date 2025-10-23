@@ -391,23 +391,33 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     .columns-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 1rem;
+      gap: 1.5rem;
       height: 100%;
       overflow-x: auto;
-      overflow-y: auto;
+      overflow-y: hidden;
+      padding: 8px;
       padding-bottom: 16px;
     }
 
     .column-item {
       height: 100%;
+      min-width: 320px;
+    }
+
+    .cdk-drop-list-group {
+      display: contents;
+    }
+
+    .cdk-drag-preview {
+      z-index: 1000;
     }
 
     .cdk-drop-list-dragging .cdk-drag {
-      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);
     }
 
     .cdk-drag-animating {
-      transition: transform 300ms cubic-bezier(0, 0, 0.2, 1);
+      transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);
     }
 
     ::ng-deep .ant-layout-header {
@@ -485,6 +495,8 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
   RetroPhase = RetroPhase;
   
   currentBoard: RetrospectiveBoard | null = null;
+  columnDataArrays: { [columnId: string]: StickyNote[] } = {};
+  
   isPhaseModalVisible = false;
   isSettingsModalVisible = false;
   selectedPhase: RetroPhase = RetroPhase.BRAINSTORMING;
@@ -525,6 +537,9 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
           this.selectedPhase = board.currentPhase;
           this.settingsTitle = board.title;
           this.settingsDescription = board.description;
+          
+          // Initialize column data arrays for drag & drop
+          this.initializeColumnArrays();
         }
       });
   }
@@ -543,7 +558,29 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
   }
 
   getStickyNotesForColumn(columnId: string): StickyNote[] {
-    return this.retrospectiveQuery.getStickyNotesByColumn(columnId);
+    return this.columnDataArrays[columnId] || [];
+  }
+
+  private initializeColumnArrays() {
+    if (!this.currentBoard) return;
+    
+    // Initialize empty arrays for each column
+    this.columnDataArrays = {};
+    this.currentBoard.columns.forEach(column => {
+      this.columnDataArrays[column.id] = [];
+    });
+    
+    // Populate arrays with current notes
+    this.currentBoard.stickyNotes.forEach(note => {
+      if (this.columnDataArrays[note.columnId]) {
+        this.columnDataArrays[note.columnId].push(note);
+      }
+    });
+    
+    // Sort notes by position within each column
+    Object.keys(this.columnDataArrays).forEach(columnId => {
+      this.columnDataArrays[columnId].sort((a, b) => a.position.y - b.position.y);
+    });
   }
 
   trackByColumnId(index: number, column: RetroColumn): string {
@@ -670,22 +707,19 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
 
   // Note event handlers
   onNoteAdd(data: { columnId: string, content: string, color: StickyNoteColor }) {
-    console.log('onNoteAdd received:', data);
-    console.log('Current user ID:', this.getCurrentUserId());
-    try {
-      this.retrospectiveService.addStickyNote(data.columnId, data.content, data.color);
-      console.log('Note added successfully');
-    } catch (error) {
-      console.error('Error adding note:', error);
-    }
+    this.retrospectiveService.addStickyNote(data.columnId, data.content, data.color);
+    // Reinitialize arrays after adding note
+    setTimeout(() => this.initializeColumnArrays(), 100);
   }
 
   onNoteChange(note: StickyNote) {
     this.retrospectiveService.updateStickyNote(note.id, note);
+    setTimeout(() => this.initializeColumnArrays(), 100);
   }
 
   onNoteDelete(noteId: string) {
     this.retrospectiveService.deleteStickyNote(noteId);
+    setTimeout(() => this.initializeColumnArrays(), 100);
   }
 
   onNoteVote(noteId: string) {
@@ -693,9 +727,21 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
   }
 
   onNoteDrop(event: CdkDragDrop<StickyNote[]>) {
+    const draggedNote = event.item.data as StickyNote;
+    
     if (event.previousContainer === event.container) {
+      // Same column - reorder notes
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      
+      // Update positions for all notes in the column
+      event.container.data.forEach((note, index) => {
+        this.retrospectiveService.updateStickyNote(note.id, {
+          position: { x: note.position.x, y: index * 120 + 10 },
+          updatedAt: new Date().toISOString()
+        });
+      });
     } else {
+      // Different column - transfer note
       transferArrayItem(
         event.previousContainer.data,
         event.container.data,
@@ -703,15 +749,34 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
         event.currentIndex
       );
       
-      // Update the note's column
-      const note = event.container.data[event.currentIndex];
-      // Extract column ID from the container element
-      const columnElement = event.container.element.nativeElement.closest('[data-column-id]');
-      if (columnElement && note) {
-        const newColumnId = columnElement.getAttribute('data-column-id');
-        if (newColumnId) {
-          this.retrospectiveService.updateStickyNote(note.id, { columnId: newColumnId });
-        }
+      // Get the new column ID from the container ID
+      const newColumnId = event.container.id.replace('drop-list-', '');
+      
+      if (draggedNote && newColumnId && newColumnId !== draggedNote.columnId) {
+        // Update the note's column and position
+        this.retrospectiveService.updateStickyNote(draggedNote.id, {
+          columnId: newColumnId,
+          position: {
+            x: 0,
+            y: event.currentIndex * 120 + 10
+          },
+          updatedAt: new Date().toISOString()
+        });
+        
+        // Update positions for all notes in both columns
+        event.previousContainer.data.forEach((note, index) => {
+          this.retrospectiveService.updateStickyNote(note.id, {
+            position: { x: note.position.x, y: index * 120 + 10 },
+            updatedAt: new Date().toISOString()
+          });
+        });
+        
+        event.container.data.forEach((note, index) => {
+          this.retrospectiveService.updateStickyNote(note.id, {
+            position: { x: note.position.x, y: index * 120 + 10 },
+            updatedAt: new Date().toISOString()
+          });
+        });
       }
     }
   }

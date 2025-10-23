@@ -8,7 +8,8 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { CdkDropList, CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { CdkDropList, CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { RetroColumn, StickyNote, StickyNoteColor, RetroPhase } from '../../interfaces/retrospective.interface';
 import { StickyNoteComponent } from '../sticky-note/sticky-note.component';
 import { JiraControlModule } from '../../../jira-control/jira-control.module';
@@ -26,6 +27,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     NzInputModule,
     NzModalModule,
     NzEmptyModule,
+    NzToolTipModule,
     DragDropModule,
     StickyNoteComponent,
     JiraControlModule
@@ -34,32 +36,19 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     <div class="retro-column h-full">
       <nz-card 
         [nzTitle]="columnHeaderTemplate"
-        [nzBodyStyle]="{ padding: '16px', height: 'calc(100% - 64px)', overflow: 'hidden' }"
+        [nzBodyStyle]="{ padding: '16px', display: 'flex', 'flex-direction': 'column', height: 'calc(100% - 64px)' }"
         class="h-full"
       >
         <!-- Column Body -->
-        <div 
-          class="column-content h-full flex flex-col"
-          cdkDropList
-          [cdkDropListData]="stickyNotes"
-          (cdkDropListDropped)="onNoteDrop($event)"
-        >
-          <!-- Add Note Button -->
-          <div class="mb-4">
-            <button 
-              nz-button 
-              nzType="dashed" 
-              nzBlock
-              (click)="showAddNoteModal()"
-              class="flex items-center justify-center gap-2 h-10 text-gray-500 hover:text-blue-600 hover:border-blue-600 transition-colors"
-            >
-              <span nz-icon nzType="plus" nzTheme="outline"></span>
-              Add a note
-            </button>
-          </div>
-
-          <!-- Sticky Notes List -->
-          <div class="notes-container overflow-y-auto space-y-3" *ngIf="stickyNotes.length > 0">
+        <div class="column-content">
+          <!-- Sticky Notes List with Drop Zone -->
+          <div 
+            class="notes-container" 
+            cdkDropList
+            [id]="'drop-list-' + column.id"
+            [cdkDropListData]="stickyNotes"
+            (cdkDropListDropped)="onNoteDrop($event)"
+          >
             <app-sticky-note
               *ngFor="let note of stickyNotes; trackBy: trackByNoteId"
               [note]="note"
@@ -69,11 +58,36 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
               (noteDelete)="onNoteDelete($event)"
               (noteVote)="onNoteVote($event)"
               cdkDrag
+              [cdkDragData]="note"
+              [cdkDragDisabled]="!canDragNotes()"
+              class="note-item"
             ></app-sticky-note>
           </div>
 
-          <!-- Empty State -->
-          <div *ngIf="stickyNotes.length === 0" class="flex items-center justify-center">
+          <!-- FAB Add Note Button -->
+          <div class="fab-container">
+            <button 
+              nz-button 
+              nzType="primary" 
+              nzShape="circle"
+              nzSize="default"
+              (click)="showAddNoteModal()"
+              [disabled]="!canAddNotes()"
+              nz-tooltip
+              [nzTooltipTitle]="canAddNotes() ? 'Add a note' : getAddNoteDisabledMessage()"
+              nzTooltipPlacement="top"
+              class="fab-button"
+              [class.fab-disabled]="!canAddNotes()"
+            >
+              <span nz-icon nzType="plus" nzTheme="outline"></span>
+            </button>
+          </div>
+
+          <!-- Empty State - OUTSIDE the drop list so it doesn't interfere -->
+          <div 
+            *ngIf="stickyNotes.length === 0" 
+            class="empty-state-overlay"
+          >
             <nz-empty 
               [nzNotFoundContent]="emptyTemplate"
               nzNotFoundImage="simple"
@@ -190,19 +204,22 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     }
 
     .column-content {
-      max-height: 100%;
+      position: relative;
+      height: 100%;
+      overflow: hidden;
     }
 
     .notes-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
       scrollbar-width: thin;
       scrollbar-color: #e5e7eb transparent;
-      gap: 5px;
-      display: flex;
-      flex-direction: column;
-    }
-      
-    .notes-container:last-child {
-        padding-bottom: 5px;
+      padding: 0 4px 70px 4px; /* No top padding, extra bottom padding for FAB */
     }
 
     .notes-container::-webkit-scrollbar {
@@ -222,29 +239,94 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       background-color: #d1d5db;
     }
 
+    .fab-container {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      z-index: 10;
+    }
+
+    .fab-button {
+      width: 40px;
+      height: 40px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+      border: none !important;
+    }
+
+    .fab-button:hover:not(.fab-disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .fab-button.fab-disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background-color: #f5f5f5 !important;
+      color: #bfbfbf !important;
+    }
+
+    .fab-button.fab-disabled:hover {
+      transform: none;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .empty-state-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 60px; /* Leave space for FAB */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 1;
+    }
+
     .cdk-drop-list {
-      min-height: 100px;
+      min-height: 100%;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .cdk-drop-list.cdk-drop-list-receiving {
+      background-color: rgba(59, 130, 246, 0.02);
+    }
+
+    .cdk-drop-list-dragging .cdk-drag {
+      transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);
     }
 
     .cdk-drag-preview {
       box-sizing: border-box;
       border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+      transform: rotate(2deg) scale(1.02);
+      opacity: 0.95;
+      z-index: 1000;
     }
 
     .cdk-drag-placeholder {
-      opacity: 0;
+      opacity: 0.3;
+      background: #f9fafb;
+      border: 1px dashed #e5e7eb;
+      border-radius: 8px;
+      min-height: 120px;
+      margin: 0 0 12px 0;
+      transition: all 100ms ease;
     }
 
     .cdk-drag-animating {
-      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);
     }
 
-    .cdk-drop-list.cdk-drop-list-receiving .cdk-drag-placeholder {
-      opacity: 0.3;
-      background: #f3f4f6;
-      border: 2px dashed #d1d5db;
-      border-radius: 8px;
+    .note-item {
+      transition: transform 0.2s ease;
+    }
+
+    .note-item:hover {
+      transform: translateY(-1px);
     }
 
     ::ng-deep .ant-card-head {
@@ -321,6 +403,10 @@ export class RetroColumnComponent {
   colorOptions = Object.values(StickyNoteColor);
 
   showAddNoteModal() {
+    if (!this.canAddNotes()) {
+      return;
+    }
+    
     this.isAddNoteModalVisible = true;
     this.newNoteContent = '';
     this.selectedColor = StickyNoteColor.YELLOW;
@@ -370,6 +456,7 @@ export class RetroColumnComponent {
   }
 
   onNoteDrop(event: CdkDragDrop<StickyNote[]>) {
+    // Always pass the event to parent - let it handle both same column and cross-column logic
     this.noteDrop.emit(event);
   }
 
@@ -387,5 +474,31 @@ export class RetroColumnComponent {
       [StickyNoteColor.ORANGE]: '#fed7aa'
     };
     return colorMap[color] || colorMap[StickyNoteColor.YELLOW];
+  }
+
+  canDragNotes(): boolean {
+    // Notes can be dragged during brainstorming and grouping phases
+    return this.currentPhase === RetroPhase.BRAINSTORMING || 
+           this.currentPhase === RetroPhase.GROUPING;
+  }
+
+  canAddNotes(): boolean {
+    // Notes can only be added during brainstorming phase
+    return this.currentPhase === RetroPhase.BRAINSTORMING;
+  }
+
+  getAddNoteDisabledMessage(): string {
+    if (this.currentPhase === RetroPhase.GROUPING) {
+      return 'Notes cannot be added during grouping phase - only moved and grouped';
+    } else if (this.currentPhase === RetroPhase.VOTING) {
+      return 'Notes cannot be added during voting phase';
+    } else if (this.currentPhase === RetroPhase.DISCUSSION) {
+      return 'Notes cannot be added during discussion phase';
+    } else if (this.currentPhase === RetroPhase.ACTION_ITEMS) {
+      return 'Notes cannot be added during action items phase';
+    } else if (this.currentPhase === RetroPhase.COMPLETED) {
+      return 'Retrospective is completed - no changes allowed';
+    }
+    return 'Adding notes not allowed in current phase';
   }
 }

@@ -38,90 +38,82 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       [style.background-color]="getBackgroundColor()"
       [style.border-left]="'4px solid ' + getBorderColor()"
       [class.opacity-75]="!canEdit() && !canDelete()"
+      [class.cdk-drag-disabled]="!canDrag()"
     >
       <nz-card 
         [nzBordered]="false"
-        [nzBodyStyle]="{ padding: '12px', backgroundColor: 'transparent' }"
+        [nzBodyStyle]="{ padding: '16px', backgroundColor: 'transparent' }"
         class="h-full"
       >
-        <!-- Note Header -->
-        <div class="flex items-start justify-between mb-2">
-          <div class="flex items-center gap-2">
-            <j-avatar 
-              [avatarUrl]="note.authorAvatar" 
-              [name]="getInitials(note.authorName)"
-              [size]="24"
-              className="avatar-small"
-            ></j-avatar>
-            <span class="text-xs text-gray-600 font-medium">{{ note.authorName }}</span>
-          </div>
-          
-          <div class="flex items-center gap-0.5">
-            <!-- Edit Icon -->
+        <!-- Action Buttons - Top Right -->
+        <div class="absolute top-3 right-3 flex items-center gap-1 action-buttons">
+          <!-- Color Picker -->
+          <nz-popover 
+            *ngIf="canEdit()"
+            nzTitle="Change Color" 
+            nzTrigger="click"
+          >
             <button 
-              *ngIf="canEdit()"
               nz-button 
               nzType="text" 
               nzSize="small"
-              (click)="startEditing()"
-              [nz-tooltip]="'Edit note'"
-              nzTooltipPlacement="bottom"
-              class="opacity-60 hover:opacity-100 edit-button"
+              nz-popover
+              nz-tooltip
+              nzTooltipTitle="Change color"
+              class="action-button"
             >
-              <span nz-icon nzType="edit" nzTheme="outline"></span>
+              <span nz-icon nzType="bg-colors" nzTheme="outline"></span>
             </button>
+            <ng-template #nzPopoverContent>
+              <div class="grid grid-cols-3 gap-2 p-2">
+                <div 
+                  *ngFor="let color of colorOptions"
+                  class="w-7 h-7 rounded cursor-pointer border-2 hover:scale-110 transition-transform"
+                  [style.background-color]="getColorValue(color)"
+                  [class.border-gray-800]="note.color === color"
+                  [class.border-gray-300]="note.color !== color"
+                  (click)="changeColor(color)"
+                ></div>
+              </div>
+            </ng-template>
+          </nz-popover>
 
-            <!-- Delete Icon -->
-            <button 
-              *ngIf="canDelete()"
-              nz-button 
-              nzType="text" 
-              nzSize="small"
-              (click)="confirmDelete()"
-              [nz-tooltip]="'Delete note'"
-              nzTooltipPlacement="bottom"
-              class="opacity-60 hover:opacity-100 delete-button"
-            >
-              <span nz-icon nzType="delete" nzTheme="outline"></span>
-            </button>
+          <!-- Edit Icon -->
+          <button 
+            *ngIf="canEdit()"
+            nz-button 
+            nzType="text" 
+            nzSize="small"
+            (click)="startEditing()"
+            nz-tooltip
+            nzTooltipTitle="Edit note"
+            nzTooltipPlacement="bottom"
+            class="action-button"
+          >
+            <span nz-icon nzType="edit" nzTheme="outline"></span>
+          </button>
 
-            <!-- Color Picker -->
-            <nz-popover 
-              *ngIf="canEdit()"
-              nzTitle="Change Color" 
-              nzTrigger="click"
-            >
-              <button 
-                nz-button 
-                nzType="text" 
-                nzSize="small"
-                nz-popover
-                [nz-tooltip]="'Change color'"
-                class="opacity-60 hover:opacity-100"
-              >
-                <span nz-icon nzType="bg-colors" nzTheme="outline"></span>
-              </button>
-              <ng-template #nzPopoverContent>
-                <div class="grid grid-cols-4 gap-2 p-2">
-                  <div 
-                    *ngFor="let color of colorOptions"
-                    class="w-6 h-6 rounded cursor-pointer border-2 hover:scale-110 transition-transform"
-                    [style.background-color]="getColorValue(color)"
-                    [class.border-gray-800]="note.color === color"
-                    [class.border-gray-300]="note.color !== color"
-                    (click)="changeColor(color)"
-                  ></div>
-                </div>
-              </ng-template>
-            </nz-popover>
-          </div>
+          <!-- Delete Icon -->
+          <button 
+            *ngIf="canDelete()"
+            nz-button 
+            nzType="text" 
+            nzSize="small"
+            (click)="confirmDelete()"
+            nz-tooltip
+            nzTooltipTitle="Delete note"
+            nzTooltipPlacement="bottom"
+            class="action-button action-button-delete"
+          >
+            <span nz-icon nzType="delete" nzTheme="outline"></span>
+          </button>
         </div>
 
-        <!-- Note Content -->
-        <div class="mb-3">
+        <!-- Note Content - Takes most space -->
+        <div class="note-content-wrapper">
           <div 
             *ngIf="!isEditing" 
-            class="text-sm leading-relaxed min-h-[40px] p-2 rounded"
+            class="note-content"
           >
             {{ note.content }}
           </div>
@@ -130,11 +122,11 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
             *ngIf="isEditing"
             [(ngModel)]="editContent"
             name="editNoteContent"
-            class="w-full p-2 border border-gray-300 rounded text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="edit-textarea"
             cdkTextareaAutosize
             #cdkTextareaAutosize="cdkTextareaAutosize"
-            [cdkAutosizeMinRows]="2"
-            [cdkAutosizeMaxRows]="6"
+            [cdkAutosizeMinRows]="3"
+            [cdkAutosizeMaxRows]="8"
             (blur)="saveEdit()"
             (keydown.enter)="$event.ctrlKey && saveEdit()"
             (keydown.escape)="cancelEdit()"
@@ -143,31 +135,53 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           ></textarea>
         </div>
 
-        <!-- Note Footer -->
-        <div class="flex items-center justify-between">
+        <!-- Note Footer - User info and actions -->
+        <div class="note-footer">
+          <!-- Left: User info (only shown from discussion phase onwards) -->
           <div class="flex items-center gap-2">
+            <ng-container *ngIf="shouldShowAuthor()">
+              <j-avatar 
+                [avatarUrl]="note.authorAvatar" 
+                [name]="getInitials(note.authorName)"
+                [size]="24"
+                className="avatar-small"
+              ></j-avatar>
+              <span class="text-xs text-gray-600 font-medium">{{ note.authorName }}</span>
+            </ng-container>
+            <ng-container *ngIf="!shouldShowAuthor()">
+              <div class="flex items-center gap-2">
+                <div class="anonymous-avatar">
+                  <span nz-icon nzType="user" nzTheme="outline"></span>
+                </div>
+                <span class="text-xs text-gray-500 italic">Anonymous</span>
+              </div>
+            </ng-container>
+          </div>
+
+          <!-- Right: Actions -->
+          <div class="flex items-center gap-3">
             <!-- Vote Button -->
             <button 
               nz-button 
               nzType="text" 
               nzSize="small"
-              [class]="hasUserVoted() ? 'text-blue-600' : 'text-gray-500'"
+              [class]="hasUserVoted() ? 'vote-button-active' : 'vote-button'"
               (click)="onVote()"
-              class="flex items-center gap-1 hover:text-blue-600 transition-colors"
+              class="flex items-center gap-1.5"
             >
-              <span nz-icon [nzType]="hasUserVoted() ? 'like' : 'like'" [nzTheme]="hasUserVoted() ? 'fill' : 'outline'"></span>
-              <span class="text-xs">{{ note.votes }}</span>
+              <span 
+                nz-icon 
+                nzType="like" 
+                [nzTheme]="hasUserVoted() ? 'fill' : 'outline'"
+                class="vote-icon"
+              ></span>
+              <span class="text-xs font-medium">{{ note.votes }}</span>
             </button>
 
             <!-- Timestamp -->
             <span class="text-xs text-gray-400">
               {{ getTimeAgo() }}
             </span>
-          </div>
-
-          <!-- Drag Handle -->
-          <div class="drag-handle opacity-40 hover:opacity-80 cursor-move">
-            <span nz-icon nzType="drag" nzTheme="outline"></span>
           </div>
         </div>
       </nz-card>
@@ -176,65 +190,195 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
   styles: [`
     .sticky-note {
       width: 100%;
-      min-height: 120px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      min-height: 140px;
+      border-radius: 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
       transition: all 0.2s ease;
       cursor: default;
+      position: relative;
+      margin-bottom: 12px;
     }
 
     .sticky-note:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .sticky-note:hover .action-buttons {
+      opacity: 1;
     }
 
     .sticky-note.cdk-drag-preview {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-      transform: rotate(2deg) scale(1.05);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+      transform: rotate(2deg) scale(1.03);
       z-index: 1000;
+      opacity: 0.95;
+      border: 2px solid rgba(59, 130, 246, 0.5);
+    }
+
+    .sticky-note.cdk-drag-disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
     }
 
     .cdk-drag-placeholder {
-      opacity: 0.4;
-      background: #f9fafb;
-      border: 2px dashed #d1d5db;
-      min-height: 120px;
+      opacity: 0.3;
+      background: rgba(249, 250, 251, 0.9);
+      border: 2px dashed #cbd5e1;
+      min-height: 140px;
+      border-radius: 0;
+      margin-bottom: 12px;
     }
 
     .cdk-drag-animating {
-      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);
     }
 
-    .drag-handle {
-      cursor: grab;
+    /* Action Buttons */
+    .action-buttons {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 6px;
+      padding: 2px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .drag-handle:active {
-      cursor: grabbing;
-    }
-
-    .edit-button {
+    .action-button {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.7;
       transition: all 0.2s ease;
+      border-radius: 4px;
     }
 
-    .edit-button:hover {
+    .action-button:hover {
+      opacity: 1;
       background-color: rgba(59, 130, 246, 0.1);
       color: #3b82f6;
     }
 
-    .delete-button {
+    .action-button-delete:hover {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+
+    /* Content Area */
+    .note-content-wrapper {
+      min-height: 60px;
+      margin-bottom: 12px;
+      padding-top: 8px;
+    }
+
+    .note-content {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #1f2937;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      padding: 4px 0;
+    }
+
+    .edit-textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #3b82f6;
+      border-radius: 6px;
+      font-size: 15px;
+      line-height: 1.6;
+      resize: none;
+      background: rgba(255, 255, 255, 0.9);
       transition: all 0.2s ease;
     }
 
-    .delete-button:hover {
-      background-color: rgba(239, 68, 68, 0.1);
-      color: #ef4444;
+    .edit-textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    /* Footer */
+    .note-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      margin-top: auto;
+    }
+
+    .vote-button {
+      color: #6b7280;
+      transition: all 0.2s ease;
+      padding: 6px 10px;
+      border-radius: 6px;
+      min-width: 48px;
+    }
+
+    .vote-button:hover {
+      color: #3b82f6;
+      background-color: rgba(59, 130, 246, 0.08);
+    }
+
+    .vote-button-active {
+      color: #3b82f6;
+      transition: all 0.2s ease;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background-color: rgba(59, 130, 246, 0.12);
+      min-width: 48px;
+    }
+
+    .vote-button-active:hover {
+      background-color: rgba(59, 130, 246, 0.18);
+    }
+
+    .vote-icon {
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     ::ng-deep .ant-card-body {
       height: 100%;
       display: flex;
       flex-direction: column;
+    }
+
+    ::ng-deep .ant-btn-sm {
+      font-size: 14px;
+    }
+
+    /* Avatar sizing */
+    ::ng-deep .avatar-small {
+      flex-shrink: 0;
+    }
+
+    /* Anonymous Avatar */
+    .anonymous-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    /* Ensure vote icon is visible */
+    ::ng-deep .vote-button .anticon-like,
+    ::ng-deep .vote-button-active .anticon-like {
+      font-size: 16px !important;
+      vertical-align: middle;
     }
   `]
 })
@@ -333,6 +477,32 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
     // Color change is only allowed during brainstorming phase
     return this.currentPhase === RetroPhase.BRAINSTORMING && 
            this.note.authorId === this.currentUserId;
+  }
+
+  canDrag(): boolean {
+    // Dragging is allowed during brainstorming and grouping phases
+    return this.currentPhase === RetroPhase.BRAINSTORMING || 
+           this.currentPhase === RetroPhase.GROUPING;
+  }
+
+  shouldShowAuthor(): boolean {
+    // Author is revealed from discussion phase onwards for privacy
+    return this.currentPhase === RetroPhase.DISCUSSION || 
+           this.currentPhase === RetroPhase.ACTION_ITEMS ||
+           this.currentPhase === RetroPhase.COMPLETED;
+  }
+
+  getDragDisabledMessage(): string {
+    if (this.currentPhase === RetroPhase.VOTING) {
+      return 'Notes cannot be moved during voting phase';
+    } else if (this.currentPhase === RetroPhase.DISCUSSION) {
+      return 'Notes cannot be moved during discussion phase';
+    } else if (this.currentPhase === RetroPhase.ACTION_ITEMS) {
+      return 'Notes cannot be moved during action items phase';
+    } else if (this.currentPhase === RetroPhase.COMPLETED) {
+      return 'Retrospective is completed - no changes allowed';
+    }
+    return 'Dragging not allowed in current phase';
   }
 
   startEditing() {
