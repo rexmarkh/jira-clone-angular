@@ -54,7 +54,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
             <button 
               nz-button 
               nzType="default"
-              nzSize="large"
+              nzSize="medium"
               (click)="joinBoardDemo()"
               class="flex items-center gap-2"
             >
@@ -65,7 +65,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
             <button 
               nz-button 
               nzType="primary"
-              nzSize="large"
+              nzSize="medium"
               (click)="showCreateBoardModal()"
               class="flex items-center gap-2"
             >
@@ -259,7 +259,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
         <button 
           nz-button 
           nzType="primary" 
-          nzSize="large"
+          nzSize="medium"
           (click)="showCreateBoardModal()"
           class="flex items-center gap-2 mx-auto"
         >
@@ -273,7 +273,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     <nz-modal
       [(nzVisible)]="isCreateModalVisible"
       nzClosable="false"
-      nzFooter="null"
+      [nzFooter]="createBoardFooter"
       nzWidth="700px"
     >
       <ng-container *nzModalContent>
@@ -331,26 +331,28 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
               </div>
             </div>
 
-            <div class="mt-5 form-group form-action">
-              <j-button className="btn-primary mr-2"
-                        type="button"
-                        [disabled]="!newBoardTitle.trim()"
-                        (click)="createBoard()">
-                Create Board
-              </j-button>
-              <j-button className="btn-empty"
-                        (click)="cancelCreateBoard()">
-                Cancel
-              </j-button>
-            </div>
+            <!-- Remove the form action buttons from here since they'll be in footer -->
           </form>
         </div>
       </ng-container>
     </nz-modal>
+
+    <!-- Footer Template for Create Board Modal -->
+    <ng-template #createBoardFooter>
+      <j-button className="btn-primary mr-2"
+                type="button"
+                [disabled]="!newBoardTitle.trim()"
+                (click)="createBoard()">
+        Create Board
+      </j-button>
+      <j-button className="btn-empty"
+                (click)="cancelCreateBoard()">
+        Cancel
+      </j-button>
+    </ng-template>
   `,
   styles: [`
     .retrospective-landing {
-      max-width: 1200px;
       margin: 0 auto;
       min-height: 100vh;
       background: #f8fafc;
@@ -431,10 +433,6 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     }
 
     // Modal form styles to match create issue modal
-    .form-action {
-      text-align: right;
-    }
-
     .board-form {
       .form-group {
         margin-bottom: 1rem;
