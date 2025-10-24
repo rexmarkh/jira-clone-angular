@@ -11,6 +11,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzStepsModule } from 'ng-zorro-antd/steps';
 import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
@@ -51,9 +52,9 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       <!-- Header -->
       <nz-layout class="h-full">
         <nz-header class="bg-white border-b border-gray-200 px-6 h-auto py-4">
-          <div class="flex items-center justify-between">
+          <!-- Top Row: Title & Actions -->
+          <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-4">
-              
               <div>
                 <h1 class="text-2xl font-bold text-gray-900 mb-1">{{ currentBoard.title }}</h1>
                 <p class="text-sm text-gray-500">{{ currentBoard.description }}</p>
@@ -61,14 +62,6 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
             </div>
 
             <div class="flex items-center gap-4">
-              <!-- Phase Indicator -->
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-600">Phase:</span>
-                <nz-tag [nzColor]="getPhaseColor(currentBoard.currentPhase)">
-                  {{ getPhaseLabel(currentBoard.currentPhase) }}
-                </nz-tag>
-              </div>
-
               <!-- Participants -->
               <div class="flex items-center gap-2">
                 <span class="text-sm text-gray-600">Team:</span>
@@ -89,64 +82,59 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
                 </div>
               </div>
 
-              <!-- Actions -->
-              <div class="flex items-center gap-2">
-                <button 
-                  nz-button 
-                  nzType="default"
-                  (click)="showPhaseModal()"
-                  class="flex items-center gap-2"
-                >
-                  <span nz-icon nzType="control" nzTheme="outline"></span>
-                  Manage Phase
-                </button>
-                
-                <button 
-                  nz-button 
-                  nzType="primary"
-                  (click)="showSettingsModal()"
-                  class="flex items-center gap-2"
-                >
-                  <span nz-icon nzType="setting" nzTheme="outline"></span>
-                  Settings
-                </button>
-              </div>
+              <!-- Settings -->
+              <button 
+                nz-button 
+                nzType="default"
+                (click)="showSettingsModal()"
+                class="flex items-center gap-2"
+              >
+                <span nz-icon nzType="setting" nzTheme="outline"></span>
+                Settings
+              </button>
             </div>
           </div>
 
-          <!-- Phase Steps -->
-          <div class="mt-4">
-            <nz-steps 
-              [nzCurrent]="getCurrentPhaseStep()" 
-              nzSize="small"
-              class="max-w-4xl"
-            >
-              <nz-step 
-                nzTitle="Brainstorming" 
-                nzIcon="bulb"
-                [nzDescription]="brainstormingDescTemplate"
-              ></nz-step>
-              <nz-step 
-                nzTitle="Grouping" 
-                nzIcon="group"
-                [nzDescription]="groupingDescTemplate"
-              ></nz-step>
-              <nz-step 
-                nzTitle="Voting" 
-                nzIcon="like"
-                [nzDescription]="votingDescTemplate"
-              ></nz-step>
-              <nz-step 
-                nzTitle="Discussion" 
-                nzIcon="message"
-                [nzDescription]="discussionDescTemplate"
-              ></nz-step>
-              <nz-step 
-                nzTitle="Action Items" 
-                nzIcon="check-circle"
-                [nzDescription]="actionItemsDescTemplate"
-              ></nz-step>
-            </nz-steps>
+          <!-- Phase Navigation -->
+          <div class="phase-navigation">
+            <div class="phase-steps">
+              <div 
+                *ngFor="let phase of retroPhases; let i = index"
+                class="phase-step"
+                [class.active]="currentBoard.currentPhase === phase"
+                [class.completed]="isPhaseCompleted(phase)"
+                [class.clickable]="isPhaseClickable(phase)"
+                [class.disabled]="!isPhaseClickable(phase)"
+                (click)="isPhaseClickable(phase) && changePhase(phase)"
+              >
+                <!-- Step Number/Icon -->
+                <div class="step-indicator">
+                  <!-- Show number for all non-completed phases -->
+                  <span *ngIf="!isPhaseCompleted(phase)" class="step-number">{{ i + 1 }}</span>
+                  <!-- Show check icon only for completed phases -->
+                  <span *ngIf="isPhaseCompleted(phase)" nz-icon nzType="check" nzTheme="outline" class="step-icon-check"></span>
+                </div>
+
+                <!-- Step Label -->
+                <div class="step-content">
+                  <div class="step-title">{{ getPhaseTitle(phase) }}</div>
+                  <div class="step-description">
+                    <span 
+                      nz-icon 
+                      nzType="info-circle" 
+                      nzTheme="outline" 
+                      class="info-icon"
+                      [nz-tooltip]="getPhaseTooltip(phase)"
+                      nzTooltipPlacement="bottom"
+                    ></span>
+                    {{ getPhaseShortDescription(phase) }}
+                  </div>
+                </div>
+
+                <!-- Connector Line -->
+                <div *ngIf="i < retroPhases.length - 1" class="step-connector"></div>
+              </div>
+            </div>
           </div>
         </nz-header>
 
@@ -436,6 +424,225 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       transition: color 0.2s ease;
     }
 
+    /* Timeline/Progress Phase Navigation */
+    .phase-navigation {
+      margin-top: 24px;
+      padding: 32px 24px;
+      background: white;
+      border-radius: 0;
+      border: none;
+    }
+
+    .phase-steps {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      position: relative;
+      padding: 0;
+    }
+
+    /* No background line - we'll use individual connectors */
+
+    .phase-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .phase-step.clickable {
+      cursor: pointer;
+    }
+
+    .phase-step.disabled {
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+
+    .phase-step.clickable:hover .step-indicator {
+      transform: scale(1.15);
+    }
+
+    .phase-step.clickable:hover .step-title {
+      color: #3b82f6;
+    }
+
+    .phase-step.disabled:hover .step-indicator {
+      transform: none;
+    }
+
+    .phase-step.disabled:hover .step-title {
+      color: inherit;
+    }
+
+    /* Node/Dot indicator */
+    .step-indicator {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      background: #ffffff;
+      border: 3px solid #e5e7eb;
+      color: #9ca3af;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 0 0 2px #ffffff;
+    }
+
+    /* Inactive/upcoming phase */
+    .phase-step .step-indicator {
+      background: #ffffff;
+      border-color: #e5e7eb;
+      color: #9ca3af;
+      box-shadow: 0 0 0 2px #ffffff;
+    }
+
+    /* Active phase - filled dot with glow */
+    .phase-step.active .step-indicator {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: white;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      transform: scale(1.1);
+      z-index: 10;
+    }
+
+    /* Completed phase - filled green dot */
+    .phase-step.completed .step-indicator {
+      background: #10b981;
+      border-color: #10b981;
+      color: white;
+      z-index: 10;
+    }
+
+    /* Connector line after each step (except last) */
+    .phase-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      width: 100%;
+      height: 3px;
+      background: #e5e7eb;
+      z-index: 0;
+      margin-left: 20px;
+    }
+
+    /* Green line after completed phases */
+    .phase-step.completed:not(:last-child)::after {
+      background: #10b981;
+    }
+
+    .step-number {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Active phase number should be white */
+    .phase-step.active .step-number {
+      color: white;
+    }
+
+    .step-icon-check {
+      font-size: 16px;
+    }
+
+    .step-icon-active {
+      font-size: 18px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    .step-content {
+      flex: 1;
+      text-align: center;
+      max-width: 150px;
+    }
+
+    .step-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: all 0.3s ease;
+    }
+
+    .phase-step.active .step-title {
+      color: #1e40af;
+      font-weight: 700;
+    }
+
+    .phase-step.completed .step-title {
+      color: #059669;
+      font-weight: 600;
+    }
+
+    .step-description {
+      font-size: 11px;
+      color: #9ca3af;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .step-description .info-icon {
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .step-description .info-icon:hover {
+      transform: scale(1.15);
+    }
+
+    .phase-step.active .step-description {
+      color: #3b82f6;
+    }
+
+    .phase-step.active .step-description .info-icon {
+      color: #3b82f6;
+    }
+
+    .phase-step.completed .step-description {
+      color: #6b7280;
+    }
+
+    .phase-step.completed .step-description .info-icon {
+      color: #6b7280;
+    }
+
+    .phase-step .step-description .info-icon {
+      color: #9ca3af;
+    }
+
+    /* Modal Styles */
     // Modal form styles to match create issue modal
     .form-action {
       text-align: right;
@@ -517,7 +724,8 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
     private router: Router,
     private retrospectiveService: RetrospectiveService,
     private retrospectiveQuery: RetrospectiveQuery,
-    private authQuery: AuthQuery
+    private authQuery: AuthQuery,
+    private modal: NzModalService
   ) {}
 
   ngOnInit() {
@@ -655,6 +863,168 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
     return this.getPhaseInstructions(phase);
   }
 
+  getPhaseTitle(phase: RetroPhase): string {
+    return this.getPhaseLabel(phase);
+  }
+
+  getPhaseShortDescription(phase: RetroPhase): string {
+    const descriptions = {
+      [RetroPhase.BRAINSTORMING]: 'Share thoughts & ideas',
+      [RetroPhase.GROUPING]: 'Organize similar notes',
+      [RetroPhase.VOTING]: 'Vote on key topics',
+      [RetroPhase.DISCUSSION]: 'Discuss & collaborate',
+      [RetroPhase.ACTION_ITEMS]: 'Create action plan',
+      [RetroPhase.COMPLETED]: 'Review & complete'
+    };
+    return descriptions[phase] || '';
+  }
+
+  getPhaseTooltip(phase: RetroPhase): string {
+    if (this.currentBoard?.currentPhase === phase) {
+      return 'Current phase - ' + this.getPhaseInstructions(phase);
+    }
+    if (this.isPhaseCompleted(phase)) {
+      return 'Completed - Click to return to this phase';
+    }
+    return 'Click to move to this phase - ' + this.getPhaseInstructions(phase);
+  }
+
+  isPhaseCompleted(phase: RetroPhase): boolean {
+    if (!this.currentBoard) return false;
+    
+    const phaseOrder = [
+      RetroPhase.BRAINSTORMING,
+      RetroPhase.GROUPING,
+      RetroPhase.VOTING,
+      RetroPhase.DISCUSSION,
+      RetroPhase.ACTION_ITEMS,
+      RetroPhase.COMPLETED
+    ];
+    
+    const currentIndex = phaseOrder.indexOf(this.currentBoard.currentPhase);
+    const targetIndex = phaseOrder.indexOf(phase);
+    
+    return targetIndex < currentIndex;
+  }
+
+  canChangePhase(): boolean {
+    // In a real app, you might check if the user is a facilitator
+    return true;
+  }
+
+  isPhaseClickable(phase: RetroPhase): boolean {
+    if (!this.currentBoard || !this.canChangePhase()) {
+      return false;
+    }
+
+    // Current phase is not clickable (already there)
+    if (this.currentBoard.currentPhase === phase) {
+      return false;
+    }
+
+    // Get the phase order
+    const phases = this.retroPhases;
+    const currentPhaseIndex = phases.indexOf(this.currentBoard.currentPhase);
+    const targetPhaseIndex = phases.indexOf(phase);
+
+    // Can only move backward (to completed phases) or forward to immediate next phase
+    return targetPhaseIndex < currentPhaseIndex || targetPhaseIndex === currentPhaseIndex + 1;
+  }
+
+  changePhase(phase: RetroPhase) {
+    if (!this.isPhaseClickable(phase)) {
+      return;
+    }
+
+    // Show confirmation modal
+    this.modal.confirm({
+      nzTitle: `Switch to ${this.getPhaseTitle(phase)} Phase?`,
+      nzContent: this.getPhaseChangeWarning(phase),
+      nzOkText: 'Yes, Switch Phase',
+      nzOkType: 'primary',
+      nzCancelText: 'Cancel',
+      nzOnOk: () => {
+        this.retrospectiveService.updatePhase(phase);
+      }
+    });
+  }
+
+  getPhaseChangeWarning(phase: RetroPhase): string {
+    const currentPhase = this.currentBoard?.currentPhase;
+    
+    // Generate contextual warnings based on current and target phase
+    const warnings: { [key: string]: string } = {
+      [RetroPhase.BRAINSTORMING]: `
+        <div style="margin-bottom: 12px;">
+          <strong>Switching to Brainstorming phase will:</strong>
+          <ul style="margin-top: 8px; padding-left: 20px;">
+            <li>Allow adding and editing notes</li>
+            <li>Enable note deletion</li>
+            <li>Disable voting functionality</li>
+            <li>Hide author information for privacy</li>
+          </ul>
+        </div>
+      `,
+      [RetroPhase.GROUPING]: `
+        <div style="margin-bottom: 12px;">
+          <strong>Switching to Grouping phase will:</strong>
+          <ul style="margin-top: 8px; padding-left: 20px;">
+            <li>Disable adding new notes</li>
+            <li>Disable editing and deleting notes</li>
+            <li>Allow moving notes between columns</li>
+            <li>Keep author information hidden</li>
+          </ul>
+        </div>
+      `,
+      [RetroPhase.VOTING]: `
+        <div style="margin-bottom: 12px;">
+          <strong>Switching to Voting phase will:</strong>
+          <ul style="margin-top: 8px; padding-left: 20px;">
+            <li>Disable editing and moving notes</li>
+            <li>Enable voting on notes</li>
+            <li>Keep author information hidden</li>
+            <li>Focus on prioritizing key topics</li>
+          </ul>
+        </div>
+      `,
+      [RetroPhase.DISCUSSION]: `
+        <div style="margin-bottom: 12px;">
+          <strong>Switching to Discussion phase will:</strong>
+          <ul style="margin-top: 8px; padding-left: 20px;">
+            <li>Disable all note modifications</li>
+            <li>Reveal author information</li>
+            <li>Show voting results</li>
+            <li>Focus on discussing high-priority items</li>
+          </ul>
+        </div>
+      `,
+      [RetroPhase.ACTION_ITEMS]: `
+        <div style="margin-bottom: 12px;">
+          <strong>Switching to Action Items phase will:</strong>
+          <ul style="margin-top: 8px; padding-left: 20px;">
+            <li>Disable all note modifications</li>
+            <li>Show all author information</li>
+            <li>Focus on creating action plans</li>
+            <li>Prepare for retrospective completion</li>
+          </ul>
+        </div>
+      `,
+      [RetroPhase.COMPLETED]: `
+        <div style="margin-bottom: 12px;">
+          <strong>Completing this retrospective will:</strong>
+          <ul style="margin-top: 8px; padding-left: 20px;">
+            <li>Lock all modifications</li>
+            <li>Make the board read-only</li>
+            <li>Preserve all data for review</li>
+            <li style="color: #ef4444; font-weight: 500;">⚠️ This cannot be easily undone</li>
+          </ul>
+        </div>
+      `
+    };
+
+    return warnings[phase] || 'Are you sure you want to switch to this phase?';
+  }
+
   showPhaseModal() {
     this.isPhaseModalVisible = true;
   }
@@ -784,18 +1154,6 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
   // Phase management methods
   get retroPhases() {
     return Object.values(RetroPhase);
-  }
-
-  getPhaseTitle(phase: RetroPhase): string {
-    const titles = {
-      [RetroPhase.BRAINSTORMING]: 'Brainstorming',
-      [RetroPhase.GROUPING]: 'Grouping',
-      [RetroPhase.VOTING]: 'Voting', 
-      [RetroPhase.DISCUSSION]: 'Discussion',
-      [RetroPhase.ACTION_ITEMS]: 'Action Items',
-      [RetroPhase.COMPLETED]: 'Completed'
-    };
-    return titles[phase] || 'Unknown';
   }
 
   cancelPhaseChange() {

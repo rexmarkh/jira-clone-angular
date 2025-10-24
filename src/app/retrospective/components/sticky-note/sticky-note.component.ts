@@ -409,23 +409,23 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
 
   getBorderColor(): string {
     const colorMap = {
-      [StickyNoteColor.YELLOW]: '#f59e0b',
-      [StickyNoteColor.GREEN]: '#10b981',
-      [StickyNoteColor.BLUE]: '#3b82f6',
-      [StickyNoteColor.PINK]: '#ec4899',
-      [StickyNoteColor.PURPLE]: '#8b5cf6',
-      [StickyNoteColor.ORANGE]: '#f97316'
+      [StickyNoteColor.YELLOW]: '#fbbf24',
+      [StickyNoteColor.GREEN]: '#34d399',
+      [StickyNoteColor.BLUE]: '#60a5fa',
+      [StickyNoteColor.PINK]: '#f472b6',
+      [StickyNoteColor.PURPLE]: '#a78bfa',
+      [StickyNoteColor.ORANGE]: '#fb923c'
     };
     return colorMap[this.note.color] || colorMap[StickyNoteColor.YELLOW];
   }
 
   getColorValue(color: StickyNoteColor): string {
     const colorMap = {
-      [StickyNoteColor.YELLOW]: '#fef3c7',
+      [StickyNoteColor.YELLOW]: '#fef9c3',
       [StickyNoteColor.GREEN]: '#d1fae5',
-      [StickyNoteColor.BLUE]: '#dbeafe',
+      [StickyNoteColor.BLUE]: '#e0f2fe',
       [StickyNoteColor.PINK]: '#fce7f3',
-      [StickyNoteColor.PURPLE]: '#e7d5fa',
+      [StickyNoteColor.PURPLE]: '#ede9fe',
       [StickyNoteColor.ORANGE]: '#fed7aa'
     };
     return colorMap[color] || colorMap[StickyNoteColor.YELLOW];
