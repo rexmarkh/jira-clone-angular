@@ -427,7 +427,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     /* Timeline/Progress Phase Navigation */
     .phase-navigation {
       margin-top: 24px;
-      padding: 32px 24px;
+      /* padding: 32px 24px; */
       background: white;
       border-radius: 0;
       border: none;

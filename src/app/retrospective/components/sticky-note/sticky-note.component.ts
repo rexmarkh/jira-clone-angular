@@ -111,28 +111,9 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
         <!-- Note Content - Takes most space -->
         <div class="note-content-wrapper">
-          <div 
-            *ngIf="!isEditing" 
-            class="note-content"
-          >
+          <div class="note-content">
             {{ note.content }}
           </div>
-          
-          <textarea
-            *ngIf="isEditing"
-            [(ngModel)]="editContent"
-            name="editNoteContent"
-            class="edit-textarea"
-            cdkTextareaAutosize
-            #cdkTextareaAutosize="cdkTextareaAutosize"
-            [cdkAutosizeMinRows]="3"
-            [cdkAutosizeMaxRows]="8"
-            (blur)="saveEdit()"
-            (keydown.enter)="$event.ctrlKey && saveEdit()"
-            (keydown.escape)="cancelEdit()"
-            placeholder="Enter your note..."
-            #editInput
-          ></textarea>
         </div>
 
         <!-- Note Footer - User info and actions -->
@@ -193,15 +174,14 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       min-height: 140px;
       border-radius: 0;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
-      transition: all 0.2s ease;
-      cursor: default;
+      cursor: grab;
       position: relative;
       margin-bottom: 12px;
+      touch-action: manipulation;
     }
 
-    .sticky-note:hover {
+    .sticky-note:hover:not(.cdk-drag-dragging) {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
-      transform: translateY(-2px);
     }
 
     .sticky-note:hover .action-buttons {
@@ -209,11 +189,10 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     }
 
     .sticky-note.cdk-drag-preview {
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
-      transform: rotate(2deg) scale(1.03);
-      z-index: 1000;
-      opacity: 0.95;
-      border: 2px solid rgba(59, 130, 246, 0.5);
+      box-sizing: border-box;
+      border-radius: 0;
+      box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+      cursor: grabbing !important;
     }
 
     .sticky-note.cdk-drag-disabled {
@@ -231,7 +210,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     }
 
     .cdk-drag-animating {
-      transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
     }
 
     /* Action Buttons */
@@ -282,24 +261,6 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       word-wrap: break-word;
       white-space: pre-wrap;
       padding: 4px 0;
-    }
-
-    .edit-textarea {
-      width: 100%;
-      padding: 10px;
-      border: 2px solid #3b82f6;
-      border-radius: 6px;
-      font-size: 15px;
-      line-height: 1.6;
-      resize: none;
-      background: rgba(255, 255, 255, 0.9);
-      transition: all 0.2s ease;
-    }
-
-    .edit-textarea:focus {
-      outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     /* Footer */
@@ -389,14 +350,12 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
   @Output() noteChange = new EventEmitter<StickyNote>();
   @Output() noteDelete = new EventEmitter<string>();
   @Output() noteVote = new EventEmitter<string>();
-
-  isEditing = false;
-  editContent = '';
+  @Output() noteEdit = new EventEmitter<StickyNote>();
 
   colorOptions = Object.values(StickyNoteColor);
 
   ngOnInit() {
-    this.editContent = this.note.content;
+    // Component initialization
   }
 
   ngOnDestroy() {
@@ -510,34 +469,8 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
       return;
     }
     
-    this.isEditing = true;
-    this.editContent = this.note.content;
-    
-    // Focus the textarea after a brief delay to ensure it's rendered
-    setTimeout(() => {
-      const textarea = document.querySelector('textarea') as HTMLTextAreaElement;
-      if (textarea) {
-        textarea.focus();
-        textarea.select();
-      }
-    }, 100);
-  }
-
-  saveEdit() {
-    if (this.editContent.trim() && this.editContent !== this.note.content) {
-      const updatedNote = {
-        ...this.note,
-        content: this.editContent.trim(),
-        updatedAt: new Date().toISOString()
-      };
-      this.noteChange.emit(updatedNote);
-    }
-    this.isEditing = false;
-  }
-
-  cancelEdit() {
-    this.editContent = this.note.content; // Reset to original content
-    this.isEditing = false;
+    // Emit event to parent to open edit modal
+    this.noteEdit.emit(this.note);
   }
 
   changeColor(color: StickyNoteColor) {

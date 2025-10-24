@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TextFieldModule } from '@angular/cdk/text-field';
@@ -9,7 +9,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
-import { CdkDropList, CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDropList, CdkDragDrop, CdkDragStart, CdkDragEnd, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { RetroColumn, StickyNote, StickyNoteColor, RetroPhase } from '../../interfaces/retrospective.interface';
 import { StickyNoteComponent } from '../sticky-note/sticky-note.component';
 import { JiraControlModule } from '../../../jira-control/jira-control.module';
@@ -44,43 +44,28 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           <!-- Sticky Notes List with Drop Zone -->
           <div 
             class="notes-container" 
+            #notesContainer
             cdkDropList
             [id]="'drop-list-' + column.id"
             [cdkDropListData]="stickyNotes"
             (cdkDropListDropped)="onNoteDrop($event)"
           >
-            <app-sticky-note
+            <app-sticky-note 
               *ngFor="let note of stickyNotes; trackBy: trackByNoteId"
-              [note]="note"
+              [note]="note" 
               [currentUserId]="currentUserId"
               [currentPhase]="currentPhase"
               (noteChange)="onNoteChange($event)"
               (noteDelete)="onNoteDelete($event)"
               (noteVote)="onNoteVote($event)"
+              (noteEdit)="onNoteEdit($event)"
               cdkDrag
               [cdkDragData]="note"
               [cdkDragDisabled]="!canDragNotes()"
+              (cdkDragStarted)="onDragStarted($event)"
+              (cdkDragEnded)="onDragEnded($event)"
               class="note-item"
             ></app-sticky-note>
-          </div>
-
-          <!-- FAB Add Note Button -->
-          <div class="fab-container">
-            <button 
-              nz-button 
-              nzType="primary" 
-              nzShape="circle"
-              nzSize="default"
-              (click)="showAddNoteModal()"
-              [disabled]="!canAddNotes()"
-              nz-tooltip
-              [nzTooltipTitle]="canAddNotes() ? 'Add a note' : getAddNoteDisabledMessage()"
-              nzTooltipPlacement="top"
-              class="fab-button"
-              [class.fab-disabled]="!canAddNotes()"
-            >
-              <span nz-icon nzType="plus" nzTheme="outline"></span>
-            </button>
           </div>
 
           <!-- Empty State - OUTSIDE the drop list so it doesn't interfere -->
@@ -101,19 +86,36 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     <ng-template #columnHeaderTemplate>
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div 
-            class="w-4 h-4 rounded-full"
-            [style.background-color]="column.color"
-          ></div>
           <div>
-            <h3 class="text-lg font-semibold mb-0">{{ column.title }}</h3>
+            <h3 
+              class="text-lg font-semibold mb-0"
+              [style.color]="column.color"
+            >
+              {{ column.title }}
+            </h3>
             <p class="text-sm text-gray-500 mb-0">{{ column.description }}</p>
           </div>
         </div>
-        <div class="flex items-center gap-1">
-          <span class="text-sm text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+        <div 
+          class="split-button-container"
+          [style.--column-color]="column.color"
+        >
+          <!-- Count Badge (Left Side) -->
+          <div 
+            class="split-button-count"
+            [style.background-color]="column.color"
+          >
             {{ stickyNotes.length }}
-          </span>
+          </div>
+          <!-- Add Button (Right Side) -->
+          <button 
+            class="split-button-action"
+            [style.background-color]="column.color"
+            (click)="showAddNoteModal()"
+            [disabled]="!canAddNotes()"
+          >
+            <span nz-icon nzType="plus" nzTheme="outline" class="plus-icon"></span>
+          </button>
         </div>
       </div>
     </ng-template>
@@ -126,7 +128,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       </div>
     </ng-template>
 
-    <!-- Add Note Modal -->
+    <!-- Add/Edit Note Modal -->
     <nz-modal
       [(nzVisible)]="isAddNoteModalVisible"
       nzClosable="false"
@@ -137,7 +139,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
         <div class="px-8 py-5">
           <div class="flex items-center py-3 text-textDarkest">
             <div class="text-xl">
-              Add New Note
+              {{ isEditMode ? 'Edit Note' : 'Add New Note' }}
             </div>
             <div class="flex-auto"></div>
             <j-button icon="times"
@@ -184,8 +186,8 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
               <j-button className="btn-primary mr-2"
                         type="button"
                         [disabled]="!newNoteContent.trim()"
-                        (click)="addNote()">
-                Add Note
+                        (click)="isEditMode ? saveEditedNote() : addNote()">
+                {{ isEditMode ? 'Save Changes' : 'Add Note' }}
               </j-button>
               <j-button className="btn-empty"
                         (click)="cancelAddNote()">
@@ -219,7 +221,10 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       overflow-x: hidden;
       scrollbar-width: thin;
       scrollbar-color: #e5e7eb transparent;
-      padding: 0 4px 70px 4px; /* No top padding, extra bottom padding for FAB */
+      padding: 0 4px 12px 4px; /* Reduced bottom padding since FAB is removed */
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      will-change: scroll-position;
     }
 
     .notes-container::-webkit-scrollbar {
@@ -239,36 +244,107 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       background-color: #d1d5db;
     }
 
-    .fab-container {
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      z-index: 10;
+    /* Hide scrollbar during drag - multiple approaches for cross-browser compatibility */
+    .notes-container.cdk-drop-list-dragging::-webkit-scrollbar {
+      width: 0 !important;
+      display: none !important;
     }
 
-    .fab-button {
-      width: 40px;
-      height: 40px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    .notes-container.cdk-drop-list-dragging {
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+
+    /* Also hide when any child is being dragged */
+    .cdk-drop-list-dragging.notes-container::-webkit-scrollbar,
+    .notes-container:has(.cdk-drag-dragging)::-webkit-scrollbar {
+      width: 0 !important;
+      display: none !important;
+    }
+
+    .cdk-drop-list-dragging.notes-container,
+    .notes-container:has(.cdk-drag-dragging) {
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
+    }
+
+    /* Split Pill Button - Unified count and add button */
+    .split-button-container {
+      display: inline-flex;
+      align-items: stretch;
+      height: 32px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: all 0.2s ease;
-      border: none !important;
+      position: relative;
     }
 
-    .fab-button:hover:not(.fab-disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    .split-button-container:hover {
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+      transform: translateY(-1px);
     }
 
-    .fab-button.fab-disabled {
+    .split-button-count {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      padding: 0 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+      cursor: default;
+      user-select: none;
+      position: relative;
+    }
+
+    .split-button-count::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 20%;
+      bottom: 20%;
+      width: 1px;
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .split-button-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      color: #ffffff;
+    }
+
+    .split-button-action:hover:not(:disabled) {
+      background-color: #ffffff !important;
+      color: var(--column-color);
+    }
+
+    .split-button-action:active:not(:disabled) {
+      background-color: #ffffff !important;
+      color: var(--column-color);
+      opacity: 0.9;
+    }
+
+    .split-button-action:disabled {
       opacity: 0.5;
       cursor: not-allowed;
-      background-color: #f5f5f5 !important;
-      color: #bfbfbf !important;
     }
 
-    .fab-button.fab-disabled:hover {
-      transform: none;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    .split-button-action .plus-icon {
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s ease;
     }
 
     .empty-state-overlay {
@@ -276,7 +352,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       top: 0;
       left: 0;
       right: 0;
-      bottom: 60px; /* Leave space for FAB */
+      bottom: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -287,46 +363,47 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     .cdk-drop-list {
       min-height: 100%;
       border-radius: 8px;
-      transition: all 0.2s ease;
+    }
+
+    .cdk-drop-list-dragging {
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    .cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
     }
 
     .cdk-drop-list.cdk-drop-list-receiving {
       background-color: rgba(59, 130, 246, 0.02);
     }
 
-    .cdk-drop-list-dragging .cdk-drag {
-      transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);
+    .cdk-drag {
+      cursor: grab;
+      touch-action: manipulation;
     }
 
     .cdk-drag-preview {
       box-sizing: border-box;
-      border-radius: 8px;
+      border-radius: 0;
       box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
-      transform: rotate(2deg) scale(1.02);
-      opacity: 0.95;
-      z-index: 1000;
+      cursor: grabbing !important;
     }
 
     .cdk-drag-placeholder {
       opacity: 0.3;
       background: #f9fafb;
-      border: 1px dashed #e5e7eb;
-      border-radius: 8px;
+      border: 2px dashed #e5e7eb;
+      border-radius: 0;
       min-height: 120px;
       margin: 0 0 12px 0;
-      transition: all 100ms ease;
     }
 
     .cdk-drag-animating {
-      transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
     }
 
     .note-item {
-      transition: transform 0.2s ease;
-    }
-
-    .note-item:hover {
-      transform: translateY(-1px);
+      margin-bottom: 12px;
     }
 
     ::ng-deep .ant-card-head {
@@ -396,17 +473,25 @@ export class RetroColumnComponent {
   @Output() noteVote = new EventEmitter<string>();
   @Output() noteDrop = new EventEmitter<CdkDragDrop<StickyNote[]>>();
 
+  @ViewChild('notesContainer') notesContainer!: ElementRef;
+
   isAddNoteModalVisible = false;
+  isEditMode = false;
+  editingNote: StickyNote | null = null;
   newNoteContent = '';
   selectedColor: StickyNoteColor = StickyNoteColor.YELLOW;
   
   colorOptions = Object.values(StickyNoteColor);
+
+  constructor(private renderer: Renderer2) {}
 
   showAddNoteModal() {
     if (!this.canAddNotes()) {
       return;
     }
     
+    this.isEditMode = false;
+    this.editingNote = null;
     this.isAddNoteModalVisible = true;
     this.newNoteContent = '';
     this.selectedColor = StickyNoteColor.YELLOW;
@@ -416,6 +501,23 @@ export class RetroColumnComponent {
       const textarea = document.querySelector('textarea') as HTMLTextAreaElement;
       if (textarea) {
         textarea.focus();
+      }
+    }, 100);
+  }
+
+  onNoteEdit(note: StickyNote) {
+    this.isEditMode = true;
+    this.editingNote = note;
+    this.isAddNoteModalVisible = true;
+    this.newNoteContent = note.content;
+    this.selectedColor = note.color;
+    
+    // Focus the textarea after modal opens
+    setTimeout(() => {
+      const textarea = document.querySelector('textarea') as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.focus();
+        textarea.select();
       }
     }, 100);
   }
@@ -437,8 +539,23 @@ export class RetroColumnComponent {
     }
   }
 
+  saveEditedNote() {
+    if (this.editingNote && this.newNoteContent.trim()) {
+      const updatedNote: StickyNote = {
+        ...this.editingNote,
+        content: this.newNoteContent.trim(),
+        color: this.selectedColor,
+        updatedAt: new Date().toISOString()
+      };
+      this.noteChange.emit(updatedNote);
+      this.cancelAddNote();
+    }
+  }
+
   cancelAddNote() {
     this.isAddNoteModalVisible = false;
+    this.isEditMode = false;
+    this.editingNote = null;
     this.newNoteContent = '';
     this.selectedColor = StickyNoteColor.YELLOW;
   }
@@ -458,6 +575,20 @@ export class RetroColumnComponent {
   onNoteDrop(event: CdkDragDrop<StickyNote[]>) {
     // Always pass the event to parent - let it handle both same column and cross-column logic
     this.noteDrop.emit(event);
+  }
+
+  onDragStarted(event: CdkDragStart) {
+    // Hide scrollbar during drag for cleaner visual
+    if (this.notesContainer?.nativeElement) {
+      this.renderer.setStyle(this.notesContainer.nativeElement, 'overflow', 'hidden');
+    }
+  }
+
+  onDragEnded(event: CdkDragEnd) {
+    // Restore scrollbar after drag completes
+    if (this.notesContainer?.nativeElement) {
+      this.renderer.setStyle(this.notesContainer.nativeElement, 'overflow-y', 'auto');
+    }
   }
 
   trackByNoteId(index: number, note: StickyNote): string {
