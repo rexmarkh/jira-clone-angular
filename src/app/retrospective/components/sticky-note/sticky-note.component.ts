@@ -115,16 +115,16 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
             {{ note.content }}
           </div>
           
-          <!-- Tags - Show if present -->
+          <!-- Tags - Show if present (Compact inline design) -->
           <div *ngIf="note.tags && note.tags.length > 0" class="note-tags">
-            <nz-tag 
+            <span 
               *ngFor="let tag of note.tags" 
-              [nzColor]="getTagColor(tag)"
               class="note-tag"
+              [style.background-color]="getTagBackgroundColor(tag)"
+              [style.color]="getTagTextColor(tag)"
             >
-              <span nz-icon nzType="tag" nzTheme="outline" class="tag-icon"></span>
               {{ tag }}
-            </nz-tag>
+            </span>
           </div>
         </div>
 
@@ -136,13 +136,13 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
               <j-avatar 
                 [avatarUrl]="note.authorAvatar" 
                 [name]="getInitials(note.authorName)"
-                [size]="24"
+                [size]="20"
                 className="avatar-small"
               ></j-avatar>
               <span class="text-xs text-gray-600 font-medium">{{ note.authorName }}</span>
             </ng-container>
             <ng-container *ngIf="!shouldShowAuthor()">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5">
                 <div class="anonymous-avatar">
                   <span nz-icon nzType="user" nzTheme="outline"></span>
                 </div>
@@ -151,31 +151,23 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
             </ng-container>
           </div>
 
-          <!-- Right: Actions -->
-          <div class="flex items-center gap-3">
-            <!-- Vote Button -->
-            <button 
-              nz-button 
-              nzType="text" 
-              nzSize="small"
-              [class]="hasUserVoted() ? 'vote-button-active' : 'vote-button'"
-              (click)="onVote()"
-              class="flex items-center gap-1.5"
-            >
-              <span 
-                nz-icon 
-                nzType="like" 
-                [nzTheme]="hasUserVoted() ? 'fill' : 'outline'"
-                class="vote-icon"
-              ></span>
-              <span class="text-xs font-medium">{{ note.votes }}</span>
-            </button>
-
-            <!-- Timestamp -->
-            <span class="text-xs text-gray-400">
-              {{ getTimeAgo() }}
-            </span>
-          </div>
+          <!-- Right: Vote Button -->
+          <button 
+            nz-button 
+            nzType="text" 
+            nzSize="small"
+            [class]="hasUserVoted() ? 'vote-button-active' : 'vote-button'"
+            (click)="onVote()"
+            class="flex items-center gap-1"
+          >
+            <span 
+              nz-icon 
+              nzType="like" 
+              [nzTheme]="hasUserVoted() ? 'fill' : 'outline'"
+              class="vote-icon"
+            ></span>
+            <span class="text-xs font-semibold">{{ note.votes }}</span>
+          </button>
         </div>
       </nz-card>
     </div>
@@ -183,7 +175,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
   styles: [`
     .sticky-note {
       width: 100%;
-      min-height: 140px;
+      min-height: 120px;
       border-radius: 0;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
       cursor: grab;
@@ -216,7 +208,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       opacity: 0.3;
       background: rgba(249, 250, 251, 0.9);
       border: 2px dashed #cbd5e1;
-      min-height: 140px;
+      min-height: 120px;
       border-radius: 0;
       margin-bottom: 12px;
     }
@@ -262,7 +254,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     /* Content Area */
     .note-content-wrapper {
       min-height: 60px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       padding-top: 8px;
     }
 
@@ -273,32 +265,26 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       word-wrap: break-word;
       white-space: pre-wrap;
       padding: 4px 0;
+      margin-bottom: 8px;
     }
 
-    /* Tags */
+    /* Tags - Compact inline design */
     .note-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 12px;
-      padding-top: 8px;
-      border-top: 1px dashed rgba(0, 0, 0, 0.08);
+      gap: 4px;
+      margin-top: 6px;
     }
 
     .note-tag {
-      margin: 0;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-weight: 500;
-      letter-spacing: 0.3px;
-    }
-
-    .tag-icon {
       font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      display: inline-block;
+      line-height: 1.2;
     }
 
     /* Footer */
@@ -306,17 +292,19 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 12px;
+      padding-top: 8px;
       border-top: 1px solid rgba(0, 0, 0, 0.06);
       margin-top: auto;
+      min-height: 32px;
     }
 
     .vote-button {
       color: #6b7280;
       transition: all 0.2s ease;
-      padding: 6px 10px;
-      border-radius: 6px;
-      min-width: 48px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      min-width: 40px;
+      height: 24px;
     }
 
     .vote-button:hover {
@@ -327,10 +315,11 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     .vote-button-active {
       color: #3b82f6;
       transition: all 0.2s ease;
-      padding: 6px 10px;
-      border-radius: 6px;
+      padding: 4px 8px;
+      border-radius: 4px;
       background-color: rgba(59, 130, 246, 0.12);
-      min-width: 48px;
+      min-width: 40px;
+      height: 24px;
     }
 
     .vote-button-active:hover {
@@ -338,7 +327,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     }
 
     .vote-icon {
-      font-size: 16px;
+      font-size: 14px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -359,24 +348,24 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       flex-shrink: 0;
     }
 
-    /* Anonymous Avatar */
+    /* Anonymous Avatar - More compact */
     .anonymous-avatar {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       background-color: #e5e7eb;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #9ca3af;
-      font-size: 12px;
+      font-size: 10px;
       flex-shrink: 0;
     }
 
     /* Ensure vote icon is visible */
     ::ng-deep .vote-button .anticon-like,
     ::ng-deep .vote-button-active .anticon-like {
-      font-size: 16px !important;
+      font-size: 14px !important;
       vertical-align: middle;
     }
   `]
@@ -558,5 +547,41 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
     };
     
     return tagColors[tag] || 'default';
+  }
+
+  getTagBackgroundColor(tag: string): string {
+    const bgColors: { [key: string]: string } = {
+      'Communication': '#e0f2fe',
+      'Process': '#cffafe',
+      'Technical': '#ede9fe',
+      'Team': '#dcfce7',
+      'Documentation': '#dbeafe',
+      'Time': '#fed7aa',
+      'Quality': '#ecfccb',
+      'Planning': '#fce7f3',
+      'Tools': '#fee2e2',
+      'Blocker': '#fecaca',
+      'General': '#f3f4f6'
+    };
+    
+    return bgColors[tag] || '#f3f4f6';
+  }
+
+  getTagTextColor(tag: string): string {
+    const textColors: { [key: string]: string } = {
+      'Communication': '#0369a1',
+      'Process': '#0891b2',
+      'Technical': '#7c3aed',
+      'Team': '#15803d',
+      'Documentation': '#1e40af',
+      'Time': '#c2410c',
+      'Quality': '#4d7c0f',
+      'Planning': '#be185d',
+      'Tools': '#b91c1c',
+      'Blocker': '#dc2626',
+      'General': '#6b7280'
+    };
+    
+    return textColors[tag] || '#6b7280';
   }
 }
