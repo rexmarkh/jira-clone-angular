@@ -114,60 +114,67 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           <div class="note-content">
             {{ note.content }}
           </div>
-          
-          <!-- Tags - Show if present (Compact inline design) -->
-          <div *ngIf="note.tags && note.tags.length > 0" class="note-tags">
-            <span 
-              *ngFor="let tag of note.tags" 
-              class="note-tag"
-              [style.background-color]="getTagBackgroundColor(tag)"
-              [style.color]="getTagTextColor(tag)"
-            >
-              {{ tag }}
-            </span>
-          </div>
         </div>
 
-        <!-- Note Footer - User info and actions -->
+        <!-- Single Row Footer - Tags + Metadata -->
         <div class="note-footer">
-          <!-- Left: User info (only shown from discussion phase onwards) -->
-          <div class="flex items-center gap-2">
+          <!-- Left: Tags (if present) -->
+          <div class="footer-left">
+            <div *ngIf="note.tags && note.tags.length > 0" class="note-tags-inline">
+              <span 
+                *ngFor="let tag of note.tags" 
+                class="note-tag"
+                [style.background-color]="getTagBackgroundColor(tag)"
+                [style.color]="getTagTextColor(tag)"
+              >
+                {{ tag }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Right: User + Vote -->
+          <div class="footer-right">
+            <!-- User Avatar with tooltip -->
             <ng-container *ngIf="shouldShowAuthor()">
               <j-avatar 
                 [avatarUrl]="note.authorAvatar" 
                 [name]="getInitials(note.authorName)"
-                [size]="20"
+                [size]="18"
                 className="avatar-small"
+                nz-tooltip
+                [nzTooltipTitle]="note.authorName"
+                nzTooltipPlacement="top"
               ></j-avatar>
-              <span class="text-xs text-gray-600 font-medium">{{ note.authorName }}</span>
             </ng-container>
             <ng-container *ngIf="!shouldShowAuthor()">
-              <div class="flex items-center gap-1.5">
-                <div class="anonymous-avatar">
-                  <span nz-icon nzType="user" nzTheme="outline"></span>
-                </div>
-                <span class="text-xs text-gray-500 italic">Anonymous</span>
+              <div 
+                class="anonymous-avatar"
+                nz-tooltip
+                nzTooltipTitle="Anonymous"
+                nzTooltipPlacement="top"
+              >
+                <span nz-icon nzType="user" nzTheme="outline"></span>
               </div>
             </ng-container>
-          </div>
 
-          <!-- Right: Vote Button -->
-          <button 
-            nz-button 
-            nzType="text" 
-            nzSize="small"
-            [class]="hasUserVoted() ? 'vote-button-active' : 'vote-button'"
-            (click)="onVote()"
-            class="flex items-center gap-1"
-          >
-            <span 
-              nz-icon 
-              nzType="like" 
-              [nzTheme]="hasUserVoted() ? 'fill' : 'outline'"
-              class="vote-icon"
-            ></span>
-            <span class="text-xs font-semibold">{{ note.votes }}</span>
-          </button>
+            <!-- Vote Button -->
+            <button 
+              nz-button 
+              nzType="text" 
+              nzSize="small"
+              [class]="hasUserVoted() ? 'vote-button-active' : 'vote-button'"
+              (click)="onVote()"
+              class="flex items-center gap-1"
+            >
+              <span 
+                nz-icon 
+                nzType="like" 
+                [nzTheme]="hasUserVoted() ? 'fill' : 'outline'"
+                class="vote-icon"
+              ></span>
+              <span class="text-xs font-semibold">{{ note.votes }}</span>
+            </button>
+          </div>
         </div>
       </nz-card>
     </div>
@@ -175,7 +182,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
   styles: [`
     .sticky-note {
       width: 100%;
-      min-height: 120px;
+      min-height: 100px;
       border-radius: 0;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
       cursor: grab;
@@ -208,7 +215,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       opacity: 0.3;
       background: rgba(249, 250, 251, 0.9);
       border: 2px dashed #cbd5e1;
-      min-height: 120px;
+      min-height: 100px;
       border-radius: 0;
       margin-bottom: 12px;
     }
@@ -254,8 +261,9 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     /* Content Area */
     .note-content-wrapper {
       min-height: 60px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       padding-top: 8px;
+      flex: 1;
     }
 
     .note-content {
@@ -265,46 +273,61 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       word-wrap: break-word;
       white-space: pre-wrap;
       padding: 4px 0;
-      margin-bottom: 8px;
     }
 
-    /* Tags - Compact inline design */
-    .note-tags {
+    /* Single Row Footer - Everything inline */
+    .note-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      margin-top: auto;
+      min-height: 28px;
+    }
+
+    .footer-left {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    /* Tags inline in footer */
+    .note-tags-inline {
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
-      margin-top: 6px;
+      align-items: center;
     }
 
     .note-tag {
-      font-size: 10px;
-      padding: 2px 6px;
+      font-size: 9px;
+      padding: 2px 5px;
       border-radius: 3px;
       font-weight: 600;
       letter-spacing: 0.3px;
       text-transform: uppercase;
       display: inline-block;
       line-height: 1.2;
-    }
-
-    /* Footer */
-    .note-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 8px;
-      border-top: 1px solid rgba(0, 0, 0, 0.06);
-      margin-top: auto;
-      min-height: 32px;
+      white-space: nowrap;
     }
 
     .vote-button {
       color: #6b7280;
       transition: all 0.2s ease;
-      padding: 4px 8px;
+      padding: 3px 6px;
       border-radius: 4px;
-      min-width: 40px;
-      height: 24px;
+      min-width: 36px;
+      height: 22px;
     }
 
     .vote-button:hover {
@@ -315,11 +338,11 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     .vote-button-active {
       color: #3b82f6;
       transition: all 0.2s ease;
-      padding: 4px 8px;
+      padding: 3px 6px;
       border-radius: 4px;
       background-color: rgba(59, 130, 246, 0.12);
-      min-width: 40px;
-      height: 24px;
+      min-width: 36px;
+      height: 22px;
     }
 
     .vote-button-active:hover {
@@ -327,7 +350,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     }
 
     .vote-icon {
-      font-size: 14px;
+      font-size: 13px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -346,12 +369,13 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     /* Avatar sizing */
     ::ng-deep .avatar-small {
       flex-shrink: 0;
+      cursor: pointer;
     }
 
-    /* Anonymous Avatar - More compact */
+    /* Anonymous Avatar - Super compact with tooltip */
     .anonymous-avatar {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       background-color: #e5e7eb;
       display: flex;
@@ -360,12 +384,13 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       color: #9ca3af;
       font-size: 10px;
       flex-shrink: 0;
+      cursor: pointer;
     }
 
     /* Ensure vote icon is visible */
     ::ng-deep .vote-button .anticon-like,
     ::ng-deep .vote-button-active .anticon-like {
-      font-size: 14px !important;
+      font-size: 13px !important;
       vertical-align: middle;
     }
   `]
