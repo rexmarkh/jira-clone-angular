@@ -132,7 +132,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     <nz-modal
       [(nzVisible)]="isAddNoteModalVisible"
       nzClosable="false"
-      nzFooter="null"
+      [nzFooter]="noteModalFooter"
       nzWidth="600px"
     >
       <ng-container *nzModalContent>
@@ -181,22 +181,24 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
                 ></div>
               </div>
             </div>
-            
-            <div class="mt-5 form-group form-action">
-              <j-button className="btn-primary mr-2"
-                        type="button"
-                        [disabled]="!newNoteContent.trim()"
-                        (click)="isEditMode ? saveEditedNote() : addNote()">
-                {{ isEditMode ? 'Save Changes' : 'Add Note' }}
-              </j-button>
-              <j-button className="btn-empty"
-                        (click)="cancelAddNote()">
-                Cancel
-              </j-button>
-            </div>
           </form>
         </div>
       </ng-container>
+      
+      <ng-template #noteModalFooter>
+        <div class="modal-footer-buttons">
+          <j-button className="btn-primary mr-2"
+                    type="button"
+                    [disabled]="!newNoteContent.trim()"
+                    (click)="isEditMode ? saveEditedNote() : addNote()">
+            {{ isEditMode ? 'Save Changes' : 'Add Note' }}
+          </j-button>
+          <j-button className="btn-empty"
+                    (click)="cancelAddNote()">
+            Cancel
+          </j-button>
+        </div>
+      </ng-template>
     </nz-modal>
   `,
   styles: [`
@@ -413,6 +415,12 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
     ::ng-deep .ant-card-head-title {
       padding: 16px 0;
+    }
+
+    // Modal footer buttons
+    .modal-footer-buttons {
+      text-align: right;
+      padding: 16px 24px;
     }
 
     // Modal form styles to match create issue modal

@@ -171,7 +171,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     <nz-modal
       [(nzVisible)]="isPhaseModalVisible"
       nzClosable="false"
-      nzFooter="null"
+      [nzFooter]="phaseModalFooter"
       nzWidth="600px"
     >
       <ng-container *nzModalContent>
@@ -213,28 +213,30 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
                 </div>
               </div>
             </div>
-            
-            <div class="mt-5 form-group form-action">
-              <j-button className="btn-primary mr-2"
-                        [disabled]="selectedPhase === currentBoard?.currentPhase"
-                        (click)="updatePhase()">
-                Update Phase
-              </j-button>
-              <j-button className="btn-empty"
-                        (click)="cancelPhaseChange()">
-                Cancel
-              </j-button>
-            </div>
           </div>
         </div>
       </ng-container>
+      
+      <ng-template #phaseModalFooter>
+        <div class="modal-footer-buttons">
+          <j-button className="btn-primary mr-2"
+                    [disabled]="selectedPhase === currentBoard?.currentPhase"
+                    (click)="updatePhase()">
+            Update Phase
+          </j-button>
+          <j-button className="btn-empty"
+                    (click)="cancelPhaseChange()">
+            Cancel
+          </j-button>
+        </div>
+      </ng-template>
     </nz-modal>
 
     <!-- Settings Modal -->
     <nz-modal
       [(nzVisible)]="isSettingsModalVisible"
       nzClosable="false"
-      nzFooter="null"
+      [nzFooter]="settingsModalFooter"
       nzWidth="600px"
     >
       <ng-container *nzModalContent>
@@ -276,20 +278,22 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
                 placeholder="Enter board description"
               ></textarea>
             </div>
-
-            <div class="mt-5 form-group form-action">
-              <j-button className="btn-primary mr-2"
-                        (click)="saveSettings()">
-                Save
-              </j-button>
-              <j-button className="btn-empty"
-                        (click)="cancelSettings()">
-                Cancel
-              </j-button>
-            </div>
           </form>
         </div>
       </ng-container>
+      
+      <ng-template #settingsModalFooter>
+        <div class="modal-footer-buttons">
+          <j-button className="btn-primary mr-2"
+                    (click)="saveSettings()">
+            Save
+          </j-button>
+          <j-button className="btn-empty"
+                    (click)="cancelSettings()">
+            Cancel
+          </j-button>
+        </div>
+      </ng-template>
     </nz-modal>
 
     <!-- Loading State -->
@@ -643,6 +647,12 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     }
 
     /* Modal Styles */
+    // Modal footer buttons
+    .modal-footer-buttons {
+      text-align: right;
+      padding: 16px 24px;
+    }
+
     // Modal form styles to match create issue modal
     .form-action {
       text-align: right;
