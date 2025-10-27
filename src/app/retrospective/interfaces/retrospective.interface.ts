@@ -12,6 +12,8 @@ export interface StickyNote {
   };
   votes: number;
   voterIds: string[];
+  tags?: string[];
+  groupId?: string;
   createdAt: string;
   updatedAt: string;
 }

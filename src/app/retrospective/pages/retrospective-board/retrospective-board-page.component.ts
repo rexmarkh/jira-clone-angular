@@ -946,7 +946,44 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Show confirmation modal
+    // Special handling for GROUPING phase - offer AI assistance
+    if (phase === RetroPhase.GROUPING && this.currentBoard?.currentPhase === RetroPhase.BRAINSTORMING) {
+      this.modal.confirm({
+        nzTitle: `Switch to ${this.getPhaseTitle(phase)} Phase?`,
+        nzContent: `
+          <div style="margin-bottom: 12px;">
+            <strong>Switching to Grouping phase will:</strong>
+            <ul style="margin-top: 8px; padding-left: 20px;">
+              <li>Disable adding new notes</li>
+              <li>Allow moving notes between columns</li>
+              <li>Keep author information hidden</li>
+            </ul>
+          </div>
+          <div style="margin-top: 16px; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span style="font-size: 18px;">💡</span>
+              <strong>AI-Powered Grouping Available!</strong>
+            </div>
+            <p style="margin: 0; font-size: 13px; opacity: 0.95;">
+              Would you like AI to automatically analyze and group similar notes with tags?
+            </p>
+          </div>
+        `,
+        nzOkText: '✨ Use AI Grouping',
+        nzOkType: 'primary',
+        nzCancelText: 'Switch Without AI',
+        nzOnOk: () => {
+          this.retrospectiveService.updatePhase(phase);
+          setTimeout(() => this.performAIGrouping(), 500);
+        },
+        nzOnCancel: () => {
+          this.retrospectiveService.updatePhase(phase);
+        }
+      });
+      return;
+    }
+
+    // Show confirmation modal for other phases
     this.modal.confirm({
       nzTitle: `Switch to ${this.getPhaseTitle(phase)} Phase?`,
       nzContent: this.getPhaseChangeWarning(phase),
@@ -1169,5 +1206,162 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
   cancelPhaseChange() {
     this.isPhaseModalVisible = false;
     this.selectedPhase = this.currentBoard?.currentPhase || RetroPhase.BRAINSTORMING;
+  }
+
+  // AI Grouping functionality
+  performAIGrouping() {
+    if (!this.currentBoard) return;
+
+    const notificationKey = `ai-grouping-${Date.now()}`;
+    
+    // Show loading notification
+    this.modal.info({
+      nzTitle: '🤖 AI Grouping in Progress',
+      nzContent: `
+        <div style="text-align: center; padding: 20px;">
+          <div style="font-size: 48px; margin-bottom: 16px;">
+            <span style="display: inline-block; animation: spin 2s linear infinite;">🔄</span>
+          </div>
+          <p style="font-size: 14px; color: #6b7280;">
+            Analyzing ${this.currentBoard.stickyNotes.length} notes across ${this.currentBoard.columns.length} columns...
+          </p>
+          <p style="font-size: 13px; color: #9ca3af; margin-top: 8px;">
+            This may take a few moments
+          </p>
+          <style>
+            @keyframes spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+          </style>
+        </div>
+      `,
+      nzOkText: 'Working...',
+      nzOkDisabled: true,
+      nzClosable: false,
+      nzMaskClosable: false
+    });
+
+    // Simulate AI processing (in production, this would call an AI service)
+    setTimeout(() => {
+      const groupedNotes = this.analyzeAndGroupNotes();
+      
+      // Apply the grouping
+      groupedNotes.forEach(noteUpdate => {
+        this.retrospectiveService.updateStickyNote(noteUpdate.noteId, {
+          tags: noteUpdate.tags,
+          groupId: noteUpdate.groupId
+        });
+      });
+
+      // Close loading modal and show success
+      this.modal.closeAll();
+      
+      setTimeout(() => {
+        this.modal.success({
+          nzTitle: '✨ AI Grouping Complete!',
+          nzContent: `
+            <div style="padding: 12px;">
+              <p style="margin-bottom: 12px;">Successfully analyzed and grouped ${this.currentBoard?.stickyNotes.length} notes.</p>
+              <div style="background: #f3f4f6; padding: 12px; border-radius: 8px; margin-top: 12px;">
+                <strong style="display: block; margin-bottom: 8px;">Groups Identified:</strong>
+                <ul style="margin: 0; padding-left: 20px; font-size: 13px;">
+                  ${this.getUniqueGroups().map(group => `<li>${group}</li>`).join('')}
+                </ul>
+              </div>
+              <p style="margin-top: 12px; font-size: 13px; color: #6b7280;">
+                Notes have been tagged and can now be easily grouped by dragging them together.
+              </p>
+            </div>
+          `,
+          nzOkText: 'Great!',
+          nzWidth: 500
+        });
+      }, 100);
+    }, 2500); // Simulate AI processing time
+  }
+
+  private analyzeAndGroupNotes(): Array<{ noteId: string; tags: string[]; groupId: string }> {
+    if (!this.currentBoard) return [];
+
+    const noteUpdates: Array<{ noteId: string; tags: string[]; groupId: string }> = [];
+    
+    // Group notes by column first
+    const notesByColumn: { [columnId: string]: StickyNote[] } = {};
+    this.currentBoard.stickyNotes.forEach(note => {
+      if (!notesByColumn[note.columnId]) {
+        notesByColumn[note.columnId] = [];
+      }
+      notesByColumn[note.columnId].push(note);
+    });
+
+    // Analyze each column separately
+    Object.entries(notesByColumn).forEach(([columnId, notes]) => {
+      const columnGroups = this.identifyGroupsInColumn(notes, columnId);
+      noteUpdates.push(...columnGroups);
+    });
+
+    return noteUpdates;
+  }
+
+  private identifyGroupsInColumn(notes: StickyNote[], columnId: string): Array<{ noteId: string; tags: string[]; groupId: string }> {
+    // Simple keyword-based grouping (in production, use NLP/AI service)
+    const keywords = {
+      'Communication': ['communication', 'talk', 'discuss', 'meeting', 'sync', 'share', 'update', 'inform'],
+      'Process': ['process', 'workflow', 'procedure', 'system', 'method', 'approach', 'way'],
+      'Technical': ['code', 'bug', 'technical', 'deploy', 'build', 'test', 'review', 'refactor', 'architecture'],
+      'Team': ['team', 'collaboration', 'together', 'help', 'support', 'pair', 'cooperation'],
+      'Documentation': ['document', 'docs', 'documentation', 'wiki', 'readme', 'guide', 'manual'],
+      'Time': ['time', 'deadline', 'schedule', 'late', 'early', 'duration', 'speed', 'fast', 'slow'],
+      'Quality': ['quality', 'improvement', 'better', 'improve', 'enhance', 'optimize', 'excellent'],
+      'Planning': ['plan', 'planning', 'estimate', 'forecast', 'strategy', 'goal', 'objective'],
+      'Tools': ['tool', 'platform', 'software', 'application', 'service', 'framework', 'library'],
+      'Blocker': ['blocker', 'blocked', 'issue', 'problem', 'obstacle', 'challenge', 'difficulty']
+    };
+
+    const noteUpdates: Array<{ noteId: string; tags: string[]; groupId: string }> = [];
+
+    notes.forEach(note => {
+      const content = note.content.toLowerCase();
+      const matchedTags: string[] = [];
+      
+      // Find matching keywords
+      Object.entries(keywords).forEach(([category, words]) => {
+        const hasMatch = words.some(word => content.includes(word.toLowerCase()));
+        if (hasMatch) {
+          matchedTags.push(category);
+        }
+      });
+
+      // If no tags matched, assign a default tag
+      if (matchedTags.length === 0) {
+        matchedTags.push('General');
+      }
+
+      // Use the primary tag as the group ID
+      const primaryTag = matchedTags[0];
+      const groupId = `${columnId}-${primaryTag.toLowerCase().replace(/\s+/g, '-')}`;
+
+      noteUpdates.push({
+        noteId: note.id,
+        tags: matchedTags.slice(0, 3), // Limit to 3 tags per note
+        groupId: groupId
+      });
+    });
+
+    return noteUpdates;
+  }
+
+  private getUniqueGroups(): string[] {
+    if (!this.currentBoard) return [];
+
+    const groups = new Set<string>();
+    this.currentBoard.stickyNotes.forEach(note => {
+      if (note.tags && note.tags.length > 0) {
+        note.tags.forEach(tag => groups.add(tag));
+      }
+    });
+
+    return Array.from(groups).sort();
   }
 }

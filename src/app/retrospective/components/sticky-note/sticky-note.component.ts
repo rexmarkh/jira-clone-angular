@@ -114,6 +114,18 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           <div class="note-content">
             {{ note.content }}
           </div>
+          
+          <!-- Tags - Show if present -->
+          <div *ngIf="note.tags && note.tags.length > 0" class="note-tags">
+            <nz-tag 
+              *ngFor="let tag of note.tags" 
+              [nzColor]="getTagColor(tag)"
+              class="note-tag"
+            >
+              <span nz-icon nzType="tag" nzTheme="outline" class="tag-icon"></span>
+              {{ tag }}
+            </nz-tag>
+          </div>
         </div>
 
         <!-- Note Footer - User info and actions -->
@@ -261,6 +273,32 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       word-wrap: break-word;
       white-space: pre-wrap;
       padding: 4px 0;
+    }
+
+    /* Tags */
+    .note-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(0, 0, 0, 0.08);
+    }
+
+    .note-tag {
+      margin: 0;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+
+    .tag-icon {
+      font-size: 10px;
     }
 
     /* Footer */
@@ -502,5 +540,23 @@ export class StickyNoteComponent implements OnInit, OnDestroy {
     if (confirm(confirmMessage)) {
       this.noteDelete.emit(this.note.id);
     }
+  }
+
+  getTagColor(tag: string): string {
+    const tagColors: { [key: string]: string } = {
+      'Communication': 'blue',
+      'Process': 'cyan',
+      'Technical': 'purple',
+      'Team': 'green',
+      'Documentation': 'geekblue',
+      'Time': 'orange',
+      'Quality': 'lime',
+      'Planning': 'magenta',
+      'Tools': 'volcano',
+      'Blocker': 'red',
+      'General': 'default'
+    };
+    
+    return tagColors[tag] || 'default';
   }
 }
