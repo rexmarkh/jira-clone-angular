@@ -140,7 +140,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
         <!-- Board Content -->
         <!-- Board Content -->
-        <nz-content class="p-4 overflow-hidden">
+        <nz-content class="overflow-hidden">
           <div class="h-full">
             <!-- Columns Grid -->
             <div 
@@ -383,11 +383,11 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     .columns-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 1.5rem;
+      gap: 0.5rem;
       height: 100%;
       overflow-x: auto;
       overflow-y: hidden;
-      padding: 8px;
+      padding: 0.5rem;
       padding-bottom: 16px;
     }
 

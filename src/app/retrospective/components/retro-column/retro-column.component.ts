@@ -41,42 +41,109 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
       >
         <!-- Column Body -->
         <div class="column-content">
-          <!-- Sticky Notes List with Drop Zone -->
+          <!-- AI Summary Note (if available) - Fixed at top -->
           <div 
-            class="notes-container" 
-            #notesContainer
-            cdkDropList
-            [id]="'drop-list-' + column.id"
-            [cdkDropListData]="stickyNotes"
-            (cdkDropListDropped)="onNoteDrop($event)"
+            *ngIf="stickyNotes.length > 0"
+            class="ai-summary-note"
+            [class.expanded]="isAISummaryExpanded"
+            [class.generating]="isGeneratingSummary"
           >
-            <app-sticky-note 
-              *ngFor="let note of stickyNotes; trackBy: trackByNoteId"
-              [note]="note" 
-              [currentUserId]="currentUserId"
-              [currentPhase]="currentPhase"
-              (noteChange)="onNoteChange($event)"
-              (noteDelete)="onNoteDelete($event)"
-              (noteVote)="onNoteVote($event)"
-              (noteEdit)="onNoteEdit($event)"
-              cdkDrag
-              [cdkDragData]="note"
-              [cdkDragDisabled]="!canDragNotes()"
-              (cdkDragStarted)="onDragStarted($event)"
-              (cdkDragEnded)="onDragEnded($event)"
-              class="note-item"
-            ></app-sticky-note>
+            <!-- Header -->
+            <div class="ai-summary-header" (click)="toggleAISummary()">
+              <div class="flex items-center gap-2">
+                <span 
+                  nz-icon 
+                  [nzType]="isGeneratingSummary ? 'loading' : 'bulb'" 
+                  nzTheme="filled"
+                  class="ai-icon"
+                ></span>
+                <span class="ai-title">AI Summary</span>
+                <span class="ai-badge">BETA</span>
+              </div>
+              <span 
+                nz-icon 
+                [nzType]="isAISummaryExpanded ? 'up' : 'down'" 
+                nzTheme="outline"
+                class="expand-icon"
+              ></span>
+            </div>
+            
+            <!-- Content -->
+            <div 
+              class="ai-summary-content" 
+              [class.collapsed]="!isAISummaryExpanded"
+            >
+              <div *ngIf="isGeneratingSummary" class="ai-loading">
+                <span nz-icon nzType="loading" nzTheme="outline"></span>
+                <span class="ml-2">Analyzing {{ stickyNotes.length }} notes...</span>
+              </div>
+              <div *ngIf="!isGeneratingSummary && aiSummary" class="ai-result">
+                <div class="ai-summary-text">{{ aiSummary }}</div>
+                <button 
+                  nz-button 
+                  nzType="link" 
+                  nzSize="small"
+                  (click)="regenerateAISummary(); $event.stopPropagation()"
+                  class="regenerate-btn"
+                >
+                  <span nz-icon nzType="reload" nzTheme="outline"></span>
+                  <span class="ml-1">Regenerate</span>
+                </button>
+              </div>
+              <div *ngIf="!isGeneratingSummary && !aiSummary" class="ai-empty">
+                <p class="text-sm text-gray-500 mb-2">Get AI-powered insights from your notes</p>
+                <button 
+                  nz-button 
+                  nzType="primary" 
+                  nzSize="small"
+                  (click)="generateAISummary(); $event.stopPropagation()"
+                >
+                  <span nz-icon nzType="thunderbolt" nzTheme="outline"></span>
+                  <span class="ml-1">Generate Summary</span>
+                </button>
+              </div>
+            </div>
           </div>
 
-          <!-- Empty State - OUTSIDE the drop list so it doesn't interfere -->
-          <div 
-            *ngIf="stickyNotes.length === 0" 
-            class="empty-state-overlay"
-          >
-            <nz-empty 
-              [nzNotFoundContent]="emptyTemplate"
-              nzNotFoundImage="simple"
-            ></nz-empty>
+          <!-- Scrollable Notes Container -->
+          <div class="notes-wrapper">
+            <!-- Sticky Notes List with Drop Zone -->
+            <div 
+              class="notes-container" 
+              #notesContainer
+              cdkDropList
+              [id]="'drop-list-' + column.id"
+              [cdkDropListData]="stickyNotes"
+              (cdkDropListDropped)="onNoteDrop($event)"
+            >
+              <app-sticky-note 
+                *ngFor="let note of stickyNotes; trackBy: trackByNoteId"
+                [note]="note" 
+                [currentUserId]="currentUserId"
+                [currentPhase]="currentPhase"
+                (noteChange)="onNoteChange($event)"
+                (noteDelete)="onNoteDelete($event)"
+                (noteVote)="onNoteVote($event)"
+                (noteEdit)="onNoteEdit($event)"
+                cdkDrag
+                [cdkDragData]="note"
+                [cdkDragDisabled]="!canDragNotes()"
+                (cdkDragStarted)="onDragStarted($event)"
+                (cdkDragEnded)="onDragEnded($event)"
+                class="note-item"
+              ></app-sticky-note>
+            </div>
+
+            <!-- Empty State - OUTSIDE the drop list so it doesn't interfere -->
+            <div 
+              *ngIf="stickyNotes.length === 0" 
+              class="empty-state-overlay"
+            >
+              <nz-empty 
+                [nzNotFoundContent]="emptyTemplate"
+                nzNotFoundImage="simple"
+              ></nz-empty>
+            </div>
           </div>
         </div>
       </nz-card>
@@ -96,26 +163,29 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
             <p class="text-sm text-gray-500 mb-0">{{ column.description }}</p>
           </div>
         </div>
-        <div 
-          class="split-button-container"
-          [style.--column-color]="column.color"
-        >
-          <!-- Count Badge (Left Side) -->
+        <div class="flex items-center gap-2">
+          <!-- Count & Add Button -->
           <div 
-            class="split-button-count"
-            [style.background-color]="column.color"
+            class="split-button-container"
+            [style.--column-color]="column.color"
           >
-            {{ stickyNotes.length }}
+            <!-- Count Badge (Left Side) -->
+            <div 
+              class="split-button-count"
+              [style.background-color]="column.color"
+            >
+              {{ stickyNotes.length }}
+            </div>
+            <!-- Add Button (Right Side) -->
+            <button 
+              class="split-button-action"
+              [style.background-color]="column.color"
+              (click)="showAddNoteModal()"
+              [disabled]="!canAddNotes()"
+            >
+              <span nz-icon nzType="plus" nzTheme="outline" class="plus-icon"></span>
+            </button>
           </div>
-          <!-- Add Button (Right Side) -->
-          <button 
-            class="split-button-action"
-            [style.background-color]="column.color"
-            (click)="showAddNoteModal()"
-            [disabled]="!canAddNotes()"
-          >
-            <span nz-icon nzType="plus" nzTheme="outline" class="plus-icon"></span>
-          </button>
         </div>
       </div>
     </ng-template>
@@ -210,6 +280,150 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     .column-content {
       position: relative;
       height: 100%;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* AI Summary Note - Distinctive Design */
+    .ai-summary-note {
+      flex-shrink: 0;
+      margin-bottom: 12px;
+      border-radius: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .ai-summary-note:hover {
+      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .ai-summary-note.generating {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.85;
+      }
+    }
+
+    .ai-summary-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      color: white;
+      user-select: none;
+    }
+
+    .ai-icon {
+      font-size: 20px;
+      color: #ffd700;
+    }
+
+    .ai-title {
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.3px;
+    }
+
+    .ai-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 0;
+      margin-left: 8px;
+    }
+
+    .expand-icon {
+      font-size: 14px;
+      transition: transform 0.3s ease;
+    }
+
+    .ai-summary-note.expanded .expand-icon {
+      transform: rotate(180deg);
+    }
+
+    .ai-summary-content {
+      background: white;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      max-height: 400px;
+      opacity: 1;
+      overflow: hidden;
+      padding: 16px;
+      transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+    }
+
+    .ai-summary-content.collapsed {
+      max-height: 0;
+      opacity: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      overflow: hidden;
+    }
+
+    .ai-summary-content:not(.collapsed) {
+      overflow-y: auto;
+    }
+
+    .ai-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: #667eea;
+      font-size: 14px;
+    }
+
+    .ai-result {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ai-summary-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #374151;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .regenerate-btn {
+      align-self: flex-start;
+      padding: 4px 12px;
+      height: auto;
+      font-size: 13px;
+      color: #667eea;
+    }
+
+    .regenerate-btn:hover {
+      color: #764ba2;
+    }
+
+    .ai-empty {
+      text-align: center;
+      padding: 16px;
+    }
+
+    .ai-empty p {
+      margin-bottom: 12px;
+    }
+
+    /* Notes Wrapper - Contains scrollable notes */
+    .notes-wrapper {
+      flex: 1;
+      position: relative;
       overflow: hidden;
     }
 
@@ -489,6 +703,10 @@ export class RetroColumnComponent {
   newNoteContent = '';
   selectedColor: StickyNoteColor = StickyNoteColor.YELLOW;
   
+  isAISummaryExpanded = false;
+  isGeneratingSummary = false;
+  aiSummary = '';
+  
   colorOptions = Object.values(StickyNoteColor);
 
   constructor(private renderer: Renderer2) {}
@@ -639,5 +857,104 @@ export class RetroColumnComponent {
       return 'Retrospective is completed - no changes allowed';
     }
     return 'Adding notes not allowed in current phase';
+  }
+
+  toggleAISummary() {
+    if (!this.isAISummaryExpanded && !this.aiSummary && !this.isGeneratingSummary) {
+      // Auto-generate on first expand if not already generated
+      this.generateAISummary();
+      // Don't toggle here since generateAISummary already sets isAISummaryExpanded = true
+      return;
+    }
+    this.isAISummaryExpanded = !this.isAISummaryExpanded;
+  }
+
+  generateAISummary() {
+    if (this.stickyNotes.length === 0 || this.isGeneratingSummary) {
+      return;
+    }
+
+    this.isAISummaryExpanded = true;
+    this.isGeneratingSummary = true;
+    this.aiSummary = '';
+
+    // Simulate AI processing (in real app, this would call an AI service)
+    setTimeout(() => {
+      const noteContents = this.stickyNotes.map(note => note.content);
+      this.aiSummary = this.generateSummaryText(noteContents);
+      this.isGeneratingSummary = false;
+    }, 2000);
+  }
+
+  regenerateAISummary() {
+    this.generateAISummary();
+  }
+
+  private generateSummaryText(notes: string[]): string {
+    // This is a placeholder. In a real application, you would call an AI service
+    const noteCount = notes.length;
+    const totalWords = notes.join(' ').split(' ').length;
+    const avgWordsPerNote = Math.round(totalWords / noteCount);
+
+    // Group similar themes (simplified example)
+    const themes: string[] = [];
+    const commonWords = this.extractCommonWords(notes);
+    
+    if (commonWords.length > 0) {
+      themes.push(`Main themes: ${commonWords.slice(0, 5).join(', ')}`);
+    }
+
+    const summary = `📊 Analysis of ${noteCount} note${noteCount !== 1 ? 's' : ''}:
+
+${themes.length > 0 ? themes.join('\n') + '\n\n' : ''}Key Insights:
+• Total contributions: ${noteCount} notes
+• Average note length: ${avgWordsPerNote} words
+• Most voted: ${this.getMostVotedNote()?.content || 'No votes yet'}
+
+Summary: The team has shared ${noteCount} observation${noteCount !== 1 ? 's' : ''} in the "${this.column.title}" category. ${this.getPhaseSpecificInsight()}`;
+
+    return summary;
+  }
+
+  private extractCommonWords(notes: string[]): string[] {
+    const words = notes
+      .join(' ')
+      .toLowerCase()
+      .replace(/[^\w\s]/g, '')
+      .split(/\s+/)
+      .filter(word => word.length > 4); // Filter out short words
+
+    const wordCount: { [key: string]: number } = {};
+    words.forEach(word => {
+      wordCount[word] = (wordCount[word] || 0) + 1;
+    });
+
+    return Object.entries(wordCount)
+      .filter(([_, count]) => count > 1)
+      .sort((a, b) => b[1] - a[1])
+      .map(([word]) => word);
+  }
+
+  private getMostVotedNote(): StickyNote | undefined {
+    return this.stickyNotes.length > 0
+      ? this.stickyNotes.reduce((max, note) => note.votes > max.votes ? note : max)
+      : undefined;
+  }
+
+  private getPhaseSpecificInsight(): string {
+    switch (this.currentPhase) {
+      case RetroPhase.BRAINSTORMING:
+        return 'The team is actively brainstorming ideas.';
+      case RetroPhase.GROUPING:
+        return 'These items can be grouped to identify patterns.';
+      case RetroPhase.VOTING:
+        return 'Team members are voting on priorities.';
+      case RetroPhase.DISCUSSION:
+        return 'These topics are ready for team discussion.';
+      case RetroPhase.ACTION_ITEMS:
+        return 'Consider converting high-priority items into action items.';
+      default:
+        return 'Review complete.';
+    }
   }
 }
