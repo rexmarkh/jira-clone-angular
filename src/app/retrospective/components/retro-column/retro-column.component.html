@@ -1,0 +1,260 @@
+<div class="retro-column h-full">
+  <nz-card 
+    [nzTitle]="columnHeaderTemplate"
+    [nzBodyStyle]="{ padding: '16px', display: 'flex', 'flex-direction': 'column', height: 'calc(100% - 64px)' }"
+    class="h-full"
+  >
+    <!-- Column Body -->
+    <div class="column-content">
+      <!-- AI Summary Note (if available) - Fixed at top -->
+      <div 
+        *ngIf="stickyNotes.length > 0"
+        class="ai-summary-note"
+        [class.expanded]="isAISummaryExpanded"
+        [class.generating]="isGeneratingSummary"
+      >
+        <!-- Header -->
+        <div class="ai-summary-header" (click)="toggleAISummary()">
+          <div class="flex items-center gap-2">
+            <span 
+              nz-icon 
+              [nzType]="isGeneratingSummary ? 'loading' : 'bulb'" 
+              nzTheme="filled"
+              class="ai-icon"
+            ></span>
+            <span class="ai-title">AI Summary</span>
+            <span class="ai-badge">BETA</span>
+          </div>
+          <span 
+            nz-icon 
+            [nzType]="isAISummaryExpanded ? 'up' : 'down'" 
+            nzTheme="outline"
+            class="expand-icon"
+          ></span>
+        </div>
+        
+        <!-- Content -->
+        <div 
+          class="ai-summary-content" 
+          [class.collapsed]="!isAISummaryExpanded"
+        >
+          <div *ngIf="isGeneratingSummary" class="ai-loading">
+            <span nz-icon nzType="loading" nzTheme="outline"></span>
+            <span class="ml-2">Analyzing {{ stickyNotes.length }} notes...</span>
+          </div>
+          <div *ngIf="!isGeneratingSummary && aiSummary" class="ai-result">
+            <div class="ai-summary-text">{{ aiSummary }}</div>
+            <button 
+              nz-button 
+              nzType="link" 
+              nzSize="small"
+              (click)="regenerateAISummary(); $event.stopPropagation()"
+              class="regenerate-btn"
+            >
+              <span nz-icon nzType="reload" nzTheme="outline"></span>
+              <span class="ml-1">Regenerate</span>
+            </button>
+          </div>
+          <div *ngIf="!isGeneratingSummary && !aiSummary" class="ai-empty">
+            <p class="text-sm text-gray-500 mb-2">Get AI-powered insights from your notes</p>
+            <button 
+              nz-button 
+              nzType="primary" 
+              nzSize="small"
+              (click)="generateAISummary(); $event.stopPropagation()"
+            >
+              <span nz-icon nzType="thunderbolt" nzTheme="outline"></span>
+              <span class="ml-1">Generate Summary</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrollable Notes Container -->
+      <div class="notes-wrapper">
+        <!-- Sticky Notes List with Drop Zone -->
+        <div 
+          class="notes-container" 
+          #notesContainer
+          cdkDropList
+          [id]="'drop-list-' + column.id"
+          [cdkDropListData]="stickyNotes"
+          (cdkDropListDropped)="onNoteDrop($event)"
+        >
+          <app-sticky-note 
+            *ngFor="let note of stickyNotes; trackBy: trackByNoteId"
+            [note]="note" 
+            [currentUserId]="currentUserId"
+            [currentPhase]="currentPhase"
+            (noteChange)="onNoteChange($event)"
+            (noteDelete)="onNoteDelete($event)"
+            (noteVote)="onNoteVote($event)"
+            (noteEdit)="onNoteEdit($event)"
+            cdkDrag
+            [cdkDragData]="note"
+            [cdkDragDisabled]="!canDragNotes()"
+            (cdkDragStarted)="onDragStarted($event)"
+            (cdkDragEnded)="onDragEnded($event)"
+            class="note-item"
+          ></app-sticky-note>
+        </div>
+
+        <!-- Empty State - OUTSIDE the drop list so it doesn't interfere -->
+        <div 
+          *ngIf="stickyNotes.length === 0" 
+          class="empty-state-overlay"
+        >
+          <nz-empty 
+            [nzNotFoundContent]="emptyTemplate"
+            nzNotFoundImage="simple"
+          ></nz-empty>
+        </div>
+      </div>
+    </div>
+  </nz-card>
+</div>
+
+<!-- Column Header Template -->
+<ng-template #columnHeaderTemplate>
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div>
+        <h3 
+          class="text-lg font-semibold mb-0"
+          [style.color]="column.color"
+        >
+          {{ column.title }}
+        </h3>
+        <p class="text-sm text-gray-500 mb-0">{{ column.description }}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <!-- Count & Add Button -->
+      <div 
+        class="split-button-container"
+        [style.--column-color]="column.color"
+      >
+        <!-- Count Badge (Left Side) -->
+        <div 
+          class="split-button-count"
+          [style.background-color]="column.color"
+        >
+          {{ stickyNotes.length }}
+        </div>
+        <!-- Add Button (Right Side) -->
+        <button 
+          class="split-button-action"
+          [style.background-color]="column.color"
+          (click)="showAddNoteModal()"
+          [disabled]="!canAddNotes()"
+        >
+          <span nz-icon nzType="plus" nzTheme="outline" class="plus-icon"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Empty State Template -->
+<ng-template #emptyTemplate>
+  <div class="text-center">
+    <p class="text-gray-400 mb-2">No notes yet</p>
+    <p class="text-xs text-gray-300">Click "Add a note" to get started</p>
+  </div>
+</ng-template>
+
+<!-- Add/Edit Note Modal -->
+<nz-modal
+  [(nzVisible)]="isAddNoteModalVisible"
+  nzClosable="false"
+  [nzFooter]="noteModalFooter"
+  nzWidth="600px"
+>
+  <ng-container *nzModalContent>
+    <div class="px-8 py-5">
+      <div class="flex items-center py-3 text-textDarkest">
+        <div class="text-xl">
+          {{ isEditMode ? 'Edit Note' : 'Add New Note' }}
+        </div>
+        <div class="flex-auto"></div>
+        <j-button icon="times"
+                  [iconSize]="24"
+                  (click)="cancelAddNote()"
+                  [className]="'btn-empty'">
+        </j-button>
+      </div>
+      <form class="note-form retro-modal-form">
+        <div class="form-group">
+          <!--<label class="label">
+            Note Content
+          </label> -->
+          <textarea
+            [(ngModel)]="newNoteContent"
+            name="noteContent"
+            class="form-input"
+            cdkTextareaAutosize
+            #cdkTextareaAutosize="cdkTextareaAutosize"
+            [cdkAutosizeMinRows]="3"
+            [cdkAutosizeMaxRows]="6"
+            placeholder="What would you like to share?"
+            #noteInput
+          ></textarea>
+        </div>
+
+        <div class="mt-3 form-group">
+          <label class="label flex items-center justify-between">
+            <span>Anonymous Note</span>
+            <nz-switch 
+              [(ngModel)]="isAnonymous"
+              name="anonymous"
+              [nzCheckedChildren]="checkedTemplate"
+              [nzUnCheckedChildren]="unCheckedTemplate"
+            ></nz-switch>
+          </label>
+          <div class="text-xs text-gray-500 mt-1">
+            Your identity will be hidden for all phases
+          </div>
+        </div>
+        
+        <div class="mt-3 form-group">
+          <label class="label">
+            Color
+          </label>
+          <div class="flex gap-2">
+            <div 
+              *ngFor="let color of colorOptions"
+              class="w-8 h-8 rounded-lg cursor-pointer border-2 hover:scale-110 transition-transform"
+              [style.background-color]="getColorValue(color)"
+              [class.border-gray-800]="selectedColor === color"
+              [class.border-gray-300]="selectedColor !== color"
+              (click)="selectedColor = color"
+            ></div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </ng-container>
+  
+  <ng-template #noteModalFooter>
+    <div class="modal-footer-buttons">
+      <j-button className="btn-primary mr-2"
+                type="button"
+                [disabled]="!newNoteContent.trim()"
+                (click)="isEditMode ? saveEditedNote() : addNote()">
+        {{ isEditMode ? 'Save Changes' : 'Add Note' }}
+      </j-button>
+      <j-button className="btn-empty"
+                (click)="cancelAddNote()">
+        Cancel
+      </j-button>
+    </div>
+  </ng-template>
+</nz-modal>
+
+<!-- Switch Templates -->
+<ng-template #checkedTemplate>
+  <span nz-icon nzType="eye-invisible" nzTheme="outline"></span>
+</ng-template>
+<ng-template #unCheckedTemplate>
+  <span nz-icon nzType="eye" nzTheme="outline"></span>
+</ng-template>

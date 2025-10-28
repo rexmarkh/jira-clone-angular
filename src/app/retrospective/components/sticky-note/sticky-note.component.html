@@ -1,0 +1,145 @@
+<div 
+  class="sticky-note" 
+  [style.background-color]="getBackgroundColor()"
+  [style.border-left]="'4px solid ' + getBorderColor()"
+  [class.opacity-75]="!canEdit() && !canDelete()"
+  [class.cdk-drag-disabled]="!canDrag()"
+>
+  <nz-card 
+    [nzBordered]="false"
+    [nzBodyStyle]="{ padding: '0.5rem', backgroundColor: 'transparent' }"
+    class="h-full"
+  >
+    <!-- Action Buttons - Top Right -->
+    <div class="absolute top-3 right-3 flex items-center gap-1 action-buttons">
+      <!-- Color Picker -->
+      <nz-popover 
+        *ngIf="canEdit()"
+        nzTitle="Change Color" 
+        nzTrigger="click"
+      >
+        <button 
+          nz-button 
+          nzType="text" 
+          nzSize="small"
+          nz-popover
+          nz-tooltip
+          nzTooltipTitle="Change color"
+          class="action-button"
+        >
+          <span nz-icon nzType="bg-colors" nzTheme="outline"></span>
+        </button>
+        <ng-template #nzPopoverContent>
+          <div class="grid grid-cols-3 gap-2 p-2">
+            <div 
+              *ngFor="let color of colorOptions"
+              class="w-7 h-7 rounded cursor-pointer border-2 hover:scale-110 transition-transform"
+              [style.background-color]="getColorValue(color)"
+              [class.border-gray-800]="note.color === color"
+              [class.border-gray-300]="note.color !== color"
+              (click)="changeColor(color)"
+            ></div>
+          </div>
+        </ng-template>
+      </nz-popover>
+
+      <!-- Edit Icon -->
+      <button 
+        *ngIf="canEdit()"
+        nz-button 
+        nzType="text" 
+        nzSize="small"
+        (click)="startEditing()"
+        nz-tooltip
+        nzTooltipTitle="Edit note"
+        nzTooltipPlacement="bottom"
+        class="action-button"
+      >
+        <span nz-icon nzType="edit" nzTheme="outline"></span>
+      </button>
+
+      <!-- Delete Icon -->
+      <button 
+        *ngIf="canDelete()"
+        nz-button 
+        nzType="text" 
+        nzSize="small"
+        (click)="confirmDelete()"
+        nz-tooltip
+        nzTooltipTitle="Delete note"
+        nzTooltipPlacement="bottom"
+        class="action-button action-button-delete"
+      >
+        <span nz-icon nzType="delete" nzTheme="outline"></span>
+      </button>
+    </div>
+
+    <!-- Note Content - Takes most space -->
+    <div class="note-content-wrapper">
+      <div class="note-content">
+        {{ note.content }}
+      </div>
+    </div>
+
+    <!-- Single Row Footer - Tags + Metadata -->
+    <div class="note-footer">
+      <!-- Left: Tags (if present) -->
+      <div class="footer-left">
+        <div *ngIf="note.tags && note.tags.length > 0" class="note-tags-inline">
+          <span 
+            *ngFor="let tag of note.tags" 
+            class="note-tag"
+            [style.background-color]="getTagBackgroundColor(tag)"
+            [style.color]="getTagTextColor(tag)"
+          >
+            {{ tag }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Right: User + Vote -->
+      <div class="footer-right">
+        <!-- User Avatar with tooltip -->
+        <ng-container *ngIf="shouldShowAuthor()">
+          <j-avatar 
+            [avatarUrl]="note.authorAvatar" 
+            [name]="getInitials(note.authorName)"
+            [size]="18"
+            className="avatar-small"
+            nz-tooltip
+            [nzTooltipTitle]="note.authorName"
+            nzTooltipPlacement="top"
+          ></j-avatar>
+        </ng-container>
+        <ng-container *ngIf="!shouldShowAuthor()">
+          <div 
+            class="anonymous-avatar"
+            nz-tooltip
+            nzTooltipTitle="Anonymous"
+            nzTooltipPlacement="top"
+          >
+            <span nz-icon nzType="user" nzTheme="outline"></span>
+          </div>
+        </ng-container>
+
+        <!-- Vote Button -->
+        <button 
+          nz-button 
+          nzType="text" 
+          nzSize="small"
+          [class]="hasUserVoted() ? 'vote-button-active' : 'vote-button'"
+          (click)="onVote()"
+          class="flex items-center gap-1"
+        >
+          <span 
+            nz-icon 
+            nzType="like" 
+            [nzTheme]="hasUserVoted() ? 'fill' : 'outline'"
+            class="vote-icon"
+          ></span>
+          <span class="text-xs font-semibold">{{ note.votes }}</span>
+        </button>
+      </div>
+    </div>
+  </nz-card>
+</div>

@@ -1,0 +1,327 @@
+    .retrospective-board {
+      background: #f8fafc;
+    }
+
+    .columns-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 0.5rem;
+      height: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0.5rem;
+      padding-bottom: 16px;
+    }
+
+    .column-item {
+      height: 100%;
+      min-width: 320px;
+    }
+
+    .cdk-drop-list-group {
+      display: contents;
+    }
+
+    .cdk-drag-preview {
+      z-index: 1000;
+    }
+
+    .cdk-drop-list-dragging .cdk-drag {
+      transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    .cdk-drag-animating {
+      transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    ::ng-deep .ant-layout-header {
+      line-height: 1.5;
+    }
+
+    ::ng-deep .ant-steps-small .ant-steps-item-title {
+      font-size: 13px;
+    }
+    
+    ::ng-deep .ant-steps-small .ant-steps-item-description {
+      font-size: 11px;
+    }
+
+    ::ng-deep .ant-steps .ant-steps-item-description .anticon-info-circle {
+      transition: color 0.2s ease;
+    }
+
+    /* Timeline/Progress Phase Navigation */
+    .phase-navigation {
+      margin-top: 24px;
+      /* padding: 32px 24px; */
+      background: white;
+      border-radius: 0;
+      border: none;
+    }
+
+    .phase-steps {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      position: relative;
+      padding: 0;
+    }
+
+    /* No background line - we'll use individual connectors */
+
+    .phase-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .phase-step.clickable {
+      cursor: pointer;
+    }
+
+    .phase-step.disabled {
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+
+    .phase-step.clickable:hover .step-indicator {
+      transform: scale(1.15);
+    }
+
+    .phase-step.clickable:hover .step-title {
+      color: #3b82f6;
+    }
+
+    .phase-step.disabled:hover .step-indicator {
+      transform: none;
+    }
+
+    .phase-step.disabled:hover .step-title {
+      color: inherit;
+    }
+
+    /* Node/Dot indicator */
+    .step-indicator {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      background: #ffffff;
+      border: 3px solid #e5e7eb;
+      color: #9ca3af;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 10;
+      box-shadow: 0 0 0 2px #ffffff;
+    }
+
+    /* Inactive/upcoming phase */
+    .phase-step .step-indicator {
+      background: #ffffff;
+      border-color: #e5e7eb;
+      color: #9ca3af;
+      box-shadow: 0 0 0 2px #ffffff;
+    }
+
+    /* Active phase - filled dot with glow */
+    .phase-step.active .step-indicator {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: white;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      transform: scale(1.1);
+      z-index: 10;
+    }
+
+    /* Completed phase - filled green dot */
+    .phase-step.completed .step-indicator {
+      background: #10b981;
+      border-color: #10b981;
+      color: white;
+      z-index: 10;
+    }
+
+    /* Connector line after each step (except last) */
+    .phase-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      width: 100%;
+      height: 3px;
+      background: #e5e7eb;
+      z-index: 0;
+      margin-left: 20px;
+    }
+
+    /* Green line after completed phases */
+    .phase-step.completed:not(:last-child)::after {
+      background: #10b981;
+    }
+
+    .step-number {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* Active phase number should be white */
+    .phase-step.active .step-number {
+      color: white;
+    }
+
+    .step-icon-check {
+      font-size: 16px;
+    }
+
+    .step-icon-active {
+      font-size: 18px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    .step-content {
+      flex: 1;
+      text-align: center;
+      max-width: 150px;
+    }
+
+    .step-title {
+      font-weight: 600;
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: all 0.3s ease;
+    }
+
+    .phase-step.active .step-title {
+      color: #1e40af;
+      font-weight: 700;
+    }
+
+    .phase-step.completed .step-title {
+      color: #059669;
+      font-weight: 600;
+    }
+
+    .step-description {
+      font-size: 11px;
+      color: #9ca3af;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .step-description .info-icon {
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .step-description .info-icon:hover {
+      transform: scale(1.15);
+    }
+
+    .phase-step.active .step-description {
+      color: #3b82f6;
+    }
+
+    .phase-step.active .step-description .info-icon {
+      color: #3b82f6;
+    }
+
+    .phase-step.completed .step-description {
+      color: #6b7280;
+    }
+
+    .phase-step.completed .step-description .info-icon {
+      color: #6b7280;
+    }
+
+    .phase-step .step-description .info-icon {
+      color: #9ca3af;
+    }
+
+    /* Modal Styles */
+    // Modal footer buttons
+    .modal-footer-buttons {
+      text-align: right;
+      padding: 16px 24px;
+    }
+
+    // Modal form styles to match create issue modal
+    .form-action {
+      text-align: right;
+    }
+
+    .phase-form,
+    .settings-form {
+      .form-group {
+        margin-bottom: 1rem;
+        
+        .label {
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          font-size: 0.8125rem;
+          color: #5e6c84;
+          display: block;
+        }
+      }
+
+      // Consistent input styling
+      .form-input {
+        height: 32px !important;
+        padding: 8px 11px !important;
+        border-radius: 3px !important;
+        border: 1px solid #dfe1e6 !important;
+        background: #fafbfc !important;
+        font-size: 14px !important;
+        line-height: 1.42857143 !important;
+        width: 100% !important;
+        transition: background 0.1s, border-color 0.1s !important;
+        
+        &:hover {
+          background: #ebecf0 !important;
+          border-color: #c1c7d0 !important;
+        }
+        
+        &:focus {
+          background: #fff !important;
+          border-color: #4c9aff !important;
+          box-shadow: 0 0 0 1px #4c9aff !important;
+          outline: none !important;
+        }
+
+        // Textarea specific styles
+        &[cdkTextareaAutosize] {
+          height: auto !important;
+          resize: none !important;
+        }
+      }
+    }

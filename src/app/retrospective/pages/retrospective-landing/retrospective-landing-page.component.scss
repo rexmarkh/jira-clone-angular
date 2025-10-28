@@ -1,0 +1,125 @@
+    .retrospective-landing {
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #f8fafc;
+    }
+
+    .stat-card {
+      border: 1px solid #e5e7eb;
+      transition: all 0.2s ease;
+    }
+
+    .stat-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      items-center: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .boards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .board-card {
+      transition: all 0.2s ease;
+      border: 1px solid #e5e7eb;
+    }
+
+    .board-card:hover {
+      transform: translateY(-2px);
+      border-color: #3b82f6;
+    }
+
+    .action-icon {
+      color: #6b7280;
+      transition: color 0.2s ease;
+    }
+
+    .action-icon:hover {
+      color: #3b82f6;
+    }
+
+    .empty-state {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+    }
+
+    ::ng-deep .ant-card-meta-title {
+      color: #111827;
+      font-weight: 600;
+    }
+
+    ::ng-deep .ant-card-meta-description {
+      color: #6b7280;
+    }
+
+    ::ng-deep .ant-card-actions > li {
+      margin: 6px 0;
+    }
+
+    ::ng-deep .ant-card-actions > li > span:not(.ant-card-actions-separator) {
+      padding: 8px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    ::ng-deep .ant-card-actions > li > span:hover {
+      background-color: #f3f4f6;
+    }
+
+    // Modal form styles to match create issue modal
+    .board-form {
+      .form-group {
+        margin-bottom: 1rem;
+        
+        .label {
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          font-size: 0.8125rem;
+          color: #5e6c84;
+          display: block;
+        }
+      }
+
+      // Consistent input styling
+      .form-input {
+        height: 32px !important;
+        padding: 8px 11px !important;
+        border-radius: 3px !important;
+        border: 1px solid #dfe1e6 !important;
+        background: #fafbfc !important;
+        font-size: 14px !important;
+        line-height: 1.42857143 !important;
+        width: 100% !important;
+        transition: background 0.1s, border-color 0.1s !important;
+        
+        &:hover {
+          background: #ebecf0 !important;
+          border-color: #c1c7d0 !important;
+        }
+        
+        &:focus {
+          background: #fff !important;
+          border-color: #4c9aff !important;
+          box-shadow: 0 0 0 1px #4c9aff !important;
+          outline: none !important;
+        }
+
+        // Textarea specific styles
+        &[cdkTextareaAutosize] {
+          height: auto !important;
+          resize: none !important;
+        }
+      }
+    }

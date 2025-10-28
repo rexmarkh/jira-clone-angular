@@ -1,0 +1,326 @@
+    <div class="retrospective-board h-full" *ngIf="currentBoard">
+      <!-- Header -->
+      <nz-layout class="h-full">
+        <nz-header class="bg-white border-b border-gray-200 px-6 h-auto py-4">
+          <!-- Top Row: Title & Actions -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-4">
+              <div>
+                <h1 class="text-2xl font-bold text-gray-900 mb-1">{{ currentBoard.title }}</h1>
+                <p class="text-sm text-gray-500">{{ currentBoard.description }}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <!-- Participants -->
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-gray-600">Team:</span>
+                <div class="flex items-center -space-x-2">
+                  <j-avatar 
+                    *ngFor="let participantId of currentBoard.participants.slice(0, 5); let i = index"
+                    [avatarUrl]="getParticipantAvatar(participantId)"
+                    [name]="getParticipantInitials(participantId)"
+                    [size]="24"
+                    className="border-2 border-white rounded-full hover:z-10"
+                    [ngStyle]="{ zIndex: 5 - i }"
+                    [title]="getParticipantName(participantId)"
+                  ></j-avatar>
+                  <span *ngIf="currentBoard.participants.length > 5" 
+                        class="text-xs text-gray-500 ml-2">
+                    +{{ currentBoard.participants.length - 5 }} more
+                  </span>
+                </div>
+              </div>
+
+              <!-- Settings -->
+              <button 
+                nz-button 
+                nzType="default"
+                (click)="showSettingsModal()"
+                class="flex items-center gap-2"
+              >
+                <span nz-icon nzType="setting" nzTheme="outline"></span>
+                Settings
+              </button>
+            </div>
+          </div>
+
+          <!-- Phase Navigation -->
+          <div class="phase-navigation">
+            <div class="phase-steps">
+              <div 
+                *ngFor="let phase of retroPhases; let i = index"
+                class="phase-step"
+                [class.active]="currentBoard.currentPhase === phase"
+                [class.completed]="isPhaseCompleted(phase)"
+                [class.clickable]="isPhaseClickable(phase)"
+                [class.disabled]="!isPhaseClickable(phase)"
+                (click)="isPhaseClickable(phase) && changePhase(phase)"
+              >
+                <!-- Step Number/Icon -->
+                <div class="step-indicator">
+                  <!-- Show number for all non-completed phases -->
+                  <span *ngIf="!isPhaseCompleted(phase)" class="step-number">{{ i + 1 }}</span>
+                  <!-- Show check icon only for completed phases -->
+                  <span *ngIf="isPhaseCompleted(phase)" nz-icon nzType="check" nzTheme="outline" class="step-icon-check"></span>
+                </div>
+
+                <!-- Step Label -->
+                <div class="step-content">
+                  <div class="step-title">{{ getPhaseTitle(phase) }}</div>
+                  <div class="step-description">
+                    <span 
+                      nz-icon 
+                      nzType="info-circle" 
+                      nzTheme="outline" 
+                      class="info-icon"
+                      [nz-tooltip]="getPhaseTooltip(phase)"
+                      nzTooltipPlacement="bottom"
+                    ></span>
+                    {{ getPhaseShortDescription(phase) }}
+                  </div>
+                </div>
+
+                <!-- Connector Line -->
+                <div *ngIf="i < retroPhases.length - 1" class="step-connector"></div>
+              </div>
+            </div>
+          </div>
+        </nz-header>
+
+        <!-- Board Content -->
+        <!-- Board Content -->
+        <nz-content class="overflow-hidden">
+          <div class="h-full">
+            <!-- Columns Grid -->
+            <div 
+              class="columns-grid h-full gap-6"
+              cdkDropListGroup
+            >
+              <app-retro-column
+                *ngFor="let column of currentBoard.columns; trackBy: trackByColumnId"
+                [column]="column"
+                [stickyNotes]="getStickyNotesForColumn(column.id)"
+                [currentUserId]="getCurrentUserId()"
+                [currentPhase]="currentBoard.currentPhase"
+                (noteAdd)="onNoteAdd($event)"
+                (noteChange)="onNoteChange($event)"
+                (noteDelete)="onNoteDelete($event)"
+                (noteVote)="onNoteVote($event)"
+                (noteDrop)="onNoteDrop($event)"
+                class="column-item"
+                [attr.data-column-id]="column.id"
+              ></app-retro-column>
+            </div>
+          </div>
+        </nz-content>
+      </nz-layout>
+    </div>
+
+    <!-- Phase Management Modal -->
+    <nz-modal
+      [(nzVisible)]="isPhaseModalVisible"
+      nzClosable="false"
+      [nzFooter]="phaseModalFooter"
+      nzWidth="600px"
+    >
+      <ng-container *nzModalContent>
+        <div class="px-8 py-5">
+          <div class="flex items-center py-3 text-textDarkest">
+            <div class="text-xl">
+              Retrospective Phases
+            </div>
+            <div class="flex-auto"></div>
+            <j-button icon="times"
+                      [iconSize]="24"
+                      (click)="cancelPhaseChange()"
+                      [className]="'btn-empty'">
+            </j-button>
+          </div>
+          <div class="phase-form retro-modal-form">
+            <div class="form-group">
+              <label class="label">
+                Current Phase
+              </label>
+              <div class="space-y-3">
+                <div 
+                  *ngFor="let phase of retroPhases" 
+                  class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer transition-colors"
+                  [class.bg-blue-50]="selectedPhase === phase"
+                  [class.border-blue-300]="selectedPhase === phase"
+                  (click)="selectedPhase = phase"
+                >
+                  <div class="flex-1">
+                    <div class="font-medium text-gray-900">{{ getPhaseTitle(phase) }}</div>
+                    <div class="text-sm text-gray-500">{{ getPhaseDescription(phase) }}</div>
+                  </div>
+                  <div 
+                    *ngIf="selectedPhase === phase" 
+                    class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center"
+                  >
+                    <span nz-icon nzType="check" class="text-white text-xs"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+      
+      <ng-template #phaseModalFooter>
+        <div class="modal-footer-buttons">
+          <j-button className="btn-primary mr-2"
+                    [disabled]="selectedPhase === currentBoard?.currentPhase"
+                    (click)="updatePhase()">
+            Update Phase
+          </j-button>
+          <j-button className="btn-empty"
+                    (click)="cancelPhaseChange()">
+            Cancel
+          </j-button>
+        </div>
+      </ng-template>
+    </nz-modal>
+
+    <!-- Settings Modal -->
+    <nz-modal
+      [(nzVisible)]="isSettingsModalVisible"
+      nzClosable="false"
+      [nzFooter]="settingsModalFooter"
+      nzWidth="600px"
+    >
+      <ng-container *nzModalContent>
+        <div class="px-8 py-5">
+          <div class="flex items-center py-3 text-textDarkest">
+            <div class="text-xl">
+              Board Settings
+            </div>
+            <div class="flex-auto"></div>
+            <j-button icon="times"
+                      [iconSize]="24"
+                      (click)="cancelSettings()"
+                      [className]="'btn-empty'">
+            </j-button>
+          </div>
+          <form class="settings-form retro-modal-form">
+            <div class="form-group">
+              <label class="label">
+                Board Title
+              </label>
+              <input 
+                [(ngModel)]="settingsTitle" 
+                class="form-input"
+                placeholder="Enter board title"
+              />
+            </div>
+            
+            <div class="mt-3 form-group">
+              <label class="label">
+                Description
+              </label>
+              <textarea
+                [(ngModel)]="settingsDescription"
+                class="form-input"
+                cdkTextareaAutosize
+                #cdkTextareaAutosize="cdkTextareaAutosize"
+                [cdkAutosizeMinRows]="3"
+                [cdkAutosizeMaxRows]="6"
+                placeholder="Enter board description"
+              ></textarea>
+            </div>
+          </form>
+        </div>
+      </ng-container>
+      
+      <ng-template #settingsModalFooter>
+        <div class="modal-footer-buttons">
+          <j-button className="btn-primary mr-2"
+                    (click)="saveSettings()">
+            Save
+          </j-button>
+          <j-button className="btn-empty"
+                    (click)="cancelSettings()">
+            Cancel
+          </j-button>
+        </div>
+      </ng-template>
+    </nz-modal>
+
+    <!-- Loading State -->
+    <div *ngIf="!currentBoard" class="h-full flex items-center justify-center">
+      <div class="text-center">
+        <span nz-icon nzType="loading" nzTheme="outline" class="text-2xl text-gray-400 mb-4"></span>
+        <p class="text-gray-500">Loading retrospective board...</p>
+      </div>
+    </div>
+
+    <!-- Step Description Templates -->
+    <ng-template #brainstormingDescTemplate>
+      <div class="flex items-center gap-1">
+        <span>Add your thoughts</span>
+        <span 
+          nz-icon 
+          nzType="info-circle" 
+          nzTheme="outline"
+          [nz-tooltip]="getPhaseInstructions(RetroPhase.BRAINSTORMING)"
+          nzTooltipPlacement="bottom"
+          class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
+        ></span>
+      </div>
+    </ng-template>
+
+    <ng-template #groupingDescTemplate>
+      <div class="flex items-center gap-1">
+        <span>Group similar ideas</span>
+        <span 
+          nz-icon 
+          nzType="info-circle" 
+          nzTheme="outline"
+          [nz-tooltip]="getPhaseInstructions(RetroPhase.GROUPING)"
+          nzTooltipPlacement="bottom"
+          class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
+        ></span>
+      </div>
+    </ng-template>
+
+    <ng-template #votingDescTemplate>
+      <div class="flex items-center gap-1">
+        <span>Vote on priority items</span>
+        <span 
+          nz-icon 
+          nzType="info-circle" 
+          nzTheme="outline"
+          [nz-tooltip]="getPhaseInstructions(RetroPhase.VOTING)"
+          nzTooltipPlacement="bottom"
+          class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
+        ></span>
+      </div>
+    </ng-template>
+
+    <ng-template #discussionDescTemplate>
+      <div class="flex items-center gap-1">
+        <span>Discuss top items</span>
+        <span 
+          nz-icon 
+          nzType="info-circle" 
+          nzTheme="outline"
+          [nz-tooltip]="getPhaseInstructions(RetroPhase.DISCUSSION)"
+          nzTooltipPlacement="bottom"
+          class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
+        ></span>
+      </div>
+    </ng-template>
+
+    <ng-template #actionItemsDescTemplate>
+      <div class="flex items-center gap-1">
+        <span>Define next steps</span>
+        <span 
+          nz-icon 
+          nzType="info-circle" 
+          nzTheme="outline"
+          [nz-tooltip]="getPhaseInstructions(RetroPhase.ACTION_ITEMS)"
+          nzTooltipPlacement="bottom"
+          class="text-gray-400 hover:text-blue-500 cursor-help text-xs"
+        ></span>
+      </div>
+    </ng-template>

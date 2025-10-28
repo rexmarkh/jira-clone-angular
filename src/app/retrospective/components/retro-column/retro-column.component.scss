@@ -1,0 +1,409 @@
+.retro-column {
+  width: 100%;
+  min-width: 320px;
+}
+
+.column-content {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* AI Summary Note - Distinctive Design */
+.ai-summary-note {
+  flex-shrink: 0;
+  margin-bottom: 12px;
+  border-radius: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.ai-summary-note:hover {
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+}
+
+.ai-summary-note.generating {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.ai-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  color: white;
+  user-select: none;
+}
+
+.ai-icon {
+  font-size: 20px;
+  color: #ffd700;
+}
+
+.ai-title {
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+}
+
+.ai-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 0;
+  margin-left: 8px;
+}
+
+.expand-icon {
+  font-size: 14px;
+  transition: transform 0.3s ease;
+}
+
+.ai-summary-note.expanded .expand-icon {
+  transform: rotate(180deg);
+}
+
+.ai-summary-content {
+  background: white;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  max-height: 400px;
+  opacity: 1;
+  overflow: hidden;
+  padding: 16px;
+  transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+}
+
+.ai-summary-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+.ai-summary-content:not(.collapsed) {
+  overflow-y: auto;
+}
+
+.ai-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  color: #667eea;
+  font-size: 14px;
+}
+
+.ai-result {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ai-summary-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.regenerate-btn {
+  align-self: flex-start;
+  padding: 4px 12px;
+  height: auto;
+  font-size: 13px;
+  color: #667eea;
+}
+
+.regenerate-btn:hover {
+  color: #764ba2;
+}
+
+.ai-empty {
+  text-align: center;
+  padding: 16px;
+}
+
+.ai-empty p {
+  margin-bottom: 12px;
+}
+
+/* Notes Wrapper - Contains scrollable notes */
+.notes-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.notes-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb transparent;
+  padding: 0 4px 12px 4px; /* Reduced bottom padding since FAB is removed */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  will-change: scroll-position;
+}
+
+.notes-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notes-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notes-container::-webkit-scrollbar-thumb {
+  background-color: #e5e7eb;
+  border-radius: 3px;
+}
+
+.notes-container::-webkit-scrollbar-thumb:hover {
+  background-color: #d1d5db;
+}
+
+/* Hide scrollbar during drag - multiple approaches for cross-browser compatibility */
+.notes-container.cdk-drop-list-dragging::-webkit-scrollbar {
+  width: 0 !important;
+  display: none !important;
+}
+
+.notes-container.cdk-drop-list-dragging {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* Also hide when any child is being dragged */
+.cdk-drop-list-dragging.notes-container::-webkit-scrollbar,
+.notes-container:has(.cdk-drag-dragging)::-webkit-scrollbar {
+  width: 0 !important;
+  display: none !important;
+}
+
+.cdk-drop-list-dragging.notes-container,
+.notes-container:has(.cdk-drag-dragging) {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* Split Pill Button - Unified count and add button */
+.split-button-container {
+  display: inline-flex;
+  align-items: stretch;
+  height: 32px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.split-button-container:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.split-button-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: default;
+  user-select: none;
+  position: relative;
+}
+
+.split-button-count::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 20%;
+  bottom: 20%;
+  width: 1px;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.split-button-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  color: #ffffff;
+}
+
+.split-button-action:hover:not(:disabled) {
+  background-color: #ffffff !important;
+  color: var(--column-color);
+}
+
+.split-button-action:active:not(:disabled) {
+  background-color: #ffffff !important;
+  color: var(--column-color);
+  opacity: 0.9;
+}
+
+.split-button-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.split-button-action .plus-icon {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.empty-state-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cdk-drop-list {
+  min-height: 100%;
+  border-radius: 8px;
+}
+
+.cdk-drop-list-dragging {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drop-list.cdk-drop-list-receiving {
+  background-color: rgba(59, 130, 246, 0.02);
+}
+
+.cdk-drag {
+  cursor: grab;
+  touch-action: manipulation;
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 0;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  cursor: grabbing !important;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+  background: #f9fafb;
+  border: 2px dashed #e5e7eb;
+  border-radius: 0;
+  min-height: 120px;
+  margin: 0 0 12px 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.note-item {
+  margin-bottom: 12px;
+}
+
+::ng-deep .ant-card-head {
+  padding: 0 16px;
+  min-height: 64px;
+}
+
+::ng-deep .ant-card-head-title {
+  padding: 16px 0;
+}
+
+// Modal footer buttons
+.modal-footer-buttons {
+  text-align: right;
+  padding: 16px 24px;
+}
+
+// Modal form styles to match create issue modal
+.form-action {
+  text-align: right;
+}
+
+.note-form {
+  .form-group {
+    margin-bottom: 1rem;
+    
+    .label {
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      font-size: 0.8125rem;
+      color: #5e6c84;
+      display: block;
+    }
+  }
+
+  // Consistent input styling
+  .form-input {
+    height: auto !important;
+    padding: 8px 11px !important;
+    border-radius: 3px !important;
+    border: 1px solid #dfe1e6 !important;
+    background: #fafbfc !important;
+    font-size: 14px !important;
+    line-height: 1.42857143 !important;
+    width: 100% !important;
+    resize: none !important;
+    transition: background 0.1s, border-color 0.1s !important;
+    
+    &:hover {
+      background: #ebecf0 !important;
+      border-color: #c1c7d0 !important;
+    }
+    
+    &:focus {
+      background: #fff !important;
+      border-color: #4c9aff !important;
+      box-shadow: 0 0 0 1px #4c9aff !important;
+      outline: none !important;
+    }
+  }
+}
