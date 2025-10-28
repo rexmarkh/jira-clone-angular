@@ -90,8 +90,8 @@ export class RetrospectiveService {
     }
   }
 
-  addStickyNote(columnId: string, content: string, color: StickyNoteColor = StickyNoteColor.YELLOW): void {
-    console.log('addStickyNote called with:', { columnId, content, color });
+  addStickyNote(columnId: string, content: string, color: StickyNoteColor = StickyNoteColor.YELLOW, isAnonymous: boolean = false): void {
+    console.log('addStickyNote called with:', { columnId, content, color, isAnonymous });
     const user = this.authQuery.getValue();
     const currentState = this.store.getValue();
     
@@ -106,9 +106,9 @@ export class RetrospectiveService {
     const newNote: StickyNote = {
       id: this.generateId(),
       content,
-      authorId: user.id,
-      authorName: user.name,
-      authorAvatar: user.avatarUrl,
+      authorId: isAnonymous ? '' : user.id,
+      authorName: isAnonymous ? 'Anonymous' : user.name,
+      authorAvatar: isAnonymous ? '' : user.avatarUrl,
       columnId,
       color,
       position: { x: 0, y: 0 },

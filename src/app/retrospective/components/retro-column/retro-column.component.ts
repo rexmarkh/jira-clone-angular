@@ -9,6 +9,7 @@ import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { CdkDropList, CdkDragDrop, CdkDragStart, CdkDragEnd, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { RetroColumn, StickyNote, StickyNoteColor, RetroPhase } from '../../interfaces/retrospective.interface';
 import { StickyNoteComponent } from '../sticky-note/sticky-note.component';
@@ -28,6 +29,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     NzModalModule,
     NzEmptyModule,
     NzToolTipModule,
+    NzSwitchModule,
     DragDropModule,
     StickyNoteComponent,
     JiraControlModule
@@ -220,9 +222,9 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
           </div>
           <form class="note-form retro-modal-form">
             <div class="form-group">
-              <label class="label">
+              <!--<label class="label">
                 Note Content
-              </label>
+              </label> -->
               <textarea
                 [(ngModel)]="newNoteContent"
                 name="noteContent"
@@ -234,6 +236,21 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
                 placeholder="What would you like to share?"
                 #noteInput
               ></textarea>
+            </div>
+
+            <div class="mt-3 form-group">
+              <label class="label flex items-center justify-between">
+                <span>Anonymous Note</span>
+                <nz-switch 
+                  [(ngModel)]="isAnonymous"
+                  name="anonymous"
+                  [nzCheckedChildren]="checkedTemplate"
+                  [nzUnCheckedChildren]="unCheckedTemplate"
+                ></nz-switch>
+              </label>
+              <div class="text-xs text-gray-500 mt-1">
+                Your identity will be hidden for all phases
+              </div>
             </div>
             
             <div class="mt-3 form-group">
@@ -270,6 +287,14 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
         </div>
       </ng-template>
     </nz-modal>
+
+    <!-- Switch Templates -->
+    <ng-template #checkedTemplate>
+      <span nz-icon nzType="eye-invisible" nzTheme="outline"></span>
+    </ng-template>
+    <ng-template #unCheckedTemplate>
+      <span nz-icon nzType="eye" nzTheme="outline"></span>
+    </ng-template>
   `,
   styles: [`
     .retro-column {
@@ -689,7 +714,7 @@ export class RetroColumnComponent {
   @Input() currentUserId: string = '';
   @Input() currentPhase!: RetroPhase;
   
-  @Output() noteAdd = new EventEmitter<{ columnId: string, content: string, color: StickyNoteColor }>();
+  @Output() noteAdd = new EventEmitter<{ columnId: string, content: string, color: StickyNoteColor, isAnonymous: boolean }>();
   @Output() noteChange = new EventEmitter<StickyNote>();
   @Output() noteDelete = new EventEmitter<string>();
   @Output() noteVote = new EventEmitter<string>();
@@ -702,6 +727,7 @@ export class RetroColumnComponent {
   editingNote: StickyNote | null = null;
   newNoteContent = '';
   selectedColor: StickyNoteColor = StickyNoteColor.YELLOW;
+  isAnonymous = false;
   
   isAISummaryExpanded = false;
   isGeneratingSummary = false;
@@ -710,6 +736,12 @@ export class RetroColumnComponent {
   colorOptions = Object.values(StickyNoteColor);
 
   constructor(private renderer: Renderer2) {}
+
+  getRandomColor(): StickyNoteColor {
+    const colors = Object.values(StickyNoteColor);
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    return colors[randomIndex];
+  }
 
   showAddNoteModal() {
     if (!this.canAddNotes()) {
@@ -720,7 +752,8 @@ export class RetroColumnComponent {
     this.editingNote = null;
     this.isAddNoteModalVisible = true;
     this.newNoteContent = '';
-    this.selectedColor = StickyNoteColor.YELLOW;
+    this.selectedColor = this.getRandomColor();
+    this.isAnonymous = false;
     
     // Focus the textarea after modal opens
     setTimeout(() => {
@@ -752,12 +785,14 @@ export class RetroColumnComponent {
     console.log('addNote called, content:', this.newNoteContent);
     console.log('Column ID:', this.column.id);
     console.log('Selected color:', this.selectedColor);
+    console.log('Is anonymous:', this.isAnonymous);
     if (this.newNoteContent.trim()) {
       console.log('Emitting noteAdd event');
       this.noteAdd.emit({
         columnId: this.column.id,
         content: this.newNoteContent.trim(),
-        color: this.selectedColor
+        color: this.selectedColor,
+        isAnonymous: this.isAnonymous
       });
       this.cancelAddNote();
     } else {
@@ -783,7 +818,8 @@ export class RetroColumnComponent {
     this.isEditMode = false;
     this.editingNote = null;
     this.newNoteContent = '';
-    this.selectedColor = StickyNoteColor.YELLOW;
+    this.selectedColor = this.getRandomColor();
+    this.isAnonymous = false;
   }
 
   onNoteChange(note: StickyNote) {

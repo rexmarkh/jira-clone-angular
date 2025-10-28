@@ -42,7 +42,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     >
       <nz-card 
         [nzBordered]="false"
-        [nzBodyStyle]="{ padding: '16px', backgroundColor: 'transparent' }"
+        [nzBodyStyle]="{ padding: '0.5rem', backgroundColor: 'transparent' }"
         class="h-full"
       >
         <!-- Action Buttons - Top Right -->

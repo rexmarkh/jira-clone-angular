@@ -1123,8 +1123,8 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
   }
 
   // Note event handlers
-  onNoteAdd(data: { columnId: string, content: string, color: StickyNoteColor }) {
-    this.retrospectiveService.addStickyNote(data.columnId, data.content, data.color);
+  onNoteAdd(data: { columnId: string, content: string, color: StickyNoteColor, isAnonymous: boolean }) {
+    this.retrospectiveService.addStickyNote(data.columnId, data.content, data.color, data.isAnonymous);
     // Reinitialize arrays after adding note
     setTimeout(() => this.initializeColumnArrays(), 100);
   }
