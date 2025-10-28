@@ -1,5 +1,6 @@
 export interface StickyNote {
   id: string;
+  noteNumber: number; // Sequential number for display (NT-1, NT-2, etc.)
   content: string;
   authorId: string;
   authorName: string;

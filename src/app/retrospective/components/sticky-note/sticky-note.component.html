@@ -83,8 +83,12 @@
 
     <!-- Single Row Footer - Tags + Metadata -->
     <div class="note-footer">
-      <!-- Left: Tags (if present) -->
+      <!-- Left: Note ID + Tags -->
       <div class="footer-left">
+        <!-- Note ID -->
+        <span class="note-id">NT-{{ note.noteNumber }}</span>
+        
+        <!-- Tags (if present) -->
         <div *ngIf="note.tags && note.tags.length > 0" class="note-tags-inline">
           <span 
             *ngFor="let tag of note.tags" 

@@ -110,6 +110,21 @@
   min-width: 0;
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+
+/* Note ID styling */
+.note-id {
+  font-size: 10px;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 2px 6px;
+  background-color: rgba(107, 114, 128, 0.08);
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
 }
 
 .footer-right {

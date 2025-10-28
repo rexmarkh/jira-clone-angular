@@ -14,7 +14,155 @@
   }
 }
 
-
 .ant-select-selection-item {
   line-height: 0 !important;
+}
+
+/* Retrospective Create Board Modal Styling - Only for create board modal */
+.create-board-modal {
+  .ant-modal-body {
+    padding: 20px 24px !important;
+  }
+
+  .board-form {
+    .form-group {
+      margin-bottom: 20px !important;
+
+      &:last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+
+    label.label {
+      margin-bottom: 8px !important;
+      font-weight: 500 !important;
+      font-size: 13px !important;
+      color: #5e6c84 !important;
+      display: block !important;
+    }
+  }
+
+  .ant-input,
+  input[nz-input],
+  textarea[nz-input],
+  .ant-input-textarea textarea {
+    color: #172b4d !important;
+    font-size: 14px !important;
+    background: #fafbfc !important;
+    border: 1px solid #dfe1e6 !important;
+    border-radius: 3px !important;
+    padding: 8px 11px !important;
+  }
+
+  .ant-input::placeholder,
+  input[nz-input]::placeholder,
+  textarea[nz-input]::placeholder,
+  .ant-input-textarea textarea::placeholder {
+    color: #8993a4 !important;
+    opacity: 1 !important;
+  }
+
+  .ant-input:hover,
+  input[nz-input]:hover,
+  textarea[nz-input]:hover {
+    background: #ebecf0 !important;
+    border-color: #c1c7d0 !important;
+  }
+
+  .ant-input:focus,
+  input[nz-input]:focus,
+  textarea[nz-input]:focus,
+  .ant-input-focused {
+    background: #fff !important;
+    border-color: #4c9aff !important;
+    box-shadow: 0 0 0 1px #4c9aff !important;
+    outline: none !important;
+  }
+
+  /* Button overrides for create board modal */
+  .ant-modal-body .ant-btn,
+  .ant-modal-footer .ant-btn {
+    height: 32px !important;
+    padding: 4px 15px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    border-radius: 3px !important;
+  }
+
+  .ant-modal-body .ant-btn-default,
+  .ant-modal-footer .ant-btn-default {
+    color: #42526e !important;
+    background: #fff !important;
+    border: 1px solid #dfe1e6 !important;
+  }
+
+  .ant-modal-body .ant-btn-default:hover:not([disabled]),
+  .ant-modal-footer .ant-btn-default:hover:not([disabled]) {
+    color: #172b4d !important;
+    border-color: #c1c7d0 !important;
+    background: #f4f5f7 !important;
+  }
+
+  .ant-modal-body .ant-btn-primary,
+  .ant-modal-footer .ant-btn-primary {
+    color: #fff !important;
+    background: #0052cc !important;
+    border: 1px solid #0052cc !important;
+  }
+
+  .ant-modal-body .ant-btn-primary:hover:not([disabled]),
+  .ant-modal-footer .ant-btn-primary:hover:not([disabled]) {
+    background: #0747a6 !important;
+    border-color: #0747a6 !important;
+  }
+
+  .ant-modal-body .ant-btn-primary[disabled],
+  .ant-modal-footer .ant-btn-primary[disabled] {
+    opacity: 0.5 !important;
+  }
+}
+
+/* Button overrides for modals */
+.ant-modal-body .ant-btn,
+.ant-modal-footer .ant-btn {
+  height: 32px !important;
+  padding: 4px 15px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  border-radius: 3px !important;
+}
+
+.ant-modal-body .ant-btn-default,
+.ant-modal-footer .ant-btn-default {
+  color: #42526e !important;
+  background: #fff !important;
+  border: 1px solid #dfe1e6 !important;
+}
+
+.ant-modal-body .ant-btn-default:hover:not([disabled]),
+.ant-modal-footer .ant-btn-default:hover:not([disabled]) {
+  color: #172b4d !important;
+  border-color: #c1c7d0 !important;
+  background: #f4f5f7 !important;
+}
+
+.ant-modal-body .ant-btn-primary,
+.ant-modal-footer .ant-btn-primary {
+  color: #fff !important;
+  background: #0052cc !important;
+  border: 1px solid #0052cc !important;
+}
+
+.ant-modal-body .ant-btn-primary:hover:not([disabled]),
+.ant-modal-footer .ant-btn-primary:hover:not([disabled]) {
+  background: #0747a6 !important;
+  border-color: #0747a6 !important;
+}
+
+.ant-modal-body .ant-btn-primary[disabled],
+.ant-modal-footer .ant-btn-primary[disabled] {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  background: #0052cc !important;
+  border-color: #0052cc !important;
 }

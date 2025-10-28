@@ -1,309 +1,288 @@
-    <div class="retrospective-landing p-6">
-      <!-- Header -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between">
-          <div>
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Retrospective Boards</h1>
-            <p class="text-lg text-gray-600">Reflect, learn, and improve together as a team</p>
-          </div>
-          
-          <div class="flex items-center gap-3">
-            <button 
-              nz-button 
-              nzType="default"
-              nzSize="medium"
-              (click)="joinBoardDemo()"
-              class="flex items-center gap-2"
-            >
-              <span nz-icon nzType="play-circle" nzTheme="outline"></span>
-              Try Demo
-            </button>
-            
-            <button 
-              nz-button 
-              nzType="primary"
-              nzSize="medium"
-              (click)="showCreateBoardModal()"
-              class="flex items-center gap-2"
-            >
-              <span nz-icon nzType="plus" nzTheme="outline"></span>
-              Create Board
-            </button>
-          </div>
+<div class="retrospective-landing">
+  <!-- Hero Header -->
+  <div class="hero-header">
+    <div class="landing-container">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 class="hero-title">Sprint Retrospectives</h1>
+          <p class="hero-subtitle">Transform team insights into actionable improvements</p>
         </div>
-      </div>
-
-      <!-- Quick Stats -->
-      <div class="mb-8">
-        <nz-row [nzGutter]="[16, 16]">
-          <nz-col [nzSpan]="6">
-            <nz-card nzSize="small" class="stat-card">
-              <div class="flex items-center gap-3">
-                <div class="stat-icon bg-blue-100 text-blue-600">
-                  <span nz-icon nzType="project" nzTheme="outline"></span>
-                </div>
-                <div>
-                  <div class="text-2xl font-bold text-gray-900">{{ boards.length }}</div>
-                  <div class="text-sm text-gray-500">Total Boards</div>
-                </div>
-              </div>
-            </nz-card>
-          </nz-col>
-          
-          <nz-col [nzSpan]="6">
-            <nz-card nzSize="small" class="stat-card">
-              <div class="flex items-center gap-3">
-                <div class="stat-icon bg-green-100 text-green-600">
-                  <span nz-icon nzType="check-circle" nzTheme="outline"></span>
-                </div>
-                <div>
-                  <div class="text-2xl font-bold text-gray-900">{{ getActiveBoards().length }}</div>
-                  <div class="text-sm text-gray-500">Active Boards</div>
-                </div>
-              </div>
-            </nz-card>
-          </nz-col>
-          
-          <nz-col [nzSpan]="6">
-            <nz-card nzSize="small" class="stat-card">
-              <div class="flex items-center gap-3">
-                <div class="stat-icon bg-purple-100 text-purple-600">
-                  <span nz-icon nzType="team" nzTheme="outline"></span>
-                </div>
-                <div>
-                  <div class="text-2xl font-bold text-gray-900">{{ getTotalParticipants() }}</div>
-                  <div class="text-sm text-gray-500">Participants</div>
-                </div>
-              </div>
-            </nz-card>
-          </nz-col>
-          
-          <nz-col [nzSpan]="6">
-            <nz-card nzSize="small" class="stat-card">
-              <div class="flex items-center gap-3">
-                <div class="stat-icon bg-orange-100 text-orange-600">
-                  <span nz-icon nzType="calendar" nzTheme="outline"></span>
-                </div>
-                <div>
-                  <div class="text-2xl font-bold text-gray-900">{{ getThisWeekBoards() }}</div>
-                  <div class="text-sm text-gray-500">This Week</div>
-                </div>
-              </div>
-            </nz-card>
-          </nz-col>
-        </nz-row>
-      </div>
-
-      <!-- Boards Grid -->
-      <div class="boards-section">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-semibold text-gray-900">Your Boards</h2>
-          <div class="flex items-center gap-3">
-            <!-- Add search and filter options here if needed -->
-          </div>
-        </div>
-
-        <!-- Boards List -->
-        <div *ngIf="boards.length > 0" class="boards-grid">
-          <nz-card 
-            *ngFor="let board of boards; trackBy: trackByBoardId"
-            [nzActions]="[boardActionsTemplate]"
-            [nzExtra]="boardExtraTemplate"
-            class="board-card hover:shadow-lg transition-shadow cursor-pointer"
-            (click)="openBoard(board.id)"
+        
+        <div class="hero-actions">
+          <button 
+            nz-button 
+            nzSize="large"
+            class="try-demo-btn"
+            (click)="joinBoardDemo()"
           >
-            <nz-card-meta
-              [nzTitle]="board.title"
-              [nzDescription]="board.description"
-            ></nz-card-meta>
-            
-            <div class="mt-4 space-y-3">
-              <!-- Phase and Status -->
-              <div class="flex items-center justify-between">
-                <nz-tag [nzColor]="getPhaseColor(board.currentPhase)">
-                  {{ getPhaseLabel(board.currentPhase) }}
-                </nz-tag>
-                <span class="text-xs text-gray-500">
-                  {{ getTimeAgo(board.updatedAt) }}
-                </span>
-              </div>
+            <span>Try Demo</span>
+          </button>
+          
+          <button 
+            nz-button 
+            nzSize="large"
+            nzType="primary"
+            class="create-board-btn"
+            (click)="showCreateBoardModal()"
+          >
+            <span nz-icon nzType="plus"></span>
+            <span>Create Board</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-              <!-- Participants -->
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm text-gray-600">Team:</span>
-                  <div class="flex items-center -space-x-2">
-                    <j-avatar 
-                      *ngFor="let participantId of board.participants.slice(0, 3)"
-                      [name]="getParticipantInitials(participantId)"
-                      [size]="20"
-                      className="border-2 border-white rounded-full"
-                    ></j-avatar>
-                    <span *ngIf="board.participants.length > 3" 
-                          class="text-xs text-gray-500 ml-2">
-                      +{{ board.participants.length - 3 }}
-                    </span>
-                  </div>
-                </div>
-                <div class="text-xs text-gray-500">
-                  {{ board.participants.length }} member{{ board.participants.length !== 1 ? 's' : '' }}
-                </div>
-              </div>
-
-              <!-- Notes Count -->
-              <div class="flex items-center gap-4 text-xs text-gray-500">
-                <span>{{ getStickyNotesCount(board.id) }} notes</span>
-                <span>Created {{ formatDate(board.createdAt) }}</span>
-              </div>
-            </div>
-
-            <ng-template #boardExtraTemplate>
-              <button 
-                nz-button 
-                nzType="text" 
-                nzSize="small"
-                (click)="$event.stopPropagation(); toggleBoardFavorite(board.id)"
-                class="text-gray-400 hover:text-yellow-500"
-              >
-                <span nz-icon nzType="star" [nzTheme]="isBoardFavorite(board.id) ? 'fill' : 'outline'"></span>
-              </button>
-            </ng-template>
-
-            <ng-template #boardActionsTemplate>
-              <span 
-                nz-icon 
-                nzType="eye" 
-                nzTheme="outline"
-                (click)="$event.stopPropagation(); openBoard(board.id)"
-                class="action-icon"
-              ></span>
-              <span 
-                nz-icon 
-                nzType="edit" 
-                nzTheme="outline"
-                (click)="$event.stopPropagation(); editBoard(board)"
-                class="action-icon"
-              ></span>
-              <span 
-                nz-icon 
-                nzType="delete" 
-                nzTheme="outline"
-                (click)="$event.stopPropagation(); deleteBoard(board.id)"
-                class="action-icon text-red-500 hover:text-red-600"
-              ></span>
-            </ng-template>
-          </nz-card>
+  <div class="landing-container">
+    <!-- Modern Stats Section -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <!-- Total Boards -->
+        <div class="modern-stat-card">
+          <div class="stat-icon-wrapper blue">
+            <span nz-icon nzType="project" nzTheme="outline"></span>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-value">{{ boards.length }}</h3>
+            <p class="stat-label">Total Boards</p>
+          </div>
+          <div class="stat-decoration blue"></div>
         </div>
 
-        <!-- Empty State -->
-        <div *ngIf="boards.length === 0" class="empty-state">
-          <nz-empty 
-            [nzNotFoundContent]="emptyTemplate"
-            nzNotFoundImage="simple"
-          ></nz-empty>
+        <!-- Active Boards -->
+        <div class="modern-stat-card">
+          <div class="stat-icon-wrapper green">
+            <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-value">{{ getActiveBoards().length }}</h3>
+            <p class="stat-label">Active Boards</p>
+          </div>
+          <div class="stat-decoration green"></div>
+        </div>
+
+        <!-- Participants -->
+        <div class="modern-stat-card">
+          <div class="stat-icon-wrapper purple">
+            <span nz-icon nzType="team" nzTheme="outline"></span>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-value">{{ getTotalParticipants() }}</h3>
+            <p class="stat-label">Participants</p>
+          </div>
+          <div class="stat-decoration purple"></div>
+        </div>
+
+        <!-- This Week -->
+        <div class="modern-stat-card">
+          <div class="stat-icon-wrapper orange">
+            <span nz-icon nzType="calendar" nzTheme="outline"></span>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-value">{{ getThisWeekBoards() }}</h3>
+            <p class="stat-label">This Week</p>
+          </div>
+          <div class="stat-decoration orange"></div>
         </div>
       </div>
     </div>
 
-    <!-- Empty State Template -->
-    <ng-template #emptyTemplate>
-      <div class="text-center py-12">
-        <div class="mb-4">
-          <span nz-icon nzType="project" nzTheme="outline" class="text-6xl text-gray-300"></span>
-        </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No retrospective boards yet</h3>
-        <p class="text-gray-500 mb-6">Create your first board to start running retrospectives with your team</p>
-        <button 
-          nz-button 
-          nzType="primary" 
-          nzSize="medium"
-          (click)="showCreateBoardModal()"
-          class="flex items-center gap-2 mx-auto"
-        >
-          <span nz-icon nzType="plus" nzTheme="outline"></span>
-          Create Your First Board
-        </button>
+    <!-- Boards Section -->
+    <div class="boards-section">
+      <div class="section-header">
+        <h2>Your Boards</h2>
       </div>
-    </ng-template>
 
-    <!-- Create Board Modal -->
-    <nz-modal
-      [(nzVisible)]="isCreateModalVisible"
-      nzClosable="false"
-      [nzFooter]="createBoardFooter"
-      nzWidth="700px"
-    >
-      <ng-container *nzModalContent>
-        <div class="px-8 py-5">
-          <div class="flex items-center py-3 text-textDarkest">
-            <div class="text-xl">
-              Create New Retrospective Board
+      <!-- Boards Grid -->
+      <div *ngIf="boards.length > 0" class="boards-grid">
+        <div 
+          *ngFor="let board of boards; trackBy: trackByBoardId"
+          class="modern-board-card clickable"
+          [ngClass]="{
+            'phase-planning': board.currentPhase === 'BRAINSTORMING',
+            'phase-active': board.currentPhase === 'GROUPING' || board.currentPhase === 'VOTING',
+            'phase-review': board.currentPhase === 'DISCUSSION',
+            'phase-completed': board.currentPhase === 'COMPLETED'
+          }"
+          (click)="openBoard(board.id)"
+        >
+          <!-- Board Card Header -->
+          <div class="board-card-header">
+            <div class="board-title-row">
+              <h3 class="board-title">{{ board.title }}</h3>
+              <span 
+                nz-icon 
+                nzType="star" 
+                [nzTheme]="isBoardFavorite(board.id) ? 'fill' : 'outline'"
+                [class.favorited]="isBoardFavorite(board.id)"
+                class="favorite-btn"
+                (click)="toggleBoardFavorite(board.id); $event.stopPropagation()"
+              ></span>
             </div>
-            <div class="flex-auto"></div>
-            <j-button icon="times"
-                      [iconSize]="24"
-                      (click)="cancelCreateBoard()"
-                      [className]="'btn-empty'">
-            </j-button>
+            <div class="phase-indicator" nz-tooltip [nzTooltipTitle]="getPhaseDescription(board.currentPhase)">
+              <span class="phase-dot"></span>
+              <span class="phase-label">{{ getPhaseLabel(board.currentPhase) }}</span>
+            </div>
           </div>
-          <form class="board-form retro-modal-form">
-            <div class="form-group">
-              <label class="label">
-                Board Title *
-              </label>
-              <input
-                [(ngModel)]="newBoardTitle"
-                name="boardTitle"
-                class="form-input"
-                placeholder="e.g., Sprint 23 Retrospective"
-                #titleInput
-              />
-            </div>
-            
-            <div class="mt-3 form-group">
-              <label class="label">
-                Description
-              </label>
-              <textarea
-                [(ngModel)]="newBoardDescription"
-                name="boardDescription"
-                class="form-input"
-                cdkTextareaAutosize
-                #cdkTextareaAutosize="cdkTextareaAutosize"
-                [cdkAutosizeMinRows]="3"
-                [cdkAutosizeMaxRows]="6"
-                placeholder="What will you be retrospecting on? (optional)"
-              ></textarea>
-            </div>
 
-            <div class="mt-3 form-group">
-              <div class="bg-blue-50 p-4 rounded-lg">
-                <h4 class="font-medium text-blue-900 mb-2">What's included:</h4>
-                <ul class="text-sm text-blue-700 space-y-1">
-                  <li>• Three default columns (What went well, What can be improved, Action items)</li>
-                  <li>• Collaborative sticky notes with voting</li>
-                  <li>• Guided retrospective phases</li>
-                  <li>• Real-time team collaboration</li>
-                </ul>
+          <!-- Board Card Body -->
+          <div class="board-card-body">
+            <!-- Key Metrics Row -->
+            <div class="metrics-row">
+              <div class="metric-item">
+                <div class="metric-icon">
+                  <span nz-icon nzType="snippets" nzTheme="fill"></span>
+                </div>
+                <div class="metric-content">
+                  <span class="metric-value">{{ getStickyNotesCount(board.id) }}</span>
+                  <span class="metric-label">Notes</span>
+                </div>
+              </div>
+              
+              <div class="metric-divider"></div>
+              
+              <div class="metric-item">
+                <div class="metric-icon">
+                  <span nz-icon nzType="team" nzTheme="outline"></span>
+                </div>
+                <div class="metric-content">
+                  <span class="metric-value">{{ board.participants.length }}</span>
+                  <span class="metric-label">Members</span>
+                </div>
               </div>
             </div>
 
-            <!-- Remove the form action buttons from here since they'll be in footer -->
-          </form>
-        </div>
-      </ng-container>
-    </nz-modal>
+            <!-- Team Row -->
+            <div class="team-row">
+              <span class="team-label">Team</span>
+              <div class="avatar-group">
+                <j-avatar 
+                  *ngFor="let participantId of board.participants.slice(0, 5)"
+                  [name]="getParticipantInitials(participantId)"
+                  [size]="32"
+                  class="avatar-item"
+                  nz-tooltip
+                  [nzTooltipTitle]="getParticipantInitials(participantId)"
+                ></j-avatar>
+                <span *ngIf="board.participants.length > 5" class="more-count">
+                  +{{ board.participants.length - 5 }}
+                </span>
+              </div>
+            </div>
+          </div>
 
-    <!-- Footer Template for Create Board Modal -->
-    <ng-template #createBoardFooter>
-      <j-button className="btn-primary mr-2"
-                type="button"
-                [disabled]="!newBoardTitle.trim()"
-                (click)="createBoard()">
-        Create Board
-      </j-button>
-      <j-button className="btn-empty"
-                (click)="cancelCreateBoard()">
-        Cancel
-      </j-button>
-    </ng-template>
+          <!-- Board Card Footer -->
+          <div class="board-card-footer">
+            <div class="board-timestamp">
+              <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
+              <span>Updated {{ getTimeAgo(board.updatedAt) }}</span>
+            </div>
+            <div class="board-actions">
+              <button 
+                nz-button 
+                nzType="text" 
+                nzSize="small"
+                (click)="editBoard(board); $event.stopPropagation()"
+                nz-tooltip
+                nzTooltipTitle="Edit board"
+                class="action-btn"
+              >
+                <span nz-icon nzType="edit" nzTheme="outline"></span>
+              </button>
+              <button 
+                nz-button 
+                nzType="text" 
+                nzSize="small"
+                (click)="deleteBoard(board.id); $event.stopPropagation()"
+                nz-tooltip
+                nzTooltipTitle="Delete board"
+                class="action-btn delete-btn"
+              >
+                <span nz-icon nzType="delete" nzTheme="outline"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modern Empty State -->
+      <div *ngIf="boards.length === 0" class="modern-empty-state">
+        <div class="empty-state-content">
+          <div class="empty-state-icon">
+            <span nz-icon nzType="inbox" nzTheme="outline"></span>
+          </div>
+          <h3 class="empty-state-title">No boards yet</h3>
+          <p class="empty-state-description">Create your first retrospective board to start gathering team insights and drive continuous improvement</p>
+          <button 
+            nz-button 
+            nzType="primary" 
+            nzSize="large"
+            (click)="showCreateBoardModal()"
+            class="empty-state-button"
+          >
+            <span nz-icon nzType="plus-circle" nzTheme="filled"></span>
+            <span>Create Your First Board</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Board Modal -->
+<nz-modal
+  [(nzVisible)]="isCreateModalVisible"
+  nzTitle="Create New Board"
+  [nzFooter]="null"
+  (nzOnCancel)="cancelCreateBoard()"
+  nzWidth="520px"
+  nzWrapClassName="create-board-modal"
+>
+  <ng-container *nzModalContent>
+    <form class="board-form">
+      <div class="form-group">
+        <label class="label">Board Title *</label>
+        <input
+          nz-input
+          [(ngModel)]="newBoardTitle"
+          name="title"
+          placeholder="e.g., Sprint 23 Retrospective"
+          class="form-input"
+          (keyup.enter)="createBoard()"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="label">Description</label>
+        <textarea
+          nz-input
+          [(ngModel)]="newBoardDescription"
+          name="description"
+          placeholder="What is the goal of this retrospective?"
+          [nzAutosize]="{ minRows: 3, maxRows: 6 }"
+          class="form-input"
+          cdkTextareaAutosize
+        ></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 32px; padding-top: 20px; border-top: 1px solid #f0f0f0;">
+        <button 
+          nz-button 
+          nzType="default"
+          (click)="cancelCreateBoard()"
+        >
+          Cancel
+        </button>
+        <button 
+          nz-button 
+          nzType="primary"
+          (click)="createBoard()"
+          [disabled]="!newBoardTitle.trim()"
+        >
+          <span nz-icon nzType="plus" nzTheme="outline"></span>
+          Create Board
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</nz-modal>

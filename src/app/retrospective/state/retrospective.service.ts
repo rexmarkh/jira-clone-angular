@@ -103,8 +103,15 @@ export class RetrospectiveService {
       return;
     }
 
+    // Calculate next note number based on existing notes
+    const maxNoteNumber = currentState.currentBoard.stickyNotes.reduce((max, note) => {
+      return Math.max(max, note.noteNumber || 0);
+    }, 0);
+    const nextNoteNumber = maxNoteNumber + 1;
+
     const newNote: StickyNote = {
       id: this.generateId(),
+      noteNumber: nextNoteNumber,
       content,
       authorId: isAnonymous ? '' : user.id,
       authorName: isAnonymous ? 'Anonymous' : user.name,
@@ -268,6 +275,7 @@ export class RetrospectiveService {
       stickyNotes: [
         {
           id: 'note-1',
+          noteNumber: 1,
           content: 'Great team collaboration on the login feature',
           authorId: user?.id || 'demo-user',
           authorName: user?.name || 'Demo User',
@@ -282,6 +290,7 @@ export class RetrospectiveService {
         },
         {
           id: 'note-2',
+          noteNumber: 2,
           content: 'Need better communication during code reviews',
           authorId: user?.id || 'demo-user',
           authorName: user?.name || 'Demo User',

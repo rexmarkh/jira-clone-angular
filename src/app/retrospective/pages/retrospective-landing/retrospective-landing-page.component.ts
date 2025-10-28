@@ -14,6 +14,8 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
 import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 
 import { RetrospectiveService } from '../../state/retrospective.service';
 import { RetrospectiveQuery } from '../../state/retrospective.query';
@@ -38,6 +40,8 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
     NzTagModule,
     NzDividerModule,
     NzGridModule,
+    NzToolTipModule,
+    NzAvatarModule,
     JiraControlModule
   ],
   templateUrl: './retrospective-landing-page.component.html',
@@ -188,6 +192,18 @@ export class RetrospectiveLandingPageComponent implements OnInit, OnDestroy {
       [RetroPhase.COMPLETED]: 'Completed'
     };
     return labels[phase] || 'Unknown';
+  }
+
+  getPhaseDescription(phase: RetroPhase): string {
+    const descriptions = {
+      [RetroPhase.BRAINSTORMING]: 'Team members are adding their thoughts and feedback',
+      [RetroPhase.GROUPING]: 'Organizing similar ideas into groups',
+      [RetroPhase.VOTING]: 'Team is voting on the most important items',
+      [RetroPhase.DISCUSSION]: 'Discussing key insights and next steps',
+      [RetroPhase.ACTION_ITEMS]: 'Creating action items for improvement',
+      [RetroPhase.COMPLETED]: 'Retrospective has been completed'
+    };
+    return descriptions[phase] || 'Status unknown';
   }
 
   getParticipantInitials(participantId: string): string {
