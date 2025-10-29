@@ -23,6 +23,9 @@ import { AuthQuery } from '../../../project/auth/auth.query';
 import { RetrospectiveBoard, RetroPhase } from '../../interfaces/retrospective.interface';
 import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
+
+import { Client, Account } from 'appwrite';
+
 @Component({
   selector: 'app-retrospective-landing',
   standalone: true,
@@ -63,12 +66,38 @@ export class RetrospectiveLandingPageComponent implements OnInit, OnDestroy {
     private authQuery: AuthQuery
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     // Subscribe to boards
     this.retrospectiveQuery.boards$
       .pipe(takeUntil(this.destroy$))
       .subscribe(boards => {
         this.boards = boards;
+      });
+
+    const client = new Client()
+    .setEndpoint('https://cloud.appwrite.io/v1')
+    .setProject('672cf511001d207a7adb');
+
+      // your database & collection IDs
+      const DB_ID = 'test';
+      const COLLECTION_ID = 'sample';
+      const DOCUMENT_ID = '6900edf1003c511ceea1'; // 👈 specific row’s $id
+      const account = new Account(client);
+      // await account.createAnonymousSession();
+      console.log(DB_ID, COLLECTION_ID, DOCUMENT_ID);
+      // subscribe to this single document
+      client.subscribe(
+        // `databases.${DB_ID}.tables.${COLLECTION_ID}.rows`,
+        `databases.default.tables.*.rows.*`,
+        (event) => {
+          console.log('Realtime event:', event.events);
+          console.log('Updated data:', event.payload);
+        }
+      );
+
+      client.subscribe('databases', (event) => {
+        // Callback will be executed on all account events.
+        console.log(event);
       });
   }
 
