@@ -1,6 +1,19 @@
 .retro-column {
   width: 100%;
   min-width: 320px;
+
+  // Define RGB values for each column color
+  &[data-color="#4CAF50"] ::ng-deep .ant-card-head {
+    --column-rgb: 76, 175, 80; // Green
+  }
+  
+  &[data-color="#FF9800"] ::ng-deep .ant-card-head {
+    --column-rgb: 255, 152, 0; // Orange
+  }
+  
+  &[data-color="#2196F3"] ::ng-deep .ant-card-head {
+    --column-rgb: 33, 150, 243; // Blue
+  }
 }
 
 .column-content {
@@ -17,32 +30,12 @@
   margin-bottom: 12px;
   border-radius: 12px;
   background: linear-gradient(135deg, rgba(121, 84, 170, 0.03) 0%, rgba(167, 139, 204, 0.03) 100%);
-  border: 1.5px solid transparent;
-  background-clip: padding-box;
+  border: none;
   position: relative;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   z-index: 10;
-}
-
-/* Gradient border effect */
-.ai-summary-note::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 12px;
-  padding: 1.5px;
-  background: linear-gradient(135deg, #7954AA 0%, #a78bcc 50%, #7954AA 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  z-index: -1;
-  opacity: 0.6;
-  transition: opacity 0.4s ease;
 }
 
 .ai-summary-note:hover {
@@ -51,29 +44,8 @@
   box-shadow: 0 8px 24px rgba(121, 84, 170, 0.18);
 }
 
-.ai-summary-note:hover::before {
-  opacity: 1;
-  background: linear-gradient(135deg, #7954AA 0%, #a78bcc 25%, #c8b8e0 50%, #a78bcc 75%, #7954AA 100%);
-  background-size: 200% 100%;
-  animation: borderFlow 3s linear infinite;
-}
-
-@keyframes borderFlow {
-  0% {
-    background-position: 0% 0%;
-  }
-  100% {
-    background-position: 200% 0%;
-  }
-}
-
 .ai-summary-note.generating {
   animation: gentlePulse 2s ease-in-out infinite;
-}
-
-.ai-summary-note.generating::before {
-  animation: borderFlow 2s linear infinite;
-  opacity: 1;
 }
 
 @keyframes gentlePulse {
@@ -479,6 +451,13 @@
 ::ng-deep .ant-card-head {
   padding: 0 16px;
   min-height: 64px;
+  background: linear-gradient(135deg, rgba(var(--column-rgb), 0.08) 0%, rgba(var(--column-rgb), 0.04) 100%) !important;
+  border-bottom: 1px solid rgba(var(--column-rgb), 0.15) !important;
+  transition: background 0.2s ease;
+}
+
+::ng-deep .ant-card-head:hover {
+  background: linear-gradient(135deg, rgba(var(--column-rgb), 0.12) 0%, rgba(var(--column-rgb), 0.06) 100%) !important;
 }
 
 ::ng-deep .ant-card-head-title {
