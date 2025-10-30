@@ -38,8 +38,8 @@
     
     &:focus {
       background: #fff !important;
-      border-color: #4c9aff !important;
-      box-shadow: 0 0 0 1px #4c9aff !important;
+      border-color: #7954AA !important;
+      box-shadow: 0 0 0 1px #7954AA !important;
       outline: none !important;
     }
 
@@ -92,8 +92,8 @@
 
     &.ant-select-focused .ant-select-selector {
       background: #fff !important;
-      border-color: #4c9aff !important;
-      box-shadow: 0 0 0 1px #4c9aff !important;
+      border-color: #7954AA !important;
+      box-shadow: 0 0 0 1px #7954AA !important;
     }
 
     // Fix for multi-select
@@ -155,7 +155,7 @@
 
     &.ql-focus .ql-toolbar,
     &.ql-focus .ql-container {
-      border-color: #4c9aff !important;
+      border-color: #7954AA !important;
       background: #fff !important;
     }
   }

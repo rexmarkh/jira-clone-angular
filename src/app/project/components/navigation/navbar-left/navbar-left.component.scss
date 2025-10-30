@@ -1,7 +1,9 @@
-$light-blue: rgb(55, 28, 206);
+$primary-purple: #7954AA;
+$hover-purple: #6a4899;
 
 .navbarLeft-content {
-  @apply h-screen w-navbarLeft pt-6 pb-5 flex flex-col bg-primary flex-shrink-0;
+  @apply h-screen w-navbarLeft pt-6 pb-5 flex flex-col flex-shrink-0;
+  background: $primary-purple;
 }
 
 .logoLink {
@@ -22,7 +24,7 @@ $light-blue: rgb(55, 28, 206);
 }
 
 .itemIcon:hover {
-  background: $light-blue;
+  background: $hover-purple;
 }
 
 .about-popover {

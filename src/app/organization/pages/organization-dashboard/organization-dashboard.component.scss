@@ -57,7 +57,7 @@
   background: #ffffff;
   
   .modal-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7954AA 0%, #5a3d82 100%);
     padding: 20px 24px;
     display: flex;
     align-items: center;
@@ -210,7 +210,7 @@
             .org-avatar {
               width: 56px;
               height: 56px;
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              background: linear-gradient(135deg, #7954AA 0%, #5a3d82 100%);
               display: flex;
               align-items: center;
               justify-content: center;
@@ -311,7 +311,7 @@
         .getting-started-icon {
           width: 60px;
           height: 60px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #7954AA 0%, #5a3d82 100%);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -366,7 +366,7 @@
           .selected-org-avatar {
             width: 48px;
             height: 48px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #7954AA 0%, #5a3d82 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -629,8 +629,8 @@
     
     &:focus {
       background: #fff !important;
-      border-color: #4c9aff !important;
-      box-shadow: 0 0 0 1px #4c9aff !important;
+      border-color: #7954AA !important;
+      box-shadow: 0 0 0 1px #7954AA !important;
       outline: none !important;
     }
 

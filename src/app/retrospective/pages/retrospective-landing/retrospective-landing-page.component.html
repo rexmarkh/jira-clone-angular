@@ -18,7 +18,7 @@
             <span>Try Demo</span>
           </button>
           
-          <button 
+          <!-- <button 
             nz-button 
             nzSize="large"
             nzType="primary"
@@ -27,15 +27,15 @@
           >
             <span nz-icon nzType="plus"></span>
             <span>Create Board</span>
-          </button>
+          </button> -->
         </div>
       </div>
     </div>
   </div>
 
   <div class="landing-container">
-    <!-- Modern Stats Section -->
-    <div class="stats-section">
+    <!-- Modern Stats Section - Only show when there are boards -->
+    <div class="stats-section" *ngIf="boards.length > 0">
       <div class="stats-grid">
         <!-- Total Boards -->
         <div class="modern-stat-card">
@@ -89,7 +89,7 @@
 
     <!-- Boards Section -->
     <div class="boards-section">
-      <div class="section-header">
+      <div class="section-header" *ngIf="boards.length > 0">
         <h2>Your Boards</h2>
       </div>
 
@@ -207,12 +207,39 @@
 
       <!-- Modern Empty State -->
       <div *ngIf="boards.length === 0" class="modern-empty-state">
+        <!-- Decorative floating shapes -->
+        <div class="bg-shapes">
+          <div class="shape shape-1"></div>
+          <div class="shape shape-2"></div>
+          <div class="shape shape-3"></div>
+          <div class="shape shape-4"></div>
+          <div class="shape shape-5"></div>
+        </div>
+        
         <div class="empty-state-content">
-          <div class="empty-state-icon">
-            <span nz-icon nzType="inbox" nzTheme="outline"></span>
+          <div class="empty-state-visual">
+            <div class="floating-cards">
+              <div class="mini-card card-1">
+                <span nz-icon nzType="bulb" nzTheme="outline"></span>
+              </div>
+              <div class="mini-card card-2">
+                <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+              </div>
+              <div class="mini-card card-3">
+                <span nz-icon nzType="team" nzTheme="outline"></span>
+              </div>
+            </div>
+            <div class="center-icon">
+              <span nz-icon nzType="plus-circle" nzTheme="filled"></span>
+            </div>
           </div>
-          <h3 class="empty-state-title">No boards yet</h3>
-          <p class="empty-state-description">Create your first retrospective board to start gathering team insights and drive continuous improvement</p>
+          
+          <h2 class="empty-state-title">No boards yet</h2>
+          <p class="empty-state-description">
+            Create your first retrospective board to start gathering team insights
+            and drive continuous improvement
+          </p>
+          
           <button 
             nz-button 
             nzType="primary" 
@@ -220,9 +247,24 @@
             (click)="showCreateBoardModal()"
             class="empty-state-button"
           >
-            <span nz-icon nzType="plus-circle" nzTheme="filled"></span>
+            <span nz-icon nzType="plus"></span>
             <span>Create Your First Board</span>
           </button>
+          
+          <div class="empty-state-features">
+            <div class="feature-item">
+              <span nz-icon nzType="rocket" nzTheme="filled"></span>
+              <span>Quick Setup</span>
+            </div>
+            <div class="feature-item">
+              <span nz-icon nzType="team" nzTheme="filled"></span>
+              <span>Real-time Collaboration</span>
+            </div>
+            <div class="feature-item">
+              <span nz-icon nzType="dashboard" nzTheme="filled"></span>
+              <span>Interactive Boards</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

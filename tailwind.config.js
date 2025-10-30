@@ -120,13 +120,13 @@ module.exports = {
         800: '#434190',
         900: '#3c366b'
       },
-      primary: '#3f07a6ff',
+      primary: '#7954AA',
       tertiary: '#e6e9f0',
       textDarkest: '#172b4d',
       textDark: '#42526E',
       textMedium: '#5E6C84',
       textLight: '#8993a4',
-      textLink: '#0052cc',
+      textLink: '#7954AA',
       textLogo: '#DEEBFF',
 
       backgroundDarkPrimary: '#0747A6',
@@ -138,7 +138,7 @@ module.exports = {
 
       borderLightest: '#dfe1e6',
       borderLight: '#C1C7D0',
-      borderInputFocus: '#4c9aff'
+      borderInputFocus: '#7954AA'
     },
     spacing: {
       sidebar: '240px',

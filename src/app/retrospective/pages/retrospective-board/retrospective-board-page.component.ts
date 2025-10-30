@@ -304,7 +304,7 @@ export class RetrospectiveBoardPageComponent implements OnInit, OnDestroy {
               <li>Keep author information hidden</li>
             </ul>
           </div>
-          <div style="margin-top: 16px; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white;">
+          <div style="margin-top: 16px; padding: 12px; background: linear-gradient(135deg, #7954AA 0%, #5a3d82 100%); border-radius: 8px; color: white;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
               <span style="font-size: 18px;">💡</span>
               <strong>AI-Powered Grouping Available!</strong>

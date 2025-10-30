@@ -4,6 +4,24 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* Global Ant Design Primary Color Override */
+.ant-btn-primary {
+  background-color: #7954AA !important;
+  border-color: #7954AA !important;
+  
+  &:hover:not([disabled]),
+  &:focus:not([disabled]) {
+    background-color: #6a4899 !important;
+    border-color: #6a4899 !important;
+  }
+  
+  &[disabled] {
+    opacity: 0.5 !important;
+    background-color: #7954AA !important;
+    border-color: #7954AA !important;
+  }
+}
+
 .pre-bootstrapping-container {
   @apply w-full h-full relative;
   .pre-bootstrapping-spinner {
@@ -74,8 +92,8 @@
   textarea[nz-input]:focus,
   .ant-input-focused {
     background: #fff !important;
-    border-color: #4c9aff !important;
-    box-shadow: 0 0 0 1px #4c9aff !important;
+    border-color: #7954AA !important;
+    box-shadow: 0 0 0 1px #7954AA !important;
     outline: none !important;
   }
 
@@ -106,14 +124,14 @@
   .ant-modal-body .ant-btn-primary,
   .ant-modal-footer .ant-btn-primary {
     color: #fff !important;
-    background: #0052cc !important;
-    border: 1px solid #0052cc !important;
+    background: #7954AA !important;
+    border: 1px solid #7954AA !important;
   }
 
   .ant-modal-body .ant-btn-primary:hover:not([disabled]),
   .ant-modal-footer .ant-btn-primary:hover:not([disabled]) {
-    background: #0747a6 !important;
-    border-color: #0747a6 !important;
+    background: #6a4899 !important;
+    border-color: #6a4899 !important;
   }
 
   .ant-modal-body .ant-btn-primary[disabled],
@@ -149,20 +167,20 @@
 .ant-modal-body .ant-btn-primary,
 .ant-modal-footer .ant-btn-primary {
   color: #fff !important;
-  background: #0052cc !important;
-  border: 1px solid #0052cc !important;
+  background: #7954AA !important;
+  border: 1px solid #7954AA !important;
 }
 
 .ant-modal-body .ant-btn-primary:hover:not([disabled]),
 .ant-modal-footer .ant-btn-primary:hover:not([disabled]) {
-  background: #0747a6 !important;
-  border-color: #0747a6 !important;
+  background: #6a4899 !important;
+  border-color: #6a4899 !important;
 }
 
 .ant-modal-body .ant-btn-primary[disabled],
 .ant-modal-footer .ant-btn-primary[disabled] {
   opacity: 0.5 !important;
   cursor: not-allowed !important;
-  background: #0052cc !important;
-  border-color: #0052cc !important;
+  background: #7954AA !important;
+  border-color: #7954AA !important;
 }

@@ -1,6 +1,6 @@
 @use 'sass:color';
 
-$primary: #0052cc;
+$primary: #7954AA;
 $success: #0b875b;
 $danger: #e13c3c;
 $warning: #f89c1c;
@@ -25,7 +25,7 @@ $jira-bg: rgb(222, 235, 255);
 
   &:focus,
   &:active {
-    outline-color: #1890ff;
+    outline-color: #7954AA;
   }
 
   &.no-padding-left {
