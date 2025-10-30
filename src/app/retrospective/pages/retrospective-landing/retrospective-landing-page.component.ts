@@ -24,7 +24,7 @@ import { RetrospectiveBoard, RetroPhase } from '../../interfaces/retrospective.i
 import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
 
-import { Client, Account } from 'appwrite';
+import { Client, Account, TablesDB } from 'appwrite';
 
 @Component({
   selector: 'app-retrospective-landing',
@@ -75,29 +75,19 @@ export class RetrospectiveLandingPageComponent implements OnInit, OnDestroy {
       });
 
     const client = new Client()
-    .setEndpoint('https://cloud.appwrite.io/v1')
+    .setEndpoint('https://fra.cloud.appwrite.io/v1')
     .setProject('672cf511001d207a7adb');
 
       // your database & collection IDs
-      const DB_ID = 'test';
-      const COLLECTION_ID = 'sample';
-      const DOCUMENT_ID = '6900edf1003c511ceea1'; // 👈 specific row’s $id
+      const DB_ID = '672cf53e0038d268d196';
+      const TABLE_ID = 'sample';
+      
       const account = new Account(client);
       // await account.createAnonymousSession();
-      console.log(DB_ID, COLLECTION_ID, DOCUMENT_ID);
-      // subscribe to this single document
-      client.subscribe(
-        // `databases.${DB_ID}.tables.${COLLECTION_ID}.rows`,
-        `databases.default.tables.*.rows.*`,
-        (event) => {
-          console.log('Realtime event:', event.events);
-          console.log('Updated data:', event.payload);
-        }
-      );
 
-      client.subscribe('databases', (event) => {
-        // Callback will be executed on all account events.
-        console.log(event);
+      // 2️⃣ Realtime subscription (future updates)
+      client.subscribe(`databases.${DB_ID}.tables.${TABLE_ID}.rows`, (event) => {
+        console.log('Updated data:', event.payload);
       });
   }
 

@@ -7,7 +7,12 @@
   .landing-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 32px 32px;
+    padding: 0 32px;
+    
+    // Adjust padding when showing boards
+    &:has(.boards-grid) {
+      padding-bottom: 32px;
+    }
   }
 
   // Hero Header - Compact
@@ -654,15 +659,22 @@
       }
     }
 
-    // Modern Empty State - Compact Design
+    // Modern Empty State - Compact Design (Viewport-fitted)
     .modern-empty-state {
-      background: linear-gradient(135deg, #7954AA 0%, #5a3d82 100%);
+      background: linear-gradient(135deg, #7954AA 100%, #5a3d82 100%);
       border-radius: 20px;
       padding: 48px 40px 40px;
       text-align: center;
       position: relative;
       overflow: hidden;
       box-shadow: 0 12px 40px rgba(121, 84, 170, 0.25);
+      
+      // Calculate height to fit viewport: 100vh - hero header (80px) - container padding (32px top + 32px bottom) - margins
+      min-height: calc(100vh - 80px - 64px - 32px);
+      max-height: calc(100vh - 80px - 64px - 32px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       // Rotating gradient overlay
       &::before {
