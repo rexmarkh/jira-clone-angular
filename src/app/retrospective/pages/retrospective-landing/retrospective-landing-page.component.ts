@@ -25,6 +25,7 @@ import { JiraControlModule } from '../../../jira-control/jira-control.module';
 
 
 import { Client, Account, TablesDB } from 'appwrite';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-retrospective-landing',
@@ -59,6 +60,8 @@ export class RetrospectiveLandingPageComponent implements OnInit, OnDestroy {
   newBoardDescription = '';
   favoriteBoards: Set<string> = new Set();
 
+  private client: Client;
+
   constructor(
     private router: Router,
     private retrospectiveService: RetrospectiveService,
@@ -74,21 +77,22 @@ export class RetrospectiveLandingPageComponent implements OnInit, OnDestroy {
         this.boards = boards;
       });
 
-    const client = new Client()
-    .setEndpoint('https://fra.cloud.appwrite.io/v1')
-    .setProject('672cf511001d207a7adb');
+    // const client = new Client()
+    // .setEndpoint('https://fra.cloud.appwrite.io/v1')
+    // .setProject('672cf511001d207a7adb');
 
-      // your database & collection IDs
-      const DB_ID = '672cf53e0038d268d196';
-      const TABLE_ID = 'sample';
+    //   // your database & collection IDs
+    //   const DB_ID = '672cf53e0038d268d196';
+    //   const TABLE_ID = 'sample';
       
-      const account = new Account(client);
-      // await account.createAnonymousSession();
+    //   const account = new Account(client);
+    //   // await account.createAnonymousSession();
 
-      // 2️⃣ Realtime subscription (future updates)
-      client.subscribe(`databases.${DB_ID}.tables.${TABLE_ID}.rows`, (event) => {
-        console.log('Updated data:', event.payload);
-      });
+    //   // 2️⃣ Realtime subscription (future updates)
+    //   client.subscribe(`databases.${DB_ID}.tables.${TABLE_ID}.rows`, (event) => {
+    //     console.log('Updated data:', event.payload);
+    //   });
+    this.sendPing()
   }
 
   ngOnDestroy() {
@@ -109,6 +113,41 @@ export class RetrospectiveLandingPageComponent implements OnInit, OnDestroy {
         input.focus();
       }
     }, 100);
+  }
+
+    async sendPing() {
+      let logs: any[] = [];
+      let status: 'idle' | 'loading' | 'success' | 'error' = 'idle';
+      let showLogs: boolean = false;
+
+       this.client = new Client()
+      .setEndpoint(environment.appwriteEndpoint)
+      .setProject(environment.appwriteProjectId);
+
+    try {
+      
+      const result = await this.client.ping();
+      const log: any = {
+        date: new Date(),
+        method: 'GET',
+        path: '/v1/ping',
+        status: 200,
+        response: JSON.stringify(result),
+      };
+      logs = [log, ...logs];
+      status = 'success';
+    } catch (err: any) {
+      const log: any = {
+        date: new Date(),
+        method: 'GET',
+        path: '/v1/ping',
+        status: err instanceof Error ? 500 : err.code,
+        response: err instanceof Error ? 'Something went wrong' : err.message,
+      };
+      logs = [log, ...logs];
+      status = 'error';
+    }
+    showLogs = true;
   }
 
   createBoard() {

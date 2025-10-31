@@ -18,16 +18,17 @@
             <span>Try Demo</span>
           </button>
           
-          <!-- <button 
+          <button 
             nz-button 
             nzSize="large"
             nzType="primary"
             class="create-board-btn"
             (click)="showCreateBoardModal()"
+            *ngIf="boards.length > 0"
           >
             <span nz-icon nzType="plus"></span>
             <span>Create Board</span>
-          </button> -->
+          </button>
         </div>
       </div>
     </div>

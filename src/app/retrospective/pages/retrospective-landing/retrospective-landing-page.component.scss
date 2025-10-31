@@ -255,131 +255,105 @@
 
     .boards-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
 
       .modern-board-card {
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         overflow: hidden;
-        border: 2px solid transparent;
+        border: 1px solid #f1f1f1;
         position: relative;
+        padding: 24px;
 
         &.clickable {
           cursor: pointer;
 
           &:hover {
-            transform: translateY(-4px);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border-color: #e5e5e5;
           }
 
           &:active {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
           }
         }
 
+        // Remove the top border line
         &::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          transition: all 0.3s ease;
+          display: none;
         }
 
+        // Phase-specific subtle backgrounds
         &.phase-planning {
-          &::before {
-            background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
-          }
-
           &:hover {
-            border-color: #fef3c7;
-            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.12);
           }
 
           .board-card-header .phase-indicator {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            color: #92400e;
+            background: rgba(254, 243, 199, 0.9) !important;
+            color: #78350f !important;
+            border: none !important;
 
             .phase-dot {
               background: #f59e0b !important;
-              box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
             }
           }
         }
 
         &.phase-active {
-          &::before {
-            background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
-          }
-
           &:hover {
-            border-color: #d1fae5;
-            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+            box-shadow: 0 8px 20px rgba(232, 121, 249, 0.12);
           }
 
           .board-card-header .phase-indicator {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            color: #065f46;
+            background: rgba(243, 232, 255, 0.9) !important;
+            color: #86198f !important;
+            border: none !important;
 
             .phase-dot {
-              background: #10b981 !important;
-              box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+              background: #c026d3 !important;
             }
           }
         }
 
         &.phase-review {
-          &::before {
-            background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
-          }
-
           &:hover {
-            border-color: #dbeafe;
-            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.12);
           }
 
           .board-card-header .phase-indicator {
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            color: #1e40af;
+            background: rgba(219, 234, 254, 0.9) !important;
+            color: #1e3a8a !important;
+            border: none !important;
 
             .phase-dot {
               background: #3b82f6 !important;
-              box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
             }
           }
         }
 
         &.phase-completed {
-          &::before {
-            background: linear-gradient(90deg, #6b7280 0%, #9ca3af 100%);
-          }
-
           &:hover {
-            border-color: #f3f4f6;
-            box-shadow: 0 8px 24px rgba(107, 114, 128, 0.15);
+            box-shadow: 0 8px 20px rgba(34, 197, 94, 0.12);
           }
 
           .board-card-header .phase-indicator {
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-            color: #374151;
+            background: rgba(220, 252, 231, 0.9) !important;
+            color: #14532d !important;
+            border: none !important;
 
             .phase-dot {
-              background: #6b7280 !important;
-              box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.2);
+              background: #22c55e !important;
             }
           }
         }
 
-        &:hover {
-          transform: translateY(-4px);
-        }
-
         .board-card-header {
-          padding: 24px 24px 20px;
-          background: linear-gradient(to bottom, #fafbfc 0%, #ffffff 100%);
+          margin-bottom: 16px;
 
           .board-title-row {
             display: flex;
@@ -388,123 +362,98 @@
             margin-bottom: 12px;
 
             .board-title {
-              font-size: 19px;
+              font-size: 20px;
               font-weight: 700;
-              color: #111827;
+              color: #1a1a1a;
               margin: 0;
               line-height: 1.3;
               flex: 1;
-              letter-spacing: -0.2px;
+              padding-right: 12px;
             }
 
             .favorite-btn {
-              font-size: 20px;
+              font-size: 18px;
               color: #d1d5db;
-              cursor: pointer;
               transition: all 0.2s ease;
-              margin-left: 12px;
+              cursor: pointer;
               flex-shrink: 0;
 
               &:hover {
                 color: #fbbf24;
-                transform: scale(1.2) rotate(12deg);
+                transform: scale(1.15);
               }
 
               &.favorited {
                 color: #fbbf24;
-                animation: favoritePopIn 0.3s ease;
-              }
-
-              @keyframes favoritePopIn {
-                0% {
-                  transform: scale(1);
-                }
-                50% {
-                  transform: scale(1.3);
-                }
-                100% {
-                  transform: scale(1);
-                }
               }
             }
           }
 
           .phase-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: help;
-            transition: all 0.2s ease;
-
-            &:hover {
-              transform: scale(1.05);
-            }
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 10px 18px !important;
+            border-radius: 28px !important;
+            font-size: 11px !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.8px !important;
+            text-transform: uppercase !important;
+            transition: all 0.2s ease !important;
+            border: none !important;
+            margin-top: 8px !important;
+            // Default neutral gray styling
+            background: rgba(229, 231, 235, 0.95) !important;
+            color: #4b5563 !important;
 
             .phase-dot {
-              width: 10px;
-              height: 10px;
-              border-radius: 50%;
-              background: #6b7280;
-              flex-shrink: 0;
-              animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+              width: 7px !important;
+              height: 7px !important;
+              border-radius: 50% !important;
+              transition: all 0.2s ease !important;
+              display: block !important;
+              // Default neutral dot
+              background: #6b7280 !important;
             }
 
-            @keyframes pulse {
-              0%, 100% {
-                opacity: 1;
-              }
-              50% {
-                opacity: 0.6;
-              }
-            }
-          }
-
-          .board-timestamp {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 8px;
-            font-size: 13px;
-            color: #9ca3af;
-            
-            span[nz-icon] {
-              font-size: 14px;
+            .phase-label {
+              line-height: 1 !important;
+              display: block !important;
             }
           }
         }
 
         .board-card-body {
-          padding: 20px 24px;
+          margin-bottom: 16px;
 
           .metrics-row {
             display: flex;
-            align-items: center;
             gap: 16px;
-            margin-bottom: 20px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 12px;
+            margin-bottom: 16px;
 
             .metric-item {
+              flex: 1;
               display: flex;
               align-items: center;
-              gap: 10px;
-              flex: 1;
+              gap: 12px;
 
               .metric-icon {
                 width: 36px;
                 height: 36px;
                 border-radius: 8px;
-                background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+                background: white;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                color: #6b7280;
-                font-size: 16px;
-                transition: all 0.2s ease;
+                flex-shrink: 0;
+
+                span[nz-icon] {
+                  font-size: 18px;
+                  color: #6b7280;
+                }
               }
 
               .metric-content {
@@ -520,25 +469,19 @@
                 }
 
                 .metric-label {
-                  font-size: 11px;
-                  font-weight: 500;
+                  font-size: 12px;
                   color: #6b7280;
+                  font-weight: 500;
                   text-transform: uppercase;
-                  letter-spacing: 0.5px;
+                  letter-spacing: 0.3px;
                 }
-              }
-
-              &:hover .metric-icon {
-                background: linear-gradient(135deg, #7954AA 0%, #5a3d82 100%);
-                color: white;
-                transform: scale(1.1);
               }
             }
 
             .metric-divider {
               width: 1px;
               height: 32px;
-              background: linear-gradient(to bottom, transparent 0%, #e5e7eb 50%, transparent 100%);
+              background: #e5e7eb;
             }
           }
 
@@ -546,12 +489,10 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-top: 16px;
-            margin-top: 16px;
-            border-top: 1px solid #f0f0f0;
+            padding: 0 4px;
 
             .team-label {
-              font-size: 12px;
+              font-size: 13px;
               font-weight: 600;
               color: #6b7280;
               text-transform: uppercase;
@@ -561,59 +502,39 @@
             .avatar-group {
               display: flex;
               align-items: center;
+              gap: 8px;
 
               .avatar-item {
                 border: 2px solid white;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                transition: all 0.2s ease;
-                cursor: pointer;
-
-                &:hover {
-                  transform: translateY(-2px) scale(1.1);
-                  z-index: 10;
-                  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-                }
-
-                &:not(:first-child) {
-                  margin-left: -8px;
-                }
               }
 
               .more-count {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 32px;
-                height: 32px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #7954AA 0%, #5a3d82 100%);
-                color: white;
-                font-size: 11px;
-                font-weight: 700;
-                border: 2px solid white;
-                margin-left: -8px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                font-size: 12px;
+                font-weight: 600;
+                color: #6b7280;
+                padding: 4px 8px;
+                background: #f3f4f6;
+                border-radius: 12px;
               }
             }
           }
         }
 
         .board-card-footer {
-          padding: 16px 24px;
-          background: #fafbfc;
-          border-top: 1px solid #f0f0f0;
+          padding-top: 16px;
+          border-top: 1px solid #f1f1f1;
           display: flex;
-          align-items: center;
           justify-content: space-between;
-          gap: 12px;
+          align-items: center;
 
           .board-timestamp {
             display: flex;
             align-items: center;
             gap: 6px;
-            color: #6b7280;
-            font-size: 13px;
-            
+            font-size: 12px;
+            color: #9ca3af;
+
             span[nz-icon] {
               font-size: 14px;
             }
@@ -621,47 +542,42 @@
 
           .board-actions {
             display: flex;
-            align-items: center;
             gap: 4px;
 
             .action-btn {
-              width: 40px;
-              height: 40px;
+              width: 32px;
+              height: 32px;
               padding: 0;
               display: flex;
               align-items: center;
               justify-content: center;
-              border-radius: 8px;
-              color: #6b7280;
+              border-radius: 6px;
               transition: all 0.2s ease;
-              background: transparent;
-              border: 1px solid transparent;
-
-              span[nz-icon] {
-                font-size: 18px;
-              }
+              color: #9ca3af;
 
               &:hover {
-                background: #ffffff;
-                border-color: #e5e7eb;
-                color: #7954AA;
-                transform: scale(1.05);
+                background: #f3f4f6;
+                color: #6b7280;
               }
 
               &.delete-btn:hover {
-                background: #fee2e2;
-                border-color: #fecaca;
-                color: #dc2626;
+                background: #fef2f2;
+                color: #ef4444;
+              }
+
+              span[nz-icon] {
+                font-size: 16px;
               }
             }
           }
         }
       }
     }
+  }
 
-    // Modern Empty State - Compact Design (Viewport-fitted)
+  // Modern Empty State - Compact Design (Viewport-fitted)
     .modern-empty-state {
-      background: linear-gradient(135deg, #7954AA 100%, #5a3d82 100%);
+      background: linear-gradient(135deg, #7954AA 0%, #5a3d82 100%);
       border-radius: 20px;
       padding: 48px 40px 40px;
       text-align: center;
@@ -1184,7 +1100,6 @@
         box-shadow: 0 0 0 1px #7954AA !important;
       }
     }
-  }
 
   // Animations
   @keyframes float {
