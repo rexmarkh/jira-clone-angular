@@ -4,7 +4,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
 import { AuthService } from '../project/auth/auth.service';
 import { AuthQuery } from '../project/auth/auth.query';
-
+import { Client, Account, OAuthProvider } from "appwrite";
+import { environment } from '../../environments/environment';
 @UntilDestroy()
 @Component({
   selector: 'app-login',
@@ -32,6 +33,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    
     // Check if user is already authenticated
     this.authQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
       if (user && user.id) {
@@ -80,23 +82,37 @@ export class LoginComponent implements OnInit {
     this.error = null;
 
     try {
-      // For demo purposes, use a Google OAuth email
-      const googleEmail = 'user@gmail.com';
+      // // For demo purposes, use a Google OAuth email
+      // const googleEmail = 'user@gmail.com';
       
-      // Call the auth service with Google email
-      this.authService.login({ email: googleEmail, password: 'oauth' });
+      // // Call the auth service with Google email
+      // this.authService.login({ email: googleEmail, password: 'oauth' });
       
-      // Wait for authentication to complete
-      await new Promise(resolve => {
-        this.authQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
-          if (user && user.id) {
-            resolve(user);
-          }
-        });
-      });
+      // // Wait for authentication to complete
+      // await new Promise(resolve => {
+      //   this.authQuery.user$.pipe(untilDestroyed(this)).subscribe(user => {
+      //     if (user && user.id) {
+      //       resolve(user);
+      //     }
+      //   });
+      // });
       
-      // On successful login, redirect to board
-      this.router.navigate(['/project/board']);
+      // // On successful login, redirect to board
+      // this.router.navigate(['/project/board']);
+
+      const client = new Client()
+            .setEndpoint(environment.appwriteEndpoint)
+            .setProject(environment.appwriteProjectId);                // Your project ID
+
+    const account = new Account(client);
+
+    // Go to OAuth provider login page
+    account.createOAuth2Session({
+        provider: OAuthProvider.Google,
+        success: 'http://localhost:4200/project/retrospective', // redirect here on success
+        failure: 'http://localhost:4200/login', // redirect here on failure
+        //scopes: ['repo', 'user'] // scopes (optional)
+    });
       
     } catch (error: any) {
       this.error = error.message || 'Google Sign-In failed. Please try again.';
