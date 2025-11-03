@@ -577,13 +577,14 @@
 
   // Modern Empty State - Compact Design (Viewport-fitted)
     .modern-empty-state {
-      background: linear-gradient(135deg, #7954AA 0%, #5a3d82 100%);
+      background: linear-gradient(135deg, #f8f7fc 0%, #ffffff 100%);
       border-radius: 20px;
       padding: 48px 40px 40px;
       text-align: center;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 12px 40px rgba(121, 84, 170, 0.25);
+      box-shadow: 0 12px 40px rgba(121, 84, 170, 0.08);
+      border: 1px solid rgba(121, 84, 170, 0.08);
       
       // Calculate height to fit viewport: 100vh - hero header (80px) - container padding (32px top + 32px bottom) - margins
       min-height: calc(100vh - 80px - 64px - 32px);
@@ -600,7 +601,7 @@
         left: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(121, 84, 170, 0.03) 0%, transparent 70%);
         animation: rotate 20s linear infinite;
       }
 
@@ -611,20 +612,20 @@
         inset: 0;
         background-image: 
           // Top left circle
-          radial-gradient(circle 120px at 10% 15%, rgba(255, 255, 255, 0.12) 0%, transparent 70%),
+          radial-gradient(circle 120px at 10% 15%, rgba(121, 84, 170, 0.05) 0%, transparent 70%),
           // Top right diamond
-          radial-gradient(ellipse 150px 90px at 88% 12%, rgba(255, 255, 255, 0.10) 0%, transparent 70%),
+          radial-gradient(ellipse 150px 90px at 88% 12%, rgba(121, 84, 170, 0.04) 0%, transparent 70%),
           // Middle left blob
-          radial-gradient(ellipse 100px 130px at 8% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 70%),
+          radial-gradient(ellipse 100px 130px at 8% 50%, rgba(121, 84, 170, 0.03) 0%, transparent 70%),
           // Bottom right circle
-          radial-gradient(circle 130px at 92% 85%, rgba(255, 255, 255, 0.12) 0%, transparent 70%),
+          radial-gradient(circle 130px at 92% 85%, rgba(121, 84, 170, 0.05) 0%, transparent 70%),
           // Bottom left rounded
-          radial-gradient(ellipse 150px 100px at 15% 88%, rgba(255, 255, 255, 0.10) 0%, transparent 70%),
+          radial-gradient(ellipse 150px 100px at 15% 88%, rgba(121, 84, 170, 0.04) 0%, transparent 70%),
           // Center right accent
-          radial-gradient(circle 90px at 85% 55%, rgba(255, 255, 255, 0.08) 0%, transparent 70%),
+          radial-gradient(circle 90px at 85% 55%, rgba(121, 84, 170, 0.03) 0%, transparent 70%),
           // Additional decorative elements
-          radial-gradient(circle 80px at 50% 20%, rgba(255, 255, 255, 0.06) 0%, transparent 70%),
-          radial-gradient(ellipse 70px 100px at 95% 40%, rgba(255, 255, 255, 0.07) 0%, transparent 70%);
+          radial-gradient(circle 80px at 50% 20%, rgba(121, 84, 170, 0.02) 0%, transparent 70%),
+          radial-gradient(ellipse 70px 100px at 95% 40%, rgba(121, 84, 170, 0.03) 0%, transparent 70%);
         pointer-events: none;
         z-index: 0;
       }
@@ -648,7 +649,7 @@
 
         .shape {
           position: absolute;
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(121, 84, 170, 0.06);
           border-radius: 50%;
           animation: floatShape 20s ease-in-out infinite;
 
@@ -738,12 +739,13 @@
               position: absolute;
               width: 48px;
               height: 48px;
-              background: white;
+              background: linear-gradient(135deg, #ffffff 0%, #f8f7fc 100%);
+              border: 1px solid rgba(121, 84, 170, 0.12);
               border-radius: 10px;
               display: flex;
               align-items: center;
               justify-content: center;
-              box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+              box-shadow: 0 4px 16px rgba(121, 84, 170, 0.12);
               animation: float 3s ease-in-out infinite;
 
               span[nz-icon] {
@@ -799,27 +801,27 @@
             transform: translate(-50%, -50%);
             width: 64px;
             height: 64px;
-            background: white;
+            background: linear-gradient(135deg, #7954AA 0%, #9370db 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+            box-shadow: 0 6px 20px rgba(121, 84, 170, 0.25);
             animation: pulse 2s ease-in-out infinite;
 
             span[nz-icon] {
               font-size: 32px;
-              color: #7954AA;
+              color: white;
             }
 
             @keyframes pulse {
               0%, 100% {
                 transform: translate(-50%, -50%) scale(1);
-                box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+                box-shadow: 0 8px 24px rgba(121, 84, 170, 0.25);
               }
               50% {
                 transform: translate(-50%, -50%) scale(1.1);
-                box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+                box-shadow: 0 12px 32px rgba(121, 84, 170, 0.35);
               }
             }
           }
@@ -828,17 +830,15 @@
         .empty-state-title {
           font-size: 28px;
           font-weight: 700;
-          color: white;
+          color: #2d2d2d;
           margin: 0 0 12px 0;
-          text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
 
         .empty-state-description {
           font-size: 15px;
-          color: rgba(255, 255, 255, 0.95);
+          color: #666666;
           line-height: 1.6;
           margin: 0 0 28px 0;
-          text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
         }
 
         .empty-state-button {
@@ -847,10 +847,10 @@
           font-size: 15px !important;
           font-weight: 600 !important;
           border-radius: 10px !important;
-          background: white !important;
-          color: #7954AA !important;
+          background: #7954AA !important;
+          color: white !important;
           border: none !important;
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
+          box-shadow: 0 4px 16px rgba(121, 84, 170, 0.3) !important;
           transition: all 0.3s ease !important;
           display: inline-flex !important;
           align-items: center !important;
@@ -862,10 +862,9 @@
           }
 
           &:hover {
-            background: #f8f9ff !important;
+            background: #6a4899 !important;
             transform: translateY(-2px) !important;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
-            color: #6a4899 !important;
+            box-shadow: 0 6px 20px rgba(121, 84, 170, 0.4) !important;
           }
 
           &:active {
@@ -883,10 +882,9 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            color: white;
+            color: #7954AA;
             font-size: 13px;
             font-weight: 500;
-            opacity: 0.9;
 
             span[nz-icon] {
               font-size: 16px;
