@@ -4,4 +4,5 @@ export interface EnvironmentModel {
   appwriteEndpoint: string;
   appwriteProjectId: string;
   appwriteProjectName: string;
+  appDomainUrl: string;
 }

@@ -5,5 +5,6 @@ export const environment: EnvironmentModel = {
   apiUrl: '/assets/data',
   appwriteEndpoint: 'https://sgp.cloud.appwrite.io/v1',
   appwriteProjectId: '690448d70027156efd26',
-  appwriteProjectName: 'retrofy'
+  appwriteProjectName: 'retrofy',
+  appDomainUrl: 'https://retrofy.in'
 };

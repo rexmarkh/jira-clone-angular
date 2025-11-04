@@ -109,8 +109,8 @@ export class LoginComponent implements OnInit {
     // Go to OAuth provider login page
     account.createOAuth2Session({
         provider: OAuthProvider.Google,
-        success: 'https://retrofy.in/project/retrospective', // redirect here on success
-        failure: 'https://retrofy.in/login', // redirect here on failure
+        success: `${environment.appDomainUrl}/#/organization`, // redirect here on success
+        failure: `${environment.appDomainUrl}/#/login`, // redirect here on failure
         //scopes: ['repo', 'user'] // scopes (optional)
     });
       
